@@ -73,7 +73,9 @@ export default function AdminUploadPage() {
     // Limit to 10 files at once
     const filesToAdd = audioFiles.slice(0, 10);
     if (audioFiles.length > 10) {
-      toast.warning('Only first 10 files will be added');
+      toast('Only first 10 files will be added', {
+        icon: '⚠️',
+      });
     }
 
     // Create sample slots for each file
