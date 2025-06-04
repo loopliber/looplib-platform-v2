@@ -73,7 +73,7 @@ export default function SampleBrowser() {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
     if (user) {
-      setUserEmail(user.email);
+      setUserEmail(user.email || null);
     }
   };
 
