@@ -74,9 +74,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-md w-full border border-gray-800 overflow-hidden">
+      <div className="bg-neutral-900 rounded-2xl max-w-md w-full border border-neutral-800 overflow-hidden">
         {/* Header */}
-        <div className="relative h-32 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+        <div className="relative h-32 bg-gradient-to-br from-orange-600 via-orange-600 to-pink-600">
           <div className="absolute inset-0 bg-black/20" />
           <button
             onClick={onClose}
@@ -95,7 +95,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           <h2 className="text-2xl font-bold mb-2">
             {mode === 'login' ? 'Welcome Back' : 'Create Account'}
           </h2>
-          <p className="text-gray-400 mb-6">
+          <p className="text-neutral-400 mb-6">
             {mode === 'login' 
               ? 'Login to access your favorite samples' 
               : 'Join thousands of producers on LoopLib'}
@@ -112,10 +112,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-700"></div>
+              <div className="w-full border-t border-neutral-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-gray-900 text-gray-400">Or</span>
+              <span className="px-4 bg-neutral-900 text-neutral-400">Or</span>
             </div>
           </div>
 
@@ -131,9 +131,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 transition-colors pr-10"
+                    className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors pr-10"
                   />
-                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 </div>
               </div>
 
@@ -146,7 +146,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   placeholder="••••••••"
                   required
                   minLength={6}
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium rounded-lg transition-all disabled:opacity-50 flex items-center justify-center"
+              className="w-full mt-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-lg transition-all disabled:opacity-50 flex items-center justify-center"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -165,11 +165,11 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           </form>
 
           {/* Toggle Mode */}
-          <p className="text-center text-sm text-gray-400 mt-4">
+          <p className="text-center text-sm text-neutral-400 mt-4">
             {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
             <button
               onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-              className="text-blue-400 hover:text-blue-300 transition-colors"
+              className="text-orange-400 hover:text-blue-300 transition-colors"
             >
               {mode === 'login' ? 'Sign up' : 'Login'}
             </button>

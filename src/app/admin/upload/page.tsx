@@ -273,22 +273,22 @@ export default function AdminUploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Admin Upload</h1>
-          <p className="text-gray-400">Upload and configure multiple samples at once</p>
+          <p className="text-neutral-400">Upload and configure multiple samples at once</p>
         </div>
 
         {/* Artist Name */}
-        <div className="mb-6 bg-gray-900 rounded-lg p-4">
+        <div className="mb-6 bg-neutral-900 rounded-lg p-4">
           <label className="block text-sm font-medium mb-2">Artist Name</label>
           <input
             type="text"
             value={artistName}
             onChange={(e) => setArtistName(e.target.value)}
-            className="w-full max-w-xs px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-blue-500"
+            className="w-full max-w-xs px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500"
           />
         </div>
 
@@ -300,18 +300,18 @@ export default function AdminUploadPage() {
           onDrop={handleDrop}
           className={`mb-8 border-2 border-dashed rounded-xl p-12 text-center transition-all ${
             isDragging 
-              ? 'border-blue-500 bg-blue-500/10' 
-              : 'border-gray-700 bg-gray-900/50 hover:border-gray-600'
+              ? 'border-orange-500 bg-orange-500/10' 
+              : 'border-neutral-700 bg-neutral-900/50 hover:border-neutral-600'
           }`}
         >
-          <FileAudio className="w-16 h-16 mx-auto mb-4 text-gray-500" />
+          <FileAudio className="w-16 h-16 mx-auto mb-4 text-neutral-500" />
           <h3 className="text-xl font-medium mb-2">
             {isDragging ? 'Drop files here' : 'Drag & Drop Audio Files'}
           </h3>
-          <p className="text-gray-400 mb-4">
+          <p className="text-neutral-400 mb-4">
             Drop up to 10 samples at once (.mp3, .wav, .m4a)
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-neutral-500">
             Files will be automatically parsed for BPM and key
           </p>
         </div>
@@ -321,21 +321,21 @@ export default function AdminUploadPage() {
           // Compact view for many samples
           <div className="space-y-2 mb-6 max-h-96 overflow-y-auto">
             {samples.map((sample, index) => (
-              <div key={sample.id} className="bg-gray-900 rounded-lg p-4 border border-gray-800 flex items-center justify-between">
+              <div key={sample.id} className="bg-neutral-900 rounded-lg p-4 border border-neutral-800 flex items-center justify-between">
                 <div className="flex items-center space-x-4 flex-1">
-                  <span className="text-sm text-gray-500 w-8">#{index + 1}</span>
+                  <span className="text-sm text-neutral-500 w-8">#{index + 1}</span>
                   <span className="font-medium flex-1">{sample.name || 'Unnamed'}</span>
-                  <span className="text-sm text-gray-400">{sample.bpm} BPM</span>
-                  <span className="text-sm text-gray-400">{sample.key}</span>
-                  <span className="text-sm text-gray-400">{sample.genre}</span>
+                  <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
+                  <span className="text-sm text-neutral-400">{sample.key}</span>
+                  <span className="text-sm text-neutral-400">{sample.genre}</span>
                   {sample.uploaded && <span className="text-green-500 text-sm">✓</span>}
-                  {sample.uploading && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+                  {sample.uploading && <Loader2 className="w-4 h-4 animate-spin text-orange-400" />}
                 </div>
                 <button
                   onClick={() => removeSample(sample.id)}
-                  className="p-1 hover:bg-gray-800 rounded transition-colors ml-4"
+                  className="p-1 hover:bg-neutral-800 rounded transition-colors ml-4"
                 >
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-neutral-400" />
                 </button>
               </div>
             ))}
@@ -344,14 +344,14 @@ export default function AdminUploadPage() {
           // Detailed view for few samples
           <div className="space-y-4 mb-6">
             {samples.map((sample, index) => (
-            <div key={sample.id} className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+            <div key={sample.id} className="bg-neutral-900 rounded-lg p-6 border border-neutral-800">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Sample #{index + 1}</h3>
                 <button
                   onClick={() => removeSample(sample.id)}
-                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                  className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-400" />
+                  <X className="w-5 h-5 text-neutral-400" />
                 </button>
               </div>
 
@@ -368,7 +368,7 @@ export default function AdminUploadPage() {
                   />
                   <label
                     htmlFor={`file-${sample.id}`}
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-md cursor-pointer transition-colors flex items-center space-x-2"
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer transition-colors flex items-center space-x-2"
                   >
                     <Upload className="w-4 h-4" />
                     <span>{sample.file ? sample.file.name : 'Choose File'}</span>
@@ -388,7 +388,7 @@ export default function AdminUploadPage() {
                     type="text"
                     value={sample.name}
                     onChange={(e) => updateSample(sample.id, 'name', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500"
                     placeholder="Sample name"
                   />
                 </div>
@@ -400,7 +400,7 @@ export default function AdminUploadPage() {
                     type="number"
                     value={sample.bpm}
                     onChange={(e) => updateSample(sample.id, 'bpm', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500"
                     placeholder="140"
                     min="60"
                     max="200"
@@ -413,7 +413,7 @@ export default function AdminUploadPage() {
                   <select
                     value={sample.key}
                     onChange={(e) => updateSample(sample.id, 'key', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500"
                   >
                     {KEY_OPTIONS.map(note => 
                       KEY_TYPES.map(type => (
@@ -431,7 +431,7 @@ export default function AdminUploadPage() {
                   <select
                     value={sample.genre}
                     onChange={(e) => updateSample(sample.id, 'genre', e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500"
                   >
                     {GENRE_OPTIONS.map(genre => (
                       <option key={genre} value={genre}>
@@ -452,22 +452,22 @@ export default function AdminUploadPage() {
                       onClick={() => toggleTag(sample.id, tag)}
                       className={`px-3 py-1 text-sm rounded-full transition-colors ${
                         sample.tags.includes(tag)
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                          ? 'bg-orange-500 text-white'
+                          : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
                       }`}
                     >
                       {tag}
                     </button>
                   ))}
                 </div>
-                <div className="mt-2 text-sm text-gray-500">
+                <div className="mt-2 text-sm text-neutral-500">
                   Selected: {sample.tags.join(', ') || 'None'}
                 </div>
               </div>
 
               {/* Upload Progress */}
               {sample.uploading && (
-                <div className="mt-4 flex items-center space-x-2 text-blue-400">
+                <div className="mt-4 flex items-center space-x-2 text-orange-400">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Uploading...</span>
                 </div>
@@ -512,7 +512,7 @@ export default function AdminUploadPage() {
             />
             <label
               htmlFor="multi-file-input"
-              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-md transition-colors flex items-center space-x-2 cursor-pointer"
+              className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-md transition-colors flex items-center space-x-2 cursor-pointer"
             >
               <Plus className="w-5 h-5" />
               <span>Add Samples</span>
@@ -522,7 +522,7 @@ export default function AdminUploadPage() {
           <button
             onClick={uploadAllSamples}
             disabled={uploading || samples.length === 0}
-            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-md transition-colors flex items-center space-x-2"
+            className="px-6 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-neutral-700 disabled:cursor-not-allowed rounded-md transition-colors flex items-center space-x-2"
           >
             {uploading ? (
               <>
@@ -537,15 +537,15 @@ export default function AdminUploadPage() {
             )}
           </button>
 
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-neutral-400">
             {samples.filter(s => s.file).length} files selected
           </span>
         </div>
 
         {/* Instructions */}
-        <div className="mt-8 bg-gray-900/50 rounded-lg p-6 border border-gray-800">
+        <div className="mt-8 bg-neutral-900/50 rounded-lg p-6 border border-neutral-800">
           <h3 className="text-lg font-medium mb-2">Quick Tips</h3>
-          <ul className="space-y-1 text-sm text-gray-400">
+          <ul className="space-y-1 text-sm text-neutral-400">
             <li>• Files are automatically parsed for BPM and key from filename</li>
             <li>• You can manually adjust all values before uploading</li>
             <li>• Click tags to add/remove them from samples</li>

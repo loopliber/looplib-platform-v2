@@ -333,13 +333,13 @@ export default function SampleBrowser() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
+              <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
                 <Music className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-xl font-semibold">LoopLib</h1>
@@ -348,13 +348,13 @@ export default function SampleBrowser() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <div className="flex items-center space-x-2 text-gray-400">
+                  <div className="flex items-center space-x-2 text-neutral-400">
                     <User className="w-4 h-4" />
                     <span className="text-sm">{user.email}</span>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="text-gray-400 hover:text-white transition-colors flex items-center space-x-1"
+                    className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Logout</span>
@@ -363,13 +363,13 @@ export default function SampleBrowser() {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-md transition-colors font-medium"
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors font-medium"
                 >
                   Login / Sign Up
                 </button>
               )}
               {user && isAdmin && (
-                <a href="/admin/upload" className="text-gray-400 hover:text-white transition-colors">
+                <a href="/admin/upload" className="text-neutral-400 hover:text-white transition-colors">
                   Admin
                 </a>
               )}
@@ -380,7 +380,7 @@ export default function SampleBrowser() {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-gray-800 bg-gray-900/30 min-h-screen p-6">
+        <aside className="w-64 border-r border-neutral-800 bg-neutral-900/30 min-h-screen p-6">
           <h2 className="text-lg font-semibold mb-6 flex items-center space-x-2">
             <Filter className="w-5 h-5" />
             <span>Filters</span>
@@ -388,7 +388,7 @@ export default function SampleBrowser() {
           
           {/* Genres */}
           <div className="mb-8">
-            <h3 className="text-xs font-semibold uppercase text-gray-400 mb-3">Genres</h3>
+            <h3 className="text-xs font-semibold uppercase text-neutral-400 mb-3">Genres</h3>
             <div className="space-y-1">
               {genres.map((genre) => (
                 <button
@@ -396,8 +396,8 @@ export default function SampleBrowser() {
                   onClick={() => setSelectedGenre(genre.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
                     selectedGenre === genre.id
-                      ? 'bg-gray-800 text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      ? 'bg-neutral-800 text-white'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
                   }`}
                 >
                   <span className="font-medium">{genre.name}</span>
@@ -413,7 +413,7 @@ export default function SampleBrowser() {
 
           {/* Tags */}
           <div>
-            <h3 className="text-xs font-semibold uppercase text-gray-400 mb-3">Tags</h3>
+            <h3 className="text-xs font-semibold uppercase text-neutral-400 mb-3">Tags</h3>
             <div className="flex flex-wrap gap-2">
               {allTags.slice(0, 8).map((tag) => (
                 <button
@@ -425,8 +425,8 @@ export default function SampleBrowser() {
                   )}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${
                     selectedTags.includes(tag)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:text-white'
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-neutral-800 text-neutral-400 hover:text-white'
                   }`}
                 >
                   {tag}
@@ -440,18 +440,18 @@ export default function SampleBrowser() {
         <main className="flex-1">
           {/* Add Producer Dashboard if user has email */}
           {userEmail && (
-            <div className="p-6 border-b border-gray-800">
+            <div className="p-6 border-b border-neutral-800">
               <div className="max-w-6xl mx-auto">
-                <div className="bg-gray-900/50 rounded-lg p-4 flex items-center justify-between">
+                <div className="bg-neutral-900/50 rounded-lg p-4 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium mb-1">Welcome back!</h3>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-neutral-400">
                       {producerStats.downloads} samples in your library
                     </p>
                   </div>
                   <a 
                     href="/library"
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors flex items-center space-x-2"
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors flex items-center space-x-2"
                   >
                     <Music className="w-4 h-4" />
                     <span>My Library</span>
@@ -462,25 +462,25 @@ export default function SampleBrowser() {
           )}
 
           {/* Search & Sort */}
-          <div className="border-b border-gray-800 bg-gray-900/30 p-6">
+          <div className="border-b border-neutral-800 bg-neutral-900/30 p-6">
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-500 w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Search samples, artists, or tags..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full pl-12 pr-4 py-3 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500 transition-colors"
                   />
                 </div>
                 
-                <div className="flex items-center space-x-2 bg-gray-800 border border-gray-700 rounded-md">
+                <div className="flex items-center space-x-2 bg-neutral-800 border border-neutral-700 rounded-md">
                   <button 
                     onClick={() => setSortBy('popular')}
                     className={`px-3 py-2 transition-colors ${
-                      sortBy === 'popular' ? 'text-blue-400' : 'text-gray-400 hover:text-white'
+                      sortBy === 'popular' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     <TrendingUp className="w-5 h-5" />
@@ -488,7 +488,7 @@ export default function SampleBrowser() {
                   <button 
                     onClick={() => setSortBy('newest')}
                     className={`px-3 py-2 transition-colors ${
-                      sortBy === 'newest' ? 'text-blue-400' : 'text-gray-400 hover:text-white'
+                      sortBy === 'newest' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     <Clock className="w-5 h-5" />
@@ -496,7 +496,7 @@ export default function SampleBrowser() {
                   <button 
                     onClick={() => setSortBy('bpm')}
                     className={`px-3 py-2 transition-colors ${
-                      sortBy === 'bpm' ? 'text-blue-400' : 'text-gray-400 hover:text-white'
+                      sortBy === 'bpm' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`}
                   >
                     <Hash className="w-5 h-5" />
@@ -505,7 +505,7 @@ export default function SampleBrowser() {
               </div>
 
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-neutral-400">
                   {sortedSamples.length} {sortedSamples.length === 1 ? 'sample' : 'samples'}
                 </p>
               </div>
@@ -517,24 +517,24 @@ export default function SampleBrowser() {
             <div className="max-w-6xl mx-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-20">
-                  <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
                 </div>
               ) : sortedSamples.length === 0 ? (
                 <div className="text-center py-20">
-                  <p className="text-gray-400">No samples found</p>
+                  <p className="text-neutral-400">No samples found</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {sortedSamples.map((sample) => (
                     <div
                       key={sample.id}
-                      className="group bg-gray-900/30 border border-gray-800 rounded-lg p-4 hover:bg-gray-900/50 hover:border-gray-700 transition-all"
+                      className="group bg-neutral-900/30 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/50 hover:border-neutral-700 transition-all"
                     >
                       <div className="flex items-center space-x-4">
                         {/* Play Button */}
                         <button
                           onClick={() => togglePlay(sample.id, sample.file_url)}
-                          className="w-12 h-12 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors group"
+                          className="w-12 h-12 bg-neutral-800 hover:bg-neutral-700 rounded-full flex items-center justify-center transition-colors group"
                         >
                           {playingId === sample.id ? (
                             <Pause className="w-5 h-5" />
@@ -555,12 +555,12 @@ export default function SampleBrowser() {
                                   </span>
                                 )}
                               </h3>
-                              <p className="text-sm text-gray-400">{sample.artist?.name || 'Unknown Artist'}</p>
+                              <p className="text-sm text-neutral-400">{sample.artist?.name || 'Unknown Artist'}</p>
                             </div>
                             
                             <div className="flex items-center space-x-2">
                               {sample.tags.slice(0, 2).map(tag => (
-                                <span key={tag} className="px-2 py-1 bg-gray-800 text-xs rounded text-gray-400">
+                                <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
                                   {tag}
                                 </span>
                               ))}
@@ -569,7 +569,7 @@ export default function SampleBrowser() {
 
                           {/* Metadata */}
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4 text-sm text-gray-400">
+                            <div className="flex items-center space-x-4 text-sm text-neutral-400">
                               <span>{sample.bpm} BPM</span>
                               <span>{sample.key}</span>
                               <span>{sample.duration}</span>
@@ -590,7 +590,7 @@ export default function SampleBrowser() {
                                 className={`p-2 rounded-md transition-colors ${
                                   likedSamples.has(sample.id)
                                     ? 'bg-red-500/20 text-red-500' 
-                                    : 'bg-gray-800 text-gray-400 hover:text-white'
+                                    : 'bg-neutral-800 text-neutral-400 hover:text-white'
                                 }`}
                               >
                                 <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
@@ -599,7 +599,7 @@ export default function SampleBrowser() {
                               <button
                                 onClick={() => handleFreeDownload(sample)}
                                 disabled={downloadingId === sample.id}
-                                className="px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-md transition-colors flex items-center space-x-2 disabled:opacity-50"
+                                className="px-4 py-2 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center space-x-2 disabled:opacity-50"
                               >
                                 {downloadingId === sample.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -614,7 +614,7 @@ export default function SampleBrowser() {
                                   setSelectedSample(sample);
                                   setShowLicenseModal(true);
                                 }}
-                                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-md transition-colors flex items-center space-x-2"
+                                className="px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors flex items-center space-x-2"
                               >
                                 <ShoppingCart className="w-4 h-4" />
                                 <span>License</span>
@@ -635,18 +635,18 @@ export default function SampleBrowser() {
       {/* License Modal */}
       {showLicenseModal && selectedSample && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-900 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
-            <div className="p-6 border-b border-gray-800">
+          <div className="bg-neutral-900 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-neutral-800">
+            <div className="p-6 border-b border-neutral-800">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Choose Your License</h2>
-                  <p className="text-gray-400 mt-1">
+                  <p className="text-neutral-400 mt-1">
                     {selectedSample.name} by {selectedSample.artist?.name || 'Unknown Artist'}
                   </p>
                 </div>
                 <button
                   onClick={() => setShowLicenseModal(false)}
-                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                  className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -655,8 +655,8 @@ export default function SampleBrowser() {
 
             <div className="p-8">
               {/* Info Box */}
-              <div className="mb-8 p-6 bg-blue-500/10 border border-blue-500/30 rounded-xl">
-                <h3 className="text-lg font-semibold text-blue-400 mb-2">How It Works</h3>
+              <div className="mb-8 p-6 bg-orange-500/10 border border-orange-500/30 rounded-xl">
+                <h3 className="text-lg font-semibold text-orange-400 mb-2">How It Works</h3>
                 <p className="text-gray-300">
                   Download any sample for free to try in your projects. When you're ready to release your track, 
                   purchase a license that fits your needs. All licenses are lifetime and include instant delivery.
@@ -670,13 +670,13 @@ export default function SampleBrowser() {
                     key={license.id}
                     className={`relative p-6 rounded-xl border-2 transition-all ${
                       license.is_popular
-                        ? 'border-blue-500 bg-blue-500/5'
-                        : 'border-gray-700 bg-gray-800/30'
+                        ? 'border-orange-500 bg-orange-500/5'
+                        : 'border-neutral-700 bg-neutral-800/30'
                     }`}
                   >
                     {license.is_popular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="px-3 py-1 bg-blue-500 text-xs font-bold rounded-full uppercase">
+                        <span className="px-3 py-1 bg-orange-500 text-xs font-bold rounded-full uppercase">
                           Most Popular
                         </span>
                       </div>
@@ -686,7 +686,7 @@ export default function SampleBrowser() {
                       <h4 className="text-xl font-bold mb-2">{license.name}</h4>
                       <div className="flex items-baseline justify-center">
                         <span className="text-3xl font-bold">${license.price}</span>
-                        <span className="text-gray-400 ml-1">USD</span>
+                        <span className="text-neutral-400 ml-1">USD</span>
                       </div>
                     </div>
                     
@@ -704,8 +704,8 @@ export default function SampleBrowser() {
                       disabled={purchasingLicense === license.id}
                       className={`w-full py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 ${
                         license.is_popular
-                          ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                          : 'bg-gray-700 hover:bg-gray-600 text-white'
+                          ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                          : 'bg-neutral-700 hover:bg-neutral-600 text-white'
                       }`}
                     >
                       {purchasingLicense === license.id ? (
@@ -718,7 +718,7 @@ export default function SampleBrowser() {
                 ))}
               </div>
 
-              <p className="text-center text-sm text-gray-500 mt-8">
+              <p className="text-center text-sm text-neutral-500 mt-8">
                 Secure checkout powered by Stripe. Instant delivery to your email.
               </p>
             </div>

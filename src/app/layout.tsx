@@ -1,5 +1,3 @@
-// app/layout.tsx
-
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -25,9 +23,9 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#1f2937',
+              background: '#171717',
               color: '#fff',
-              border: '1px solid #374151',
+              border: '1px solid #262626',
             },
           }}
         />

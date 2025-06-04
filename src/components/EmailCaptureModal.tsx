@@ -74,9 +74,9 @@ export default function EmailCaptureModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-md w-full border border-gray-800 overflow-hidden">
+      <div className="bg-neutral-900 rounded-2xl max-w-md w-full border border-neutral-800 overflow-hidden">
         {/* Gradient Header */}
-        <div className="relative h-32 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+        <div className="relative h-32 bg-gradient-to-br from-orange-600 via-orange-600 to-pink-600">
           <div className="absolute inset-0 bg-black/20" />
           <button
             onClick={onClose}
@@ -93,20 +93,20 @@ export default function EmailCaptureModal({
 
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-2">{content.title}</h2>
-          <p className="text-gray-400 mb-6">{content.subtitle}</p>
+          <p className="text-neutral-400 mb-6">{content.subtitle}</p>
 
           {/* Benefits */}
-          <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
+          <div className="bg-neutral-800/50 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
               <Sparkles className="w-5 h-5 text-yellow-500 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-gray-200">{content.benefit}</p>
                 <div className="mt-2 space-y-1">
-                  <div className="flex items-center space-x-2 text-xs text-gray-400">
+                  <div className="flex items-center space-x-2 text-xs text-neutral-400">
                     <Download className="w-3 h-3" />
                     <span>Instant download access</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-xs text-gray-400">
+                  <div className="flex items-center space-x-2 text-xs text-neutral-400">
                     <Mail className="w-3 h-3" />
                     <span>Weekly exclusive samples</span>
                   </div>
@@ -124,21 +124,21 @@ export default function EmailCaptureModal({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 transition-colors pr-12"
+                className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors pr-12"
               />
-              <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium rounded-lg transition-all disabled:opacity-50"
+              className="w-full mt-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-lg transition-all disabled:opacity-50"
             >
               {isLoading ? 'Unlocking...' : 'Unlock Free Downloads'}
             </button>
           </form>
 
-          <p className="text-xs text-gray-500 text-center mt-4">
+          <p className="text-xs text-neutral-500 text-center mt-4">
             No spam, unsubscribe anytime. By continuing, you agree to receive 
             marketing emails from LoopLib.
           </p>
