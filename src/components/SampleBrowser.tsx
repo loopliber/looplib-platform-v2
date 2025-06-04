@@ -8,12 +8,14 @@ import { Sample, License, Genre, SortBy } from '@/types';
 import { 
   Play, Pause, Download, Heart, Search, ChevronDown, 
   Music, ShoppingCart, X, Check, Loader2, Filter,
-  TrendingUp, Clock, Hash
+  TrendingUp, Clock, Hash, User, LogOut
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
 import EmailCaptureModal from './EmailCaptureModal';
 import ProducerDashboard from './ProducerDashboard';
+import AuthModal from './AuthModal';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -44,6 +46,9 @@ export default function SampleBrowser() {
     credits: 10,
     streak: 1
   });
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const { role, isAdmin } = useUserRole();
 
   const supabase = createClient();
 
@@ -61,7 +66,23 @@ export default function SampleBrowser() {
     fetchLicenses();
     loadUserLikes();
     loadUserData();
+    checkUser();
   }, []);
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+    if (user) {
+      setUserEmail(user.email);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setUserEmail(null);
+    toast.success('Logged out successfully');
+  };
 
   const loadUserData = () => {
     const email = localStorage.getItem('producer_email');
@@ -325,15 +346,33 @@ export default function SampleBrowser() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <a href="/admin/upload" className="text-gray-400 hover:text-white transition-colors">
-                Admin
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                About
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Contact
-              </a>
+              {user ? (
+                <>
+                  <div className="flex items-center space-x-2 text-gray-400">
+                    <User className="w-4 h-4" />
+                    <span className="text-sm">{user.email}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="text-gray-400 hover:text-white transition-colors flex items-center space-x-1"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-md transition-colors font-medium"
+                >
+                  Login / Sign Up
+                </button>
+              )}
+              {user && isAdmin && (
+                <a href="/admin/upload" className="text-gray-400 hover:text-white transition-colors">
+                  Admin
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -403,7 +442,21 @@ export default function SampleBrowser() {
           {userEmail && (
             <div className="p-6 border-b border-gray-800">
               <div className="max-w-6xl mx-auto">
-                <ProducerDashboard stats={producerStats} />
+                <div className="bg-gray-900/50 rounded-lg p-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium mb-1">Welcome back!</h3>
+                    <p className="text-sm text-gray-400">
+                      {producerStats.downloads} samples in your library
+                    </p>
+                  </div>
+                  <a 
+                    href="/library"
+                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors flex items-center space-x-2"
+                  >
+                    <Music className="w-4 h-4" />
+                    <span>My Library</span>
+                  </a>
+                </div>
               </div>
             </div>
           )}
@@ -683,6 +736,16 @@ export default function SampleBrowser() {
           loadUserData();
         }}
         triggerType={emailModalTrigger}
+      />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          checkUser();
+          loadUserData();
+        }}
       />
     </div>
   );
