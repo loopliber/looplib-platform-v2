@@ -3,6 +3,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Sample, License, Genre, SortBy } from '@/types';
 import { 
   Play, Pause, Download, Heart, Search, ChevronDown, 
@@ -11,7 +12,8 @@ import {
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
-import { createSupabaseClient } from '@/lib/supabase/client';
+import EmailCaptureModal from './EmailCaptureModal';
+import ProducerDashboard from './ProducerDashboard';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -30,8 +32,20 @@ export default function SampleBrowser() {
   const [audioElements, setAudioElements] = useState<{ [key: string]: HTMLAudioElement }>({});
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [purchasingLicense, setPurchasingLicense] = useState<string | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailModalTrigger, setEmailModalTrigger] = useState<'download_limit' | 'premium_sample' | 'feature_access'>('download_limit');
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [downloadCount, setDownloadCount] = useState(0);
+  const [producerStats, setProducerStats] = useState({
+    downloads: 0,
+    favorites: 0,
+    lastVisit: new Date().toISOString(),
+    preferredGenre: 'trap',
+    credits: 10,
+    streak: 1
+  });
 
-  const supabase = createSupabaseClient();
+  const supabase = createClient();
 
   const genres: { id: Genre; name: string }[] = [
     { id: 'all', name: 'All Genres' },
@@ -46,7 +60,23 @@ export default function SampleBrowser() {
     fetchSamples();
     fetchLicenses();
     loadUserLikes();
+    loadUserData();
   }, []);
+
+  const loadUserData = () => {
+    const email = localStorage.getItem('producer_email');
+    const downloads = parseInt(localStorage.getItem('download_count') || '0');
+    const favorites = likedSamples.size;
+    
+    setUserEmail(email);
+    setDownloadCount(downloads);
+    setProducerStats(prev => ({
+      ...prev,
+      downloads,
+      favorites,
+      credits: email ? 25 : 10 - downloads
+    }));
+  };
 
   const fetchSamples = async () => {
     try {
@@ -194,6 +224,13 @@ export default function SampleBrowser() {
 
   // Free download
   const handleFreeDownload = async (sample: Sample) => {
+    // Check if email is required (after 3 downloads)
+    if (!userEmail && downloadCount >= 3) {
+      setEmailModalTrigger('download_limit');
+      setShowEmailModal(true);
+      return;
+    }
+
     setDownloadingId(sample.id);
     
     try {
@@ -215,6 +252,18 @@ export default function SampleBrowser() {
       link.click();
 
       toast.success('Download started! Check your downloads folder.');
+      
+      // Update download count
+      const newCount = downloadCount + 1;
+      setDownloadCount(newCount);
+      localStorage.setItem('download_count', newCount.toString());
+      
+      // Update producer stats
+      setProducerStats(prev => ({
+        ...prev,
+        downloads: prev.downloads + 1,
+        credits: Math.max(0, prev.credits - 1)
+      }));
       
       // Refresh sample data to update download count
       fetchSamples();
@@ -276,12 +325,15 @@ export default function SampleBrowser() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <button className="text-gray-400 hover:text-white transition-colors">
+              <a href="/admin/upload" className="text-gray-400 hover:text-white transition-colors">
+                Admin
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 About
-              </button>
-              <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-md transition-colors font-medium">
-                Upload Sample
-              </button>
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Contact
+              </a>
             </div>
           </div>
         </div>
@@ -347,6 +399,15 @@ export default function SampleBrowser() {
 
         {/* Main Content */}
         <main className="flex-1">
+          {/* Add Producer Dashboard if user has email */}
+          {userEmail && (
+            <div className="p-6 border-b border-gray-800">
+              <div className="max-w-6xl mx-auto">
+                <ProducerDashboard stats={producerStats} />
+              </div>
+            </div>
+          )}
+
           {/* Search & Sort */}
           <div className="border-b border-gray-800 bg-gray-900/30 p-6">
             <div className="max-w-6xl mx-auto">
@@ -611,6 +672,18 @@ export default function SampleBrowser() {
           </div>
         </div>
       )}
+
+      {/* Email Capture Modal */}
+      <EmailCaptureModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        onSuccess={(email) => {
+          setUserEmail(email);
+          setProducerStats(prev => ({ ...prev, credits: 25 }));
+          loadUserData();
+        }}
+        triggerType={emailModalTrigger}
+      />
     </div>
   );
 }
