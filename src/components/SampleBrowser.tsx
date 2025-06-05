@@ -165,6 +165,8 @@ export default function SampleBrowser() {
   };
 
   const generateUserIdentifier = () => {
+    if (typeof window === 'undefined') return null;
+    
     const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('user_identifier', id);
     return id;
@@ -249,8 +251,10 @@ export default function SampleBrowser() {
     try {
       // Check if user is logged in
       if (!user) {
-        // Check download count for anonymous users
-        const currentDownloads = parseInt(localStorage.getItem('anonymous_downloads') || '0');
+        // Check download count for anonymous users - ADD CLIENT-SIDE CHECK
+        const currentDownloads = typeof window !== 'undefined' 
+          ? parseInt(localStorage.getItem('anonymous_downloads') || '0')
+          : 0;
         
         if (currentDownloads >= 1) {
           // Show auth modal instead of email modal
@@ -260,8 +264,10 @@ export default function SampleBrowser() {
           return;
         }
         
-        // Allow first download for anonymous users
-        localStorage.setItem('anonymous_downloads', (currentDownloads + 1).toString());
+        // Allow first download for anonymous users - ADD CLIENT-SIDE CHECK
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('anonymous_downloads', (currentDownloads + 1).toString());
+        }
       }
 
       // Create filename using database metadata: name_bpm_key_@looplib.ext
@@ -295,10 +301,22 @@ export default function SampleBrowser() {
 
       toast.success('Download complete! Check your downloads folder.');
       
-      // Update download count
+      // Update download count - ADD CLIENT-SIDE CHECK
       const newCount = downloadCount + 1;
       setDownloadCount(newCount);
-      localStorage.setItem('download_count', newCount.toString());
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('download_count', newCount.toString());
+      }
+      
+      // Show success message for first download if anonymous - ADD CLIENT-SIDE CHECK
+      if (!user && typeof window !== 'undefined') {
+        const anonymousDownloads = parseInt(localStorage.getItem('anonymous_downloads') || '0');
+        if (anonymousDownloads === 1) {
+          toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
+            duration: 5000
+          });
+        }
+      }
       
       // Update producer stats
       setProducerStats(prev => ({
@@ -306,13 +324,6 @@ export default function SampleBrowser() {
         downloads: prev.downloads + 1,
         credits: Math.max(0, prev.credits - 1)
       }));
-      
-      // Show success message for first download if anonymous
-      if (!user && parseInt(localStorage.getItem('anonymous_downloads') || '0') === 1) {
-        toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
-          duration: 5000
-        });
-      }
       
       // Refresh sample data to update download count
       fetchSamples();
@@ -360,8 +371,10 @@ export default function SampleBrowser() {
     }
   };
 
-  // Add this helper function near the top of your component (around line 170):
+  // Update the getUserLibraryCount function:
   const getUserLibraryCount = () => {
+    if (typeof window === 'undefined') return 0;
+    
     // Get unique samples (avoid counting same sample twice if both liked and downloaded)
     const downloadedSamples = new Set(JSON.parse(localStorage.getItem('downloaded_samples') || '[]'));
     const allUserSamples = new Set([...likedSamples, ...downloadedSamples]);
@@ -649,7 +662,7 @@ export default function SampleBrowser() {
                                   <Download className="w-4 h-4" />
                                 )}
                                 <span>
-                                  {!user && parseInt(localStorage.getItem('anonymous_downloads') || '0') >= 1 
+                                  {!user && typeof window !== 'undefined' && parseInt(localStorage.getItem('anonymous_downloads') || '0') >= 1 
                                     ? 'Sign Up for More' 
                                     : 'Free'
                                   }
@@ -800,7 +813,7 @@ export default function SampleBrowser() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-200">
-                  {parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
+                  {typeof window !== 'undefined' && parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
                     ? '🎵 Try one free download, then create an account for unlimited access!'
                     : '✨ You\'ve used your free download! Create an account for unlimited downloads.'
                   }
@@ -810,7 +823,7 @@ export default function SampleBrowser() {
                 onClick={() => setShowAuthModal(true)}
                 className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors font-medium text-sm"
               >
-                {parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
+                {typeof window !== 'undefined' && parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
                   ? 'Sign Up Free' 
                   : 'Create Account'
                 }
