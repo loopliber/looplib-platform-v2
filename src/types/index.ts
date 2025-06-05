@@ -19,10 +19,10 @@ export interface Sample {
   duration: string;
   tags: string[];
   file_url: string;
-  waveform_data?: number[];
   downloads: number;
   likes: number;
   is_premium: boolean;
+  has_stems: boolean; // ✅ Add this line
   created_at: string;
   updated_at: string;
 }

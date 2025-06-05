@@ -16,6 +16,16 @@ import EmailCaptureModal from './EmailCaptureModal';
 import ProducerDashboard from './ProducerDashboard';
 import AuthModal from './AuthModal';
 import { useUserRole } from '@/hooks/useUserRole';
+import { downloadFile } from '@/lib/download-utils';
+import dynamic from 'next/dynamic';
+
+// Dynamically import WaveformPlayer to avoid SSR issues
+const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-12 bg-neutral-800 rounded animate-pulse" />
+  )
+});
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -31,13 +41,17 @@ export default function SampleBrowser() {
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
-  const [audioElements, setAudioElements] = useState<{ [key: string]: HTMLAudioElement }>({});
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [purchasingLicense, setPurchasingLicense] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailModalTrigger, setEmailModalTrigger] = useState<'download_limit' | 'premium_sample' | 'feature_access'>('download_limit');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [downloadCount, setDownloadCount] = useState(0);
+  
+  // ADD THESE MISSING PAGINATION STATE VARIABLES:
+  const [displayedSampleCount, setDisplayedSampleCount] = useState(5);
+  const SAMPLES_PER_PAGE = 5;
+  
   const [producerStats, setProducerStats] = useState({
     downloads: 0,
     favorites: 0,
@@ -178,34 +192,20 @@ export default function SampleBrowser() {
     }
   });
 
+  // ADD THIS LINE FOR PAGINATION:
+  const displayedSamples = sortedSamples.slice(0, displayedSampleCount);
+
   // Get all unique tags
   const allTags = Array.from(new Set(samples.flatMap(s => s.tags)));
 
-  // Audio playback
-  const togglePlay = async (sampleId: string, fileUrl: string) => {
+  // Audio playback with waveform
+  const togglePlay = async (sampleId: string) => {
     if (playingId === sampleId) {
       // Pause current
-      audioElements[sampleId]?.pause();
       setPlayingId(null);
     } else {
-      // Stop any playing audio
-      Object.values(audioElements).forEach(audio => audio.pause());
-      
-      // Create or get audio element
-      let audio = audioElements[sampleId];
-      if (!audio) {
-        audio = new Audio(fileUrl);
-        audio.addEventListener('ended', () => setPlayingId(null));
-        setAudioElements(prev => ({ ...prev, [sampleId]: audio }));
-      }
-      
-      try {
-        await audio.play();
-        setPlayingId(sampleId);
-      } catch (error) {
-        console.error('Playback error:', error);
-        toast.error('Failed to play audio');
-      }
+      // Set new playing sample
+      setPlayingId(sampleId);
     }
   };
 
@@ -243,36 +243,41 @@ export default function SampleBrowser() {
     }
   };
 
-  // Free download
+  // Free download - using database metadata for filename
   const handleFreeDownload = async (sample: Sample) => {
-    // Check if email is required (after 3 downloads)
-    if (!userEmail && downloadCount >= 3) {
-      setEmailModalTrigger('download_limit');
-      setShowEmailModal(true);
-      return;
-    }
-
     setDownloadingId(sample.id);
     
     try {
+      // Create filename using database metadata: name_bpm_key_@looplib.ext
+      const extension = sample.file_url.split('.').pop() || 'mp3';
+      
+      // Format the key (remove spaces, lowercase)
+      const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
+      
+      // Format the name (remove spaces, lowercase)
+      const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
+      
+      // Create the filename: name_bpm_key @LOOPLIB.mp3
+      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
+      
+      // Start download immediately with proper filename
+      await downloadFile(sample.file_url, downloadFilename);
+      
+      // Then track the download
       const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           sampleId: sample.id,
-          email: 'anonymous@looplib.com' // You can collect email optionally
+          email: userEmail || 'anonymous@looplib.com'
         })
       });
 
-      if (!response.ok) throw new Error('Download failed');
+      if (!response.ok) {
+        console.warn('Download tracking failed, but file downloaded successfully');
+      }
 
-      // Trigger download
-      const link = document.createElement('a');
-      link.href = sample.file_url;
-      link.download = `${sample.name} - LoopLib.mp3`;
-      link.click();
-
-      toast.success('Download started! Check your downloads folder.');
+      toast.success('Download complete! Check your downloads folder.');
       
       // Update download count
       const newCount = downloadCount + 1;
@@ -285,6 +290,12 @@ export default function SampleBrowser() {
         downloads: prev.downloads + 1,
         credits: Math.max(0, prev.credits - 1)
       }));
+      
+      // Show email modal after 3 downloads (for future benefits)
+      if (!userEmail && newCount >= 3) {
+        setEmailModalTrigger('download_limit');
+        setShowEmailModal(true);
+      }
       
       // Refresh sample data to update download count
       fetchSamples();
@@ -335,14 +346,17 @@ export default function SampleBrowser() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                <Music className="w-5 h-5 text-white" />
+      <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <img 
+                  src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
+                  alt="LoopLib"
+                  className="h-8 w-auto"
+                />
               </div>
-              <h1 className="text-xl font-semibold">LoopLib</h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -433,7 +447,7 @@ export default function SampleBrowser() {
 
         {/* Main Content */}
         <main className="flex-1">
-          {/* Add Producer Dashboard if user has email */}
+          {/* Welcome Message for logged in users */}
           {userEmail && (
             <div className="p-6 border-b border-neutral-800">
               <div className="max-w-6xl mx-auto">
@@ -441,16 +455,13 @@ export default function SampleBrowser() {
                   <div>
                     <h3 className="text-lg font-medium mb-1">Welcome back!</h3>
                     <p className="text-sm text-neutral-400">
-                      {producerStats.downloads} samples in your library
+                      {samples.length} samples in your library
                     </p>
                   </div>
-                  <a 
-                    href="/library"
-                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors flex items-center space-x-2"
-                  >
+                  <button className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors flex items-center space-x-2">
                     <Music className="w-4 h-4" />
                     <span>My Library</span>
-                  </a>
+                  </button>
                 </div>
               </div>
             </div>
@@ -501,7 +512,7 @@ export default function SampleBrowser() {
 
               <div className="flex items-center justify-between">
                 <p className="text-sm text-neutral-400">
-                  {sortedSamples.length} {sortedSamples.length === 1 ? 'sample' : 'samples'}
+                  {sortedSamples.length} samples
                 </p>
               </div>
             </div>
@@ -520,65 +531,61 @@ export default function SampleBrowser() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {sortedSamples.map((sample) => (
+                  {displayedSamples.map((sample) => (
                     <div
                       key={sample.id}
                       className="group bg-neutral-900/30 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/50 hover:border-neutral-700 transition-all"
                     >
                       <div className="flex items-center space-x-4">
-                        {/* Play Button */}
-                        <button
-                          onClick={() => togglePlay(sample.id, sample.file_url)}
-                          className="w-12 h-12 bg-neutral-800 hover:bg-neutral-700 rounded-full flex items-center justify-center transition-colors group"
-                        >
-                          {playingId === sample.id ? (
-                            <Pause className="w-5 h-5" />
-                          ) : (
-                            <Play className="w-5 h-5 ml-0.5" />
-                          )}
-                        </button>
-
-                        {/* Sample Info */}
                         <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center justify-between text-sm text-neutral-400 mb-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="px-2 py-1 bg-neutral-800 rounded text-xs">
+                                {sample.genre}
+                              </span>
+                              {sample.has_stems && (
+                                <span className="px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded text-xs font-semibold">
+                                  STEMS
+                                </span>
+                              )}
+                            </div>
+                            <span>{sample.bpm} BPM</span>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mb-4">
                             <div>
-                              <h3 className="font-medium text-white flex items-center space-x-2">
-                                <span>{sample.name}</span>
-                                {sample.is_premium && (
-                                  <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs rounded-full">
-                                    PRO
-                                  </span>
-                                )}
-                              </h3>
-                              <p className="text-sm text-neutral-400">{sample.artist?.name || 'Unknown Artist'}</p>
+                              <h3 className="font-medium text-white text-lg mb-1">{sample.name}</h3>
+                              <p className="text-sm text-neutral-400">{sample.artist?.name || 'LoopLib'}</p>
                             </div>
                             
                             <div className="flex items-center space-x-2">
-                              {sample.tags.slice(0, 2).map(tag => (
+                              <span className="text-sm text-neutral-400">{sample.key}</span>
+                              <span className="text-sm text-neutral-400">•</span>
+                              <span className="text-sm text-neutral-400">{sample.duration}</span>
+                            </div>
+                          </div>
+                          
+                          {/* Waveform Player */}
+                          <div className="mb-4">
+                            <WaveformPlayer
+                              url={sample.file_url}
+                              isPlaying={playingId === sample.id}
+                              onPlayPause={() => togglePlay(sample.id)}
+                              height={48}
+                              waveColor="#525252"
+                              progressColor="#f97316"
+                            />
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                              {sample.tags.slice(0, 3).map(tag => (
                                 <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
                                   {tag}
                                 </span>
                               ))}
                             </div>
-                          </div>
-
-                          {/* Metadata */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4 text-sm text-neutral-400">
-                              <span>{sample.bpm} BPM</span>
-                              <span>{sample.key}</span>
-                              <span>{sample.duration}</span>
-                              <span className="flex items-center space-x-1">
-                                <Download className="w-3 h-3" />
-                                <span>{sample.downloads}</span>
-                              </span>
-                              <span className="flex items-center space-x-1">
-                                <Heart className="w-3 h-3" />
-                                <span>{sample.likes}</span>
-                              </span>
-                            </div>
-
-                            {/* Actions */}
+                            
                             <div className="flex items-center space-x-2">
                               <button
                                 onClick={() => toggleLike(sample.id)}
@@ -620,6 +627,18 @@ export default function SampleBrowser() {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Load More Button */}
+                  {displayedSampleCount < sortedSamples.length && (
+                    <div className="flex justify-center pt-8">
+                      <button
+                        onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
+                        className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                      >
+                        Load More
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -649,16 +668,6 @@ export default function SampleBrowser() {
             </div>
 
             <div className="p-8">
-              {/* Info Box */}
-              <div className="mb-8 p-6 bg-orange-500/10 border border-orange-500/30 rounded-xl">
-                <h3 className="text-lg font-semibold text-orange-400 mb-2">How It Works</h3>
-                <p className="text-gray-300">
-                  Download any sample for free to try in your projects. When you're ready to release your track, 
-                  purchase a license that fits your needs. All licenses are lifetime and include instant delivery.
-                </p>
-              </div>
-
-              {/* License Options */}
               <div className="grid md:grid-cols-3 gap-6">
                 {licenses.map((license) => (
                   <div
@@ -712,10 +721,6 @@ export default function SampleBrowser() {
                   </div>
                 ))}
               </div>
-
-              <p className="text-center text-sm text-neutral-500 mt-8">
-                Secure checkout powered by Stripe. Instant delivery to your email.
-              </p>
             </div>
           </div>
         </div>
