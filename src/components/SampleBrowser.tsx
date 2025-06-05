@@ -218,28 +218,40 @@ export default function SampleBrowser() {
     const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
     const isLiked = likedSamples.has(sampleId);
 
+    console.log('Toggle like:', { sampleId, userIdentifier, isLiked }); // DEBUG
+
     try {
       if (isLiked) {
-        await supabase
+        const { error } = await supabase
           .from('user_likes')
           .delete()
           .eq('user_identifier', userIdentifier)
           .eq('sample_id', sampleId);
+        
+        console.log('Delete like result:', { error }); // DEBUG
+        
+        if (error) throw error;
         
         setLikedSamples(prev => {
           const newSet = new Set(prev);
           newSet.delete(sampleId);
           return newSet;
         });
+        toast.success('Removed from liked samples');
       } else {
-        await supabase
+        const { error } = await supabase
           .from('user_likes')
           .insert({
             user_identifier: userIdentifier,
             sample_id: sampleId
           });
         
+        console.log('Insert like result:', { error }); // DEBUG
+        
+        if (error) throw error;
+        
         setLikedSamples(prev => new Set(prev).add(sampleId));
+        toast.success('Added to liked samples');
       }
     } catch (error) {
       console.error('Error toggling like:', error);

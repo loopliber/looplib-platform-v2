@@ -53,13 +53,14 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         return;
       }
       
-      // Fetch liked samples - fix the query structure
+      // Fetch liked samples - this should work now
       const { data: likedData, error: likedError } = await supabase
         .from('user_likes')
         .select(`
+          sample_id,
           samples!inner (
             *,
-            artists (*)
+            artist:artists(*)
           )
         `)
         .eq('user_identifier', userIdentifier);
@@ -67,23 +68,21 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
       if (likedError) {
         console.error('Liked samples error:', likedError);
       } else {
-        // Extract samples correctly
-        const liked = likedData?.map((item: any) => ({
-          ...item.samples,
-          artist: item.samples.artists
-        })) || [];
+        console.log('Liked data:', likedData); // DEBUG
+        const liked = likedData?.map((item: any) => item.samples) || [];
         setLikedSamples(liked);
       }
 
-      // Fetch actual download history from downloads table
+      // Fetch actual download history from user_downloads table (not downloads!)
       const { data: downloadsData, error: downloadsError } = await supabase
-        .from('downloads')
+        .from('user_downloads')
         .select(`
+          sample_id,
+          downloaded_at,
           samples!inner (
             *,
-            artists (*)
-          ),
-          downloaded_at
+            artist:artists(*)
+          )
         `)
         .eq('user_email', user?.email || 'anonymous@looplib.com')
         .order('downloaded_at', { ascending: false })
@@ -91,12 +90,11 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
       if (downloadsError) {
         console.error('Downloads error:', downloadsError);
-        // If downloads table doesn't exist or has issues, show empty array
         setDownloadedSamples([]);
       } else {
+        console.log('Downloads data:', downloadsData); // DEBUG
         const downloads = downloadsData?.map((item: any) => ({
           ...item.samples,
-          artist: item.samples.artists,
           downloaded_at: item.downloaded_at
         })) || [];
         setDownloadedSamples(downloads);
@@ -104,7 +102,6 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
     } catch (error) {
       console.error('Error fetching user data:', error);
-      // Don't show error toast for this, just log it
     } finally {
       setLoading(false);
     }
