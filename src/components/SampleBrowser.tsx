@@ -45,6 +45,7 @@ export default function SampleBrowser() {
   const [isClientMounted, setIsClientMounted] = useState(false);
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
   const [randomSeed, setRandomSeed] = useState(Math.random());
+  const [seenSampleIds, setSeenSampleIds] = useState<Set<string>>(new Set());
 
   const SAMPLES_PER_PAGE = 5;
   const supabase = createClient();
@@ -163,6 +164,14 @@ export default function SampleBrowser() {
 
   // Sort samples with randomization
   const sortedSamples = [...filteredSamples].sort((a, b) => {
+    // Prioritize unseen samples
+    const aUnseen = !seenSampleIds.has(a.id);
+    const bUnseen = !seenSampleIds.has(b.id);
+    
+    if (aUnseen && !bUnseen) return -1;
+    if (!aUnseen && bUnseen) return 1;
+    
+    // Then apply normal sorting with randomization
     const getStableRandom = (sampleA: Sample, sampleB: Sample) => {
       const combined = sampleA.id + sampleB.id + randomSeed.toString();
       let hash = 0;
@@ -336,6 +345,29 @@ export default function SampleBrowser() {
     }
   };
 
+  const handleRefresh = () => {
+    // Get all samples that match current filters
+    const availableSamples = filteredSamples;
+    
+    // If we've seen most samples, reset the seen list
+    if (seenSampleIds.size >= availableSamples.length * 0.8) {
+      setSeenSampleIds(new Set());
+    }
+    
+    // Generate new random seed for fresh ordering
+    setRandomSeed(Math.random());
+    
+    // Reset pagination
+    setDisplayedSampleCount(SAMPLES_PER_PAGE);
+    
+    // Mark currently displayed samples as seen
+    const newSeenIds = new Set(seenSampleIds);
+    displayedSamples.forEach(sample => newSeenIds.add(sample.id));
+    setSeenSampleIds(newSeenIds);
+    
+    toast.success('🎲 Fresh samples loaded!', { duration: 1500 });
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -467,6 +499,7 @@ export default function SampleBrowser() {
                     className={`px-3 py-2 transition-colors ${
                       sortBy === 'popular' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`}
+                    title="Popular"
                   >
                     <TrendingUp className="w-5 h-5" />
                   </button>
@@ -475,6 +508,7 @@ export default function SampleBrowser() {
                     className={`px-3 py-2 transition-colors ${
                       sortBy === 'newest' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`}
+                    title="Newest"
                   >
                     <Clock className="w-5 h-5" />
                   </button>
@@ -483,10 +517,33 @@ export default function SampleBrowser() {
                     className={`px-3 py-2 transition-colors ${
                       sortBy === 'bpm' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
                     }`}
+                    title="BPM"
                   >
                     <Hash className="w-5 h-5" />
                   </button>
                 </div>
+
+                {/* Add Refresh Button */}
+                <button
+                  onClick={handleRefresh}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center space-x-2 font-medium"
+                  title="Shuffle samples"
+                >
+                  <svg 
+                    className="w-4 h-4" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                    />
+                  </svg>
+                  <span>Shuffle</span>
+                </button>
               </div>
             </div>
           </div>
