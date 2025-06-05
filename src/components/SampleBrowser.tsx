@@ -69,7 +69,6 @@ export default function SampleBrowser() {
   const genres: { id: Genre; name: string }[] = [
     { id: 'all', name: 'All Genres' },
     { id: 'trap', name: 'Trap' },
-    { id: 'drill', name: 'Drill' },
     { id: 'rnb', name: 'R&B' },
     { id: 'soul', name: 'Soul' },
   ];
@@ -343,6 +342,14 @@ export default function SampleBrowser() {
     }
   };
 
+  // Add this helper function near the top of your component (around line 170):
+  const getUserLibraryCount = () => {
+    // Get unique samples (avoid counting same sample twice if both liked and downloaded)
+    const downloadedSamples = new Set(JSON.parse(localStorage.getItem('downloaded_samples') || '[]'));
+    const allUserSamples = new Set([...likedSamples, ...downloadedSamples]);
+    return allUserSamples.size;
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -455,10 +462,25 @@ export default function SampleBrowser() {
                   <div>
                     <h3 className="text-lg font-medium mb-1">Welcome back!</h3>
                     <p className="text-sm text-neutral-400">
-                      {samples.length} samples in your library
+                      {getUserLibraryCount()} samples in your library
+                      {likedSamples.size > 0 && (
+                        <span className="text-red-400 ml-2">• {likedSamples.size} liked</span>
+                      )}
+                      {downloadCount > 0 && (
+                        <span className="text-green-400 ml-2">• {downloadCount} downloaded</span>
+                      )}
                     </p>
                   </div>
-                  <button className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors flex items-center space-x-2">
+                  <button 
+                    onClick={() => {
+                      // Filter to show only user's samples
+                      setSelectedTags([]);
+                      setSearchTerm('');
+                      setSelectedGenre('all');
+                      // You could add a filter for user's library here
+                    }}
+                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors flex items-center space-x-2"
+                  >
                     <Music className="w-4 h-4" />
                     <span>My Library</span>
                   </button>

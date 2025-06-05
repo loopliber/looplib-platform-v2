@@ -4,27 +4,29 @@ export interface Artist {
   id: string;
   name: string;
   bio?: string;
-  image_url?: string;
   created_at: string;
 }
 
 export interface Sample {
   id: string;
   name: string;
-  artist_id: string;
-  artist?: Artist;
+  artist?: {
+    id: string;
+    name: string;
+  };
   genre: string;
   bpm: number;
   key: string;
   duration: string;
-  tags: string[];
   file_url: string;
+  has_stems: boolean; // This is what controls the STEMS badge
+  tags: string[];
   downloads: number;
   likes: number;
-  is_premium: boolean;
-  has_stems: boolean; // ✅ Add this line
+  is_premium?: boolean;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  waveform_data?: number[];
 }
 
 export interface License {
@@ -34,6 +36,7 @@ export interface License {
   features: string[];
   is_popular: boolean;
   sort_order: number;
+  created_at: string;
 }
 
 export interface UserDownload {
@@ -61,5 +64,22 @@ export interface UserLike {
   created_at: string;
 }
 
-export type Genre = 'all' | 'trap' | 'drill' | 'rnb' | 'soul';
+export type Genre = 'all' | 'trap' | 'rnb' | 'soul';
 export type SortBy = 'popular' | 'newest' | 'bpm' | 'name';
+
+export interface EmailCaptureModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (email: string) => void;
+  triggerType: 'download_limit' | 'premium_sample' | 'feature_access';
+}
+
+export interface WaveformPlayerProps {
+  url: string;
+  isPlaying: boolean;
+  onPlayPause: () => void;
+  height?: number;
+  waveColor?: string;
+  progressColor?: string;
+  backgroundColor?: string;
+}
