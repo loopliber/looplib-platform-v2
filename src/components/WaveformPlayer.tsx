@@ -45,7 +45,6 @@ export default function WaveformPlayer({
           container: containerRef.current,
           waveColor,
           progressColor,
-          backgroundColor,
           height,
           barWidth: 2,
           barGap: 1,
@@ -150,7 +149,10 @@ export default function WaveformPlayer({
         <div 
           ref={containerRef} 
           className="w-full cursor-pointer"
-          style={{ backgroundColor, minHeight: height }}
+          style={{ 
+            backgroundColor: backgroundColor !== 'transparent' ? backgroundColor : undefined, 
+            minHeight: height 
+          }}
         />
         
         {/* Loading overlay */}
