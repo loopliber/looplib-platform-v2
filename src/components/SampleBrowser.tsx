@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
+import Dashboard from './Dashboard';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -46,6 +47,7 @@ export default function SampleBrowser() {
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
   const [randomSeed, setRandomSeed] = useState(Math.random());
   const [seenSampleIds, setSeenSampleIds] = useState<Set<string>>(new Set());
+  const [showDashboard, setShowDashboard] = useState(false);
 
   const SAMPLES_PER_PAGE = 5;
   const supabase = createClient();
@@ -368,6 +370,48 @@ export default function SampleBrowser() {
     toast.success('🎲 Fresh samples loaded!', { duration: 1500 });
   };
 
+  // Update the header section to include Dashboard link
+  const renderHeader = () => (
+    <div className="flex items-center space-x-4 pr-6">
+      {user ? (
+        <>
+          <button
+            onClick={() => setShowDashboard(true)}
+            className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
+          >
+            <User className="w-4 h-4" />
+            <span>Dashboard</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() => setShowAuthModal(true)}
+          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors font-medium"
+        >
+          Login / Sign Up
+        </button>
+      )}
+    </div>
+  );
+
+  // Add conditional rendering for Dashboard
+  if (showDashboard) {
+    return (
+      <Dashboard 
+        user={user}
+        onBack={() => setShowDashboard(false)}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -383,30 +427,7 @@ export default function SampleBrowser() {
               />
             </div>
             
-            <div className="flex items-center space-x-4 pr-6">
-              {user ? (
-                <>
-                  <div className="flex items-center space-x-2 text-neutral-400">
-                    <User className="w-4 h-4" />
-                    <span className="text-sm">{user.email}</span>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors font-medium"
-                >
-                  Login / Sign Up
-                </button>
-              )}
-            </div>
+            {renderHeader()}
           </div>
         </div>
       </header>
