@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Sample } from '@/types';
 import { 
-  Heart, Download, ArrowLeft, Calendar, Music,
-  TrendingUp, Clock, User, LogOut
+  Heart, ArrowLeft, Calendar, Music, User, LogOut,
+  TrendingUp, Clock, Play, Pause, Download, ShoppingCart,
+  BarChart3, Activity, Headphones
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
@@ -25,26 +26,26 @@ interface DashboardProps {
 
 export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
   const [likedSamples, setLikedSamples] = useState<Sample[]>([]);
-  const [downloadedSamples, setDownloadedSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'liked' | 'downloads'>('liked');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    totalLikes: 0,
+    favoriteGenre: 'N/A',
+    mostLikedArtist: 'N/A',
+    avgBpm: 0,
+    recentActivity: 0
+  });
 
   const supabase = createClient();
 
   useEffect(() => {
-    // Only run on client side and when user is available
-    if (typeof window !== 'undefined' && user) {
+    if (user) {
       fetchUserData();
-    } else {
-      setLoading(false);
     }
   }, [user]);
 
-  // Even safer approach:
   const fetchUserData = async () => {
     try {
-      // Add safety check for browser environment
       if (typeof window === 'undefined') return;
       
       const userIdentifier = localStorage.getItem('user_identifier');
@@ -53,51 +54,31 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         return;
       }
       
-      // Fetch liked samples - this should work now
+      // Fetch liked samples
       const { data: likedData, error: likedError } = await supabase
         .from('user_likes')
         .select(`
           sample_id,
+          created_at,
           samples!inner (
             *,
             artist:artists(*)
           )
         `)
-        .eq('user_identifier', userIdentifier);
+        .eq('user_identifier', userIdentifier)
+        .order('created_at', { ascending: false });
 
       if (likedError) {
         console.error('Liked samples error:', likedError);
       } else {
-        console.log('Liked data:', likedData); // DEBUG
-        const liked = likedData?.map((item: any) => item.samples) || [];
-        setLikedSamples(liked);
-      }
-
-      // Fetch actual download history from user_downloads table (not downloads!)
-      const { data: downloadsData, error: downloadsError } = await supabase
-        .from('user_downloads')
-        .select(`
-          sample_id,
-          downloaded_at,
-          samples!inner (
-            *,
-            artist:artists(*)
-          )
-        `)
-        .eq('user_email', user?.email || 'anonymous@looplib.com')
-        .order('downloaded_at', { ascending: false })
-        .limit(20);
-
-      if (downloadsError) {
-        console.error('Downloads error:', downloadsError);
-        setDownloadedSamples([]);
-      } else {
-        console.log('Downloads data:', downloadsData); // DEBUG
-        const downloads = downloadsData?.map((item: any) => ({
+        const liked = likedData?.map((item: any) => ({
           ...item.samples,
-          downloaded_at: item.downloaded_at
+          liked_at: item.created_at
         })) || [];
-        setDownloadedSamples(downloads);
+        setLikedSamples(liked);
+        
+        // Calculate stats
+        calculateStats(liked);
       }
 
     } catch (error) {
@@ -105,6 +86,49 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateStats = (samples: Sample[]) => {
+    if (samples.length === 0) return;
+
+    // Favorite genre
+    const genreCounts = samples.reduce((acc: any, sample) => {
+      acc[sample.genre] = (acc[sample.genre] || 0) + 1;
+      return acc;
+    }, {});
+    const favoriteGenre = Object.keys(genreCounts).reduce((a, b) => 
+      genreCounts[a] > genreCounts[b] ? a : b
+    );
+
+    // Most liked artist
+    const artistCounts = samples.reduce((acc: any, sample) => {
+      const artistName = sample.artist?.name || 'LoopLib';
+      acc[artistName] = (acc[artistName] || 0) + 1;
+      return acc;
+    }, {});
+    const mostLikedArtist = Object.keys(artistCounts).reduce((a, b) => 
+      artistCounts[a] > artistCounts[b] ? a : b
+    );
+
+    // Average BPM
+    const avgBpm = Math.round(
+      samples.reduce((sum, sample) => sum + sample.bpm, 0) / samples.length
+    );
+
+    // Recent activity (last 7 days)
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const recentActivity = samples.filter((sample: any) => 
+      sample.liked_at && new Date(sample.liked_at) > weekAgo
+    ).length;
+
+    setStats({
+      totalLikes: samples.length,
+      favoriteGenre,
+      mostLikedArtist,
+      avgBpm,
+      recentActivity
+    });
   };
 
   const togglePlay = (sampleId: string) => {
@@ -115,10 +139,35 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
     }
   };
 
+  const removeLike = async (sampleId: string) => {
+    try {
+      const userIdentifier = localStorage.getItem('user_identifier');
+      if (!userIdentifier) return;
+
+      const { error } = await supabase
+        .from('user_likes')
+        .delete()
+        .eq('user_identifier', userIdentifier)
+        .eq('sample_id', sampleId);
+
+      if (error) throw error;
+
+      setLikedSamples(prev => prev.filter(sample => sample.id !== sampleId));
+      toast.success('Removed from liked samples');
+      
+      // Recalculate stats
+      const updatedSamples = likedSamples.filter(sample => sample.id !== sampleId);
+      calculateStats(updatedSamples);
+    } catch (error) {
+      console.error('Error removing like:', error);
+      toast.error('Failed to remove like');
+    }
+  };
+
   const renderSampleCard = (sample: Sample) => (
     <div
       key={sample.id}
-      className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
+      className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all group"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
@@ -131,7 +180,16 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
             </span>
           )}
         </div>
-        <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
+          <button
+            onClick={() => removeLike(sample.id)}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300 transition-all"
+            title="Remove from likes"
+          >
+            <Heart className="w-4 h-4 fill-current" />
+          </button>
+        </div>
       </div>
       
       <div className="mb-3">
@@ -158,7 +216,15 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
             </span>
           ))}
         </div>
-        <span className="text-xs text-neutral-500">{sample.key}</span>
+        <div className="flex items-center space-x-1">
+          <span className="text-xs text-neutral-500">{sample.key}</span>
+        </div>
+      </div>
+      
+      <div className="mt-3 pt-3 border-t border-neutral-800">
+        <p className="text-xs text-neutral-500">
+          Liked {(sample as any).liked_at ? new Date((sample as any).liked_at).toLocaleDateString() : 'Unknown date'}
+        </p>
       </div>
     </div>
   );
@@ -204,111 +270,130 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
+          <h1 className="text-3xl font-bold mb-2">Your Music Dashboard</h1>
           <p className="text-neutral-400">
-            Manage your liked samples and download history
+            Track your favorite samples and music preferences
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-red-500/20 rounded-lg">
-                <Heart className="w-6 h-6 text-red-500" />
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <Heart className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{likedSamples.length}</p>
-                <p className="text-sm text-neutral-400">Liked Samples</p>
+                <p className="text-xl font-bold">{stats.totalLikes}</p>
+                <p className="text-xs text-neutral-400">Liked Samples</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
+          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-green-500/20 rounded-lg">
-                <Download className="w-6 h-6 text-green-500" />
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Music className="w-5 h-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{downloadedSamples.length}</p>
-                <p className="text-sm text-neutral-400">Downloads</p>
+                <p className="text-lg font-bold">{stats.favoriteGenre}</p>
+                <p className="text-xs text-neutral-400">Favorite Genre</p>
               </div>
             </div>
           </div>
-          
-          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
+
+          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-blue-500/20 rounded-lg">
-                <Music className="w-6 h-6 text-blue-500" />
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Headphones className="w-5 h-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">Free</p>
-                <p className="text-sm text-neutral-400">Member Status</p>
+                <p className="text-lg font-bold">{stats.mostLikedArtist}</p>
+                <p className="text-xs text-neutral-400">Top Artist</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <BarChart3 className="w-5 h-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{stats.avgBpm}</p>
+                <p className="text-xs text-neutral-400">Avg BPM</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-orange-500/20 rounded-lg">
+                <Activity className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{stats.recentActivity}</p>
+                <p className="text-xs text-neutral-400">This Week</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6">
-          <div className="flex space-x-1 bg-neutral-900/50 p-1 rounded-lg w-fit">
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
-              onClick={() => setActiveTab('liked')}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                activeTab === 'liked'
-                  ? 'bg-orange-500 text-white'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
+              onClick={onBack}
+              className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors text-left"
             >
-              Liked Samples
+              <Music className="w-6 h-6 text-orange-500 mb-2" />
+              <h3 className="font-semibold mb-1">Discover New Samples</h3>
+              <p className="text-sm text-neutral-400">Browse our latest collection</p>
             </button>
-            <button
-              onClick={() => setActiveTab('downloads')}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                activeTab === 'downloads'
-                  ? 'bg-orange-500 text-white'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              Recent Downloads
-            </button>
+            
+            <div className="p-4 bg-neutral-900/50 border border-neutral-800 rounded-lg text-left">
+              <Heart className="w-6 h-6 text-red-500 mb-2" />
+              <h3 className="font-semibold mb-1">Create Playlist</h3>
+              <p className="text-sm text-neutral-400">Export your likes (Coming Soon)</p>
+            </div>
+            
+            <div className="p-4 bg-neutral-900/50 border border-neutral-800 rounded-lg text-left">
+              <TrendingUp className="w-6 h-6 text-green-500 mb-2" />
+              <h3 className="font-semibold mb-1">Music Stats</h3>
+              <p className="text-sm text-neutral-400">Detailed analytics (Coming Soon)</p>
+            </div>
           </div>
         </div>
 
-        {/* Content */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeTab === 'liked' ? (
-              likedSamples.length > 0 ? (
-                likedSamples.map(renderSampleCard)
-              ) : (
-                <div className="col-span-full text-center py-20">
-                  <Heart className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-                  <p className="text-neutral-400">No liked samples yet</p>
-                  <p className="text-sm text-neutral-500 mt-2">
-                    Start exploring and like samples to see them here!
-                  </p>
-                </div>
-              )
-            ) : (
-              downloadedSamples.length > 0 ? (
-                downloadedSamples.map(renderSampleCard)
-              ) : (
-                <div className="col-span-full text-center py-20">
-                  <Download className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-                  <p className="text-neutral-400">No downloads yet</p>
-                  <p className="text-sm text-neutral-500 mt-2">
-                    Download some samples to see your history here!
-                  </p>
-                </div>
-              )
-            )}
-          </div>
-        )}
+        {/* Liked Samples */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Your Liked Samples ({likedSamples.length})</h2>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : likedSamples.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {likedSamples.map(renderSampleCard)}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <Heart className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
+              <p className="text-neutral-400 mb-2">No liked samples yet</p>
+              <p className="text-sm text-neutral-500 mb-4">
+                Start exploring and like samples to see them here!
+              </p>
+              <button
+                onClick={onBack}
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors"
+              >
+                Browse Samples
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

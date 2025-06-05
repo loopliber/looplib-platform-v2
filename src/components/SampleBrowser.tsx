@@ -214,6 +214,8 @@ export default function SampleBrowser() {
     }
   };
 
+  // Update the toggleLike function to handle the unique constraint properly:
+
   const toggleLike = async (sampleId: string) => {
     const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
     const isLiked = likedSamples.has(sampleId);
@@ -222,6 +224,7 @@ export default function SampleBrowser() {
 
     try {
       if (isLiked) {
+        // Remove like
         const { error } = await supabase
           .from('user_likes')
           .delete()
@@ -239,11 +242,14 @@ export default function SampleBrowser() {
         });
         toast.success('Removed from liked samples');
       } else {
+        // Add like using upsert to handle duplicates
         const { error } = await supabase
           .from('user_likes')
-          .insert({
+          .upsert({
             user_identifier: userIdentifier,
             sample_id: sampleId
+          }, {
+            onConflict: 'user_identifier,sample_id'
           });
         
         console.log('Insert like result:', { error }); // DEBUG
