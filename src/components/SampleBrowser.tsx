@@ -275,13 +275,14 @@ export default function SampleBrowser() {
       
       await downloadFile(sample.file_url, downloadFilename);
       
-      // Track download
+      // Track download with proper user identification
+      const userEmail = user?.email || 'anonymous@looplib.com';
       const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           sampleId: sample.id,
-          email: user?.email || 'anonymous@looplib.com'
+          email: userEmail
         })
       });
 

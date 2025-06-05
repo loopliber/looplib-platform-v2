@@ -48,49 +48,63 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
       if (typeof window === 'undefined') return;
       
       const userIdentifier = localStorage.getItem('user_identifier');
-      if (!userIdentifier) return;
+      if (!userIdentifier) {
+        setLoading(false);
+        return;
+      }
       
-      // Fetch liked samples with proper typing
+      // Fetch liked samples - fix the query structure
       const { data: likedData, error: likedError } = await supabase
         .from('user_likes')
         .select(`
-          sample_id,
-          samples (
+          samples!inner (
             *,
-            artist:artists(*)
+            artists (*)
           )
         `)
         .eq('user_identifier', userIdentifier);
 
-      if (likedError) throw likedError;
-      
-      // Safely extract samples with proper type checking
-      const liked: Sample[] = [];
-      if (likedData) {
-        likedData.forEach((item: any) => {
-          if (item.samples) {
-            liked.push(item.samples);
-          }
-        });
+      if (likedError) {
+        console.error('Liked samples error:', likedError);
+      } else {
+        // Extract samples correctly
+        const liked = likedData?.map((item: any) => ({
+          ...item.samples,
+          artist: item.samples.artists
+        })) || [];
+        setLikedSamples(liked);
       }
-      setLikedSamples(liked);
 
-      // Fetch download history
-      const { data: samplesData, error: samplesError } = await supabase
-        .from('samples')
+      // Fetch actual download history from downloads table
+      const { data: downloadsData, error: downloadsError } = await supabase
+        .from('downloads')
         .select(`
-          *,
-          artist:artists(*)
+          samples!inner (
+            *,
+            artists (*)
+          ),
+          downloaded_at
         `)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .eq('user_email', user?.email || 'anonymous@looplib.com')
+        .order('downloaded_at', { ascending: false })
+        .limit(20);
 
-      if (samplesError) throw samplesError;
-      setDownloadedSamples(samplesData || []);
+      if (downloadsError) {
+        console.error('Downloads error:', downloadsError);
+        // If downloads table doesn't exist or has issues, show empty array
+        setDownloadedSamples([]);
+      } else {
+        const downloads = downloadsData?.map((item: any) => ({
+          ...item.samples,
+          artist: item.samples.artists,
+          downloaded_at: item.downloaded_at
+        })) || [];
+        setDownloadedSamples(downloads);
+      }
 
     } catch (error) {
       console.error('Error fetching user data:', error);
-      toast.error('Failed to load dashboard data');
+      // Don't show error toast for this, just log it
     } finally {
       setLoading(false);
     }
@@ -227,11 +241,11 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
           
           <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
             <div className="flex items-center space-x-3">
-              <div className="p-3 bg-orange-500/20 rounded-lg">
-                <Music className="w-6 h-6 text-orange-500" />
+              <div className="p-3 bg-blue-500/20 rounded-lg">
+                <Music className="w-6 h-6 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">Pro</p>
+                <p className="text-2xl font-bold">Free</p>
                 <p className="text-sm text-neutral-400">Member Status</p>
               </div>
             </div>
