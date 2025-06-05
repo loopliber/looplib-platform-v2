@@ -247,6 +247,23 @@ export default function SampleBrowser() {
     setDownloadingId(sample.id);
     
     try {
+      // Check if user is logged in
+      if (!user) {
+        // Check download count for anonymous users
+        const currentDownloads = parseInt(localStorage.getItem('anonymous_downloads') || '0');
+        
+        if (currentDownloads >= 1) {
+          // Show auth modal instead of email modal
+          setShowAuthModal(true);
+          setDownloadingId(null);
+          toast.error('Please create an account to continue downloading');
+          return;
+        }
+        
+        // Allow first download for anonymous users
+        localStorage.setItem('anonymous_downloads', (currentDownloads + 1).toString());
+      }
+
       // Create filename using database metadata: name_bpm_key_@looplib.ext
       const extension = sample.file_url.split('.').pop() || 'mp3';
       
@@ -268,7 +285,7 @@ export default function SampleBrowser() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           sampleId: sample.id,
-          email: userEmail || 'anonymous@looplib.com'
+          email: user?.email || 'anonymous@looplib.com'
         })
       });
 
@@ -290,10 +307,11 @@ export default function SampleBrowser() {
         credits: Math.max(0, prev.credits - 1)
       }));
       
-      // Show email modal after 3 downloads (for future benefits)
-      if (!userEmail && newCount >= 3) {
-        setEmailModalTrigger('download_limit');
-        setShowEmailModal(true);
+      // Show success message for first download if anonymous
+      if (!user && parseInt(localStorage.getItem('anonymous_downloads') || '0') === 1) {
+        toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
+          duration: 5000
+        });
       }
       
       // Refresh sample data to update download count
@@ -630,7 +648,12 @@ export default function SampleBrowser() {
                                 ) : (
                                   <Download className="w-4 h-4" />
                                 )}
-                                <span>Free</span>
+                                <span>
+                                  {!user && parseInt(localStorage.getItem('anonymous_downloads') || '0') >= 1 
+                                    ? 'Sign Up for More' 
+                                    : 'Free'
+                                  }
+                                </span>
                               </button>
                               
                               <button
@@ -769,6 +792,33 @@ export default function SampleBrowser() {
           loadUserData();
         }}
       />
+
+      {/* Anonymous User Banner */}
+      {!user && (
+        <div className="border-b border-neutral-800 bg-gradient-to-r from-orange-900/20 to-red-900/20 p-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-orange-200">
+                  {parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
+                    ? '🎵 Try one free download, then create an account for unlimited access!'
+                    : '✨ You\'ve used your free download! Create an account for unlimited downloads.'
+                  }
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAuthModal(true)}
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors font-medium text-sm"
+              >
+                {parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
+                  ? 'Sign Up Free' 
+                  : 'Create Account'
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
