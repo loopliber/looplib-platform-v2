@@ -31,7 +31,6 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
   const [stats, setStats] = useState({
     totalLikes: 0,
     favoriteGenre: 'N/A',
-    mostLikedArtist: 'N/A',
     avgBpm: 0,
     recentActivity: 0
   });
@@ -88,7 +87,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
     }
   };
 
-  const calculateStats = (samples: Sample[]) => {
+  const calculateStats = (samples: any[]) => {
     if (samples.length === 0) return;
 
     // Favorite genre
@@ -98,16 +97,6 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
     }, {});
     const favoriteGenre = Object.keys(genreCounts).reduce((a, b) => 
       genreCounts[a] > genreCounts[b] ? a : b
-    );
-
-    // Most liked artist
-    const artistCounts = samples.reduce((acc: any, sample) => {
-      const artistName = sample.artist?.name || 'LoopLib';
-      acc[artistName] = (acc[artistName] || 0) + 1;
-      return acc;
-    }, {});
-    const mostLikedArtist = Object.keys(artistCounts).reduce((a, b) => 
-      artistCounts[a] > artistCounts[b] ? a : b
     );
 
     // Average BPM
@@ -125,7 +114,6 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
     setStats({
       totalLikes: samples.length,
       favoriteGenre,
-      mostLikedArtist,
       avgBpm,
       recentActivity
     });
@@ -277,7 +265,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-red-500/20 rounded-lg">
@@ -298,18 +286,6 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
               <div>
                 <p className="text-lg font-bold">{stats.favoriteGenre}</p>
                 <p className="text-xs text-neutral-400">Favorite Genre</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-purple-500/20 rounded-lg">
-                <Headphones className="w-5 h-5 text-purple-500" />
-              </div>
-              <div>
-                <p className="text-lg font-bold">{stats.mostLikedArtist}</p>
-                <p className="text-xs text-neutral-400">Top Artist</p>
               </div>
             </div>
           </div>
