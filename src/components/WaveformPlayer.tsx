@@ -48,7 +48,6 @@ export default function WaveformPlayer({
           height,
           barWidth: 2,
           barGap: 1,
-          responsive: true,
           normalize: true,
         });
 
@@ -60,10 +59,6 @@ export default function WaveformPlayer({
         });
 
         wavesurfer.on('audioprocess', () => {
-          setCurrentTime(wavesurfer.getCurrentTime());
-        });
-
-        wavesurfer.on('seek', () => {
           setCurrentTime(wavesurfer.getCurrentTime());
         });
 
