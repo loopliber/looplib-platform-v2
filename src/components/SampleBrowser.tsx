@@ -1,21 +1,16 @@
-// components/SampleBrowser.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Sample, License, Genre, SortBy } from '@/types';
 import { 
-  Play, Pause, Download, Heart, Search, ChevronDown, 
+  Play, Pause, Download, Heart, Search, 
   Music, ShoppingCart, X, Check, Loader2, Filter,
   TrendingUp, Clock, Hash, User, LogOut
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
-import EmailCaptureModal from './EmailCaptureModal';
-import ProducerDashboard from './ProducerDashboard';
 import AuthModal from './AuthModal';
-import { useUserRole } from '@/hooks/useUserRole';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 
@@ -43,34 +38,22 @@ export default function SampleBrowser() {
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [purchasingLicense, setPurchasingLicense] = useState<string | null>(null);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailModalTrigger, setEmailModalTrigger] = useState<'download_limit' | 'premium_sample' | 'feature_access'>('download_limit');
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [downloadCount, setDownloadCount] = useState(0);
-  
-  // ADD THESE MISSING PAGINATION STATE VARIABLES:
   const [displayedSampleCount, setDisplayedSampleCount] = useState(5);
-  const SAMPLES_PER_PAGE = 5;
-  
-  const [producerStats, setProducerStats] = useState({
-    downloads: 0,
-    favorites: 0,
-    lastVisit: new Date().toISOString(),
-    preferredGenre: 'trap',
-    credits: 10,
-    streak: 1
-  });
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const { role, isAdmin } = useUserRole();
+  const [isClientMounted, setIsClientMounted] = useState(false);
+  const [anonymousDownloads, setAnonymousDownloads] = useState(0);
+  const [randomSeed, setRandomSeed] = useState(Math.random());
 
+  const SAMPLES_PER_PAGE = 5;
   const supabase = createClient();
 
-  const genres: { id: Genre; name: string }[] = [
-    { id: 'all', name: 'All Genres' },
-    { id: 'trap', name: 'Trap' },
-    { id: 'rnb', name: 'R&B' },
-    { id: 'soul', name: 'Soul' },
+  const genres: { id: Genre; name: string; emoji: string }[] = [
+    { id: 'all', name: 'All Genres', emoji: '🎵' },
+    { id: 'trap', name: 'Trap', emoji: '🔥' },
+    { id: 'rnb', name: 'R&B', emoji: '💫' },
+    { id: 'soul', name: 'Soul', emoji: '❤️' },
   ];
 
   // Fetch samples and licenses
@@ -78,38 +61,33 @@ export default function SampleBrowser() {
     fetchSamples();
     fetchLicenses();
     loadUserLikes();
-    loadUserData();
     checkUser();
   }, []);
+
+  // Client-side effect for mounting
+  useEffect(() => {
+    setIsClientMounted(true);
+    if (typeof window !== 'undefined') {
+      setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
+      setDownloadCount(parseInt(localStorage.getItem('download_count') || '0'));
+    }
+  }, []);
+
+  // Shuffle when filters change
+  useEffect(() => {
+    setRandomSeed(Math.random());
+    setDisplayedSampleCount(SAMPLES_PER_PAGE);
+  }, [selectedGenre, selectedTags, searchTerm]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
-    if (user) {
-      setUserEmail(user.email || null);
-    }
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    setUserEmail(null);
     toast.success('Logged out successfully');
-  };
-
-  const loadUserData = () => {
-    const email = localStorage.getItem('producer_email');
-    const downloads = parseInt(localStorage.getItem('download_count') || '0');
-    const favorites = likedSamples.size;
-    
-    setUserEmail(email);
-    setDownloadCount(downloads);
-    setProducerStats(prev => ({
-      ...prev,
-      downloads,
-      favorites,
-      credits: email ? 25 : 10 - downloads
-    }));
   };
 
   const fetchSamples = async () => {
@@ -172,7 +150,7 @@ export default function SampleBrowser() {
     return id;
   };
 
-  // Filter and sort samples
+  // Filter samples
   const filteredSamples = samples.filter(sample => {
     const matchesGenre = selectedGenre === 'all' || sample.genre === selectedGenre;
     const matchesSearch = sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -183,34 +161,48 @@ export default function SampleBrowser() {
     return matchesGenre && matchesSearch && matchesTags;
   });
 
+  // Sort samples with randomization
   const sortedSamples = [...filteredSamples].sort((a, b) => {
+    const getStableRandom = (sampleA: Sample, sampleB: Sample) => {
+      const combined = sampleA.id + sampleB.id + randomSeed.toString();
+      let hash = 0;
+      for (let i = 0; i < combined.length; i++) {
+        const char = combined.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return (hash % 1000) / 1000 - 0.5;
+    };
+
     switch(sortBy) {
-      case 'popular': return b.downloads - a.downloads;
-      case 'newest': return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      case 'bpm': return a.bpm - b.bpm;
-      case 'name': return a.name.localeCompare(b.name);
-      default: return 0;
+      case 'popular': 
+        const popularDiff = b.downloads - a.downloads;
+        return popularDiff === 0 ? getStableRandom(a, b) : popularDiff;
+      case 'newest': 
+        const dateDiff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return dateDiff === 0 ? getStableRandom(a, b) : dateDiff;
+      case 'bpm': 
+        const bpmDiff = a.bpm - b.bpm;
+        return bpmDiff === 0 ? getStableRandom(a, b) : bpmDiff;
+      case 'name': 
+        const nameDiff = a.name.localeCompare(b.name);
+        return nameDiff === 0 ? getStableRandom(a, b) : nameDiff;
+      default: 
+        return getStableRandom(a, b);
     }
   });
 
-  // ADD THIS LINE FOR PAGINATION:
   const displayedSamples = sortedSamples.slice(0, displayedSampleCount);
-
-  // Get all unique tags
   const allTags = Array.from(new Set(samples.flatMap(s => s.tags)));
 
-  // Audio playback with waveform
   const togglePlay = async (sampleId: string) => {
     if (playingId === sampleId) {
-      // Pause current
       setPlayingId(null);
     } else {
-      // Set new playing sample
       setPlayingId(sampleId);
     }
   };
 
-  // Like/unlike sample
   const toggleLike = async (sampleId: string) => {
     const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
     const isLiked = likedSamples.has(sampleId);
@@ -244,48 +236,35 @@ export default function SampleBrowser() {
     }
   };
 
-  // Free download - using database metadata for filename
   const handleFreeDownload = async (sample: Sample) => {
     setDownloadingId(sample.id);
     
     try {
       // Check if user is logged in
       if (!user) {
-        // Check download count for anonymous users - ADD CLIENT-SIDE CHECK
-        const currentDownloads = typeof window !== 'undefined' 
-          ? parseInt(localStorage.getItem('anonymous_downloads') || '0')
-          : 0;
-        
-        if (currentDownloads >= 1) {
-          // Show auth modal instead of email modal
+        if (anonymousDownloads >= 1) {
           setShowAuthModal(true);
           setDownloadingId(null);
           toast.error('Please create an account to continue downloading');
           return;
         }
         
-        // Allow first download for anonymous users - ADD CLIENT-SIDE CHECK
+        const newCount = anonymousDownloads + 1;
+        setAnonymousDownloads(newCount);
         if (typeof window !== 'undefined') {
-          localStorage.setItem('anonymous_downloads', (currentDownloads + 1).toString());
+          localStorage.setItem('anonymous_downloads', newCount.toString());
         }
       }
 
-      // Create filename using database metadata: name_bpm_key_@looplib.ext
+      // Create filename
       const extension = sample.file_url.split('.').pop() || 'mp3';
-      
-      // Format the key (remove spaces, lowercase)
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
-      
-      // Format the name (remove spaces, lowercase)
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-      
-      // Create the filename: name_bpm_key @LOOPLIB.mp3
       const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
       
-      // Start download immediately with proper filename
       await downloadFile(sample.file_url, downloadFilename);
       
-      // Then track the download
+      // Track download
       const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -301,31 +280,19 @@ export default function SampleBrowser() {
 
       toast.success('Download complete! Check your downloads folder.');
       
-      // Update download count - ADD CLIENT-SIDE CHECK
+      // Update download count
       const newCount = downloadCount + 1;
       setDownloadCount(newCount);
       if (typeof window !== 'undefined') {
         localStorage.setItem('download_count', newCount.toString());
       }
       
-      // Show success message for first download if anonymous - ADD CLIENT-SIDE CHECK
-      if (!user && typeof window !== 'undefined') {
-        const anonymousDownloads = parseInt(localStorage.getItem('anonymous_downloads') || '0');
-        if (anonymousDownloads === 1) {
-          toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
-            duration: 5000
-          });
-        }
+      if (!user && anonymousDownloads === 0) {
+        toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
+          duration: 5000
+        });
       }
       
-      // Update producer stats
-      setProducerStats(prev => ({
-        ...prev,
-        downloads: prev.downloads + 1,
-        credits: Math.max(0, prev.credits - 1)
-      }));
-      
-      // Refresh sample data to update download count
       fetchSamples();
     } catch (error) {
       console.error('Download error:', error);
@@ -335,7 +302,6 @@ export default function SampleBrowser() {
     }
   };
 
-  // Purchase license
   const handleLicensePurchase = async (license: License) => {
     if (!selectedSample) return;
     
@@ -356,7 +322,6 @@ export default function SampleBrowser() {
 
       const { sessionId } = await response.json();
       
-      // Redirect to Stripe Checkout
       const stripe = await stripePromise;
       const { error } = await stripe!.redirectToCheckout({ sessionId });
       
@@ -371,33 +336,22 @@ export default function SampleBrowser() {
     }
   };
 
-  // Update the getUserLibraryCount function:
-  const getUserLibraryCount = () => {
-    if (typeof window === 'undefined') return 0;
-    
-    // Get unique samples (avoid counting same sample twice if both liked and downloaded)
-    const downloadedSamples = new Set(JSON.parse(localStorage.getItem('downloaded_samples') || '[]'));
-    const allUserSamples = new Set([...likedSamples, ...downloadedSamples]);
-    return allUserSamples.size;
-  };
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-none mx-auto px-0">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <img 
-                  src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
-                  alt="LoopLib"
-                  className="h-8 w-auto"
-                />
-              </div>
+            {/* Logo positioned to align with sidebar */}
+            <div className="flex items-center pl-6">
+              <img 
+                src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
+                alt="LoopLib"
+                className="h-8 w-auto"
+              />
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 pr-6">
               {user ? (
                 <>
                   <div className="flex items-center space-x-2 text-neutral-400">
@@ -448,11 +402,7 @@ export default function SampleBrowser() {
                   }`}
                 >
                   <span className="font-medium">{genre.name}</span>
-                  <span className="text-xs">
-                    {genre.id === 'all' 
-                      ? samples.length 
-                      : samples.filter(s => s.genre === genre.id).length}
-                  </span>
+                  <span className="text-lg">{genre.emoji}</span>
                 </button>
               ))}
             </div>
@@ -461,65 +411,41 @@ export default function SampleBrowser() {
           {/* Tags */}
           <div>
             <h3 className="text-xs font-semibold uppercase text-neutral-400 mb-3">Tags</h3>
-            <div className="flex flex-wrap gap-2">
-              {allTags.slice(0, 8).map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTags(prev => 
-                    prev.includes(tag) 
-                      ? prev.filter(t => t !== tag)
-                      : [...prev, tag]
-                  )}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    selectedTags.includes(tag)
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
+            <div className="max-h-60 overflow-y-auto">
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTags(prev => 
+                      prev.includes(tag) 
+                        ? prev.filter(t => t !== tag)
+                        : [...prev, tag]
+                    )}
+                    className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
+            
+            {selectedTags.length > 0 && (
+              <button
+                onClick={() => setSelectedTags([])}
+                className="mt-3 text-xs text-orange-400 hover:text-orange-300 transition-colors"
+              >
+                Clear all tags ({selectedTags.length})
+              </button>
+            )}
           </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1">
-          {/* Welcome Message for logged in users */}
-          {userEmail && (
-            <div className="p-6 border-b border-neutral-800">
-              <div className="max-w-6xl mx-auto">
-                <div className="bg-neutral-900/50 rounded-lg p-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium mb-1">Welcome back!</h3>
-                    <p className="text-sm text-neutral-400">
-                      {getUserLibraryCount()} samples in your library
-                      {likedSamples.size > 0 && (
-                        <span className="text-red-400 ml-2">• {likedSamples.size} liked</span>
-                      )}
-                      {downloadCount > 0 && (
-                        <span className="text-green-400 ml-2">• {downloadCount} downloaded</span>
-                      )}
-                    </p>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      // Filter to show only user's samples
-                      setSelectedTags([]);
-                      setSearchTerm('');
-                      setSelectedGenre('all');
-                      // You could add a filter for user's library here
-                    }}
-                    className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors flex items-center space-x-2"
-                  >
-                    <Music className="w-4 h-4" />
-                    <span>My Library</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Search & Sort */}
           <div className="border-b border-neutral-800 bg-neutral-900/30 p-6">
             <div className="max-w-6xl mx-auto">
@@ -561,12 +487,6 @@ export default function SampleBrowser() {
                     <Hash className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-neutral-400">
-                  {sortedSamples.length} samples
-                </p>
               </div>
             </div>
           </div>
@@ -613,8 +533,6 @@ export default function SampleBrowser() {
                             
                             <div className="flex items-center space-x-2">
                               <span className="text-sm text-neutral-400">{sample.key}</span>
-                              <span className="text-sm text-neutral-400">•</span>
-                              <span className="text-sm text-neutral-400">{sample.duration}</span>
                             </div>
                           </div>
                           
@@ -662,7 +580,7 @@ export default function SampleBrowser() {
                                   <Download className="w-4 h-4" />
                                 )}
                                 <span>
-                                  {!user && typeof window !== 'undefined' && parseInt(localStorage.getItem('anonymous_downloads') || '0') >= 1 
+                                  {!user && anonymousDownloads >= 1 
                                     ? 'Sign Up for More' 
                                     : 'Free'
                                   }
@@ -784,54 +702,14 @@ export default function SampleBrowser() {
         </div>
       )}
 
-      {/* Email Capture Modal */}
-      <EmailCaptureModal
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        onSuccess={(email) => {
-          setUserEmail(email);
-          setProducerStats(prev => ({ ...prev, credits: 25 }));
-          loadUserData();
-        }}
-        triggerType={emailModalTrigger}
-      />
-
       {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         onSuccess={() => {
           checkUser();
-          loadUserData();
         }}
       />
-
-      {/* Anonymous User Banner */}
-      {!user && (
-        <div className="border-b border-neutral-800 bg-gradient-to-r from-orange-900/20 to-red-900/20 p-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-orange-200">
-                  {typeof window !== 'undefined' && parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
-                    ? '🎵 Try one free download, then create an account for unlimited access!'
-                    : '✨ You\'ve used your free download! Create an account for unlimited downloads.'
-                  }
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors font-medium text-sm"
-              >
-                {typeof window !== 'undefined' && parseInt(localStorage.getItem('anonymous_downloads') || '0') === 0 
-                  ? 'Sign Up Free' 
-                  : 'Create Account'
-                }
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
