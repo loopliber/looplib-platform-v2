@@ -368,11 +368,6 @@ export default function SampleBrowser() {
                   Login / Sign Up
                 </button>
               )}
-              {user && isAdmin && (
-                <a href="/admin/upload" className="text-neutral-400 hover:text-white transition-colors">
-                  Admin
-                </a>
-              )}
             </div>
           </div>
         </div>
