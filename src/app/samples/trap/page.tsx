@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import GenrePageTemplate, { GenrePageConfig } from '@/components/GenrePageTemplate';
+import SampleBrowser from '@/components/SampleBrowser';
 import { Heart, Music, Mic } from 'lucide-react';
 
 const soulConfig: GenrePageConfig = {
@@ -46,6 +48,19 @@ const soulConfig: GenrePageConfig = {
   },
 };
 
-export default function SoulSamplesPage() {
-  return <GenrePageTemplate config={soulConfig} />;
+export default function TrapSamplesPage() {
+  // Force re-render when component mounts
+  useEffect(() => {
+    // This ensures the component re-initializes when navigating
+  }, []);
+
+  return (
+    <SampleBrowser 
+      key="trap" // Add this key to force re-render
+      initialGenre="trap"
+      pageTitle="Royalty-Free Trap Loops"
+      pageSubtitle="Free Download on All Samples and Loops"
+      accentColor="orange"
+    />
+  );
 }

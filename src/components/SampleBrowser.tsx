@@ -101,6 +101,18 @@ export default function SampleBrowser({
     setDisplayedSampleCount(SAMPLES_PER_PAGE);
   }, [selectedGenre, selectedTags]);
 
+  // Add this useEffect to refetch when initialGenre changes
+  useEffect(() => {
+    if (selectedGenre !== initialGenre) {
+      setSelectedGenre(initialGenre);
+    }
+  }, [initialGenre, selectedGenre]);
+
+  // And make sure fetchSamples is called when selectedGenre changes:
+  useEffect(() => {
+    fetchSamples();
+  }, [selectedGenre]);
+
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
