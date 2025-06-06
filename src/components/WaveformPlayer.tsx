@@ -25,8 +25,6 @@ export default function WaveformPlayer({
   const containerRef = useRef<HTMLDivElement>(null);
   const wavesurferRef = useRef<any>(null);
   const [loading, setLoading] = useState(true);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
     const initWaveSurfer = async () => {
@@ -55,11 +53,6 @@ export default function WaveformPlayer({
 
         wavesurfer.on('ready', () => {
           setLoading(false);
-          setDuration(wavesurfer.getDuration());
-        });
-
-        wavesurfer.on('audioprocess', () => {
-          setCurrentTime(wavesurfer.getCurrentTime());
         });
 
         wavesurfer.on('finish', () => {
@@ -114,12 +107,6 @@ export default function WaveformPlayer({
     onPlayPause();
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   return (
     <div className="relative w-full group">
       {/* Play/Pause Button */}
@@ -154,13 +141,6 @@ export default function WaveformPlayer({
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-neutral-800/50 rounded">
             <span className="text-xs text-neutral-400">Loading...</span>
-          </div>
-        )}
-
-        {/* Time display */}
-        {!loading && (
-          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 text-xs text-neutral-400 bg-black/50 px-2 py-1 rounded">
-            {formatTime(currentTime)} / {formatTime(duration)}
           </div>
         )}
       </div>
