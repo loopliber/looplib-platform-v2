@@ -1,0 +1,57 @@
+export const genresConfig = {
+  trap: {
+    title: 'Free Trap Samples & Loops | Download Trap Sounds | LoopLib',
+    description: 'Download 500+ free trap samples and loops. High-quality 808s, hi-hats, and melodies for trap music production. 140-170 BPM. Royalty-free with commercial licenses.',
+    keywords: 'free trap samples, trap loops, 808 samples, trap drums, hi-hat rolls, trap melodies, free trap sounds, trap production, trap beats, trap music samples',
+    bpmRanges: [
+      { id: 'all', label: 'All BPMs', min: 0, max: 999 },
+      { id: '140-150', label: '140-150 BPM', min: 140, max: 150 },
+      { id: '150-160', label: '150-160 BPM', min: 150, max: 160 },
+      { id: '160-170', label: '160-170 BPM', min: 160, max: 170 },
+    ],
+    tags: ['808', 'hi-hat', 'dark', 'hard', 'melodic', 'drill', 'rage', 'ambient'],
+    gradient: 'from-orange-600 via-red-600 to-red-800',
+    accentColor: 'orange',
+  },
+  soul: {
+    title: 'Free Soul Samples & Loops | Download Soul Sounds | LoopLib',
+    description: 'Download 300+ free soul samples and loops. Vintage vocals, warm bass lines, and classic soul rhythms. 60-120 BPM. Royalty-free.',
+    keywords: 'free soul samples, soul loops, vintage vocals, soul drums, motown samples, classic soul, soul music production',
+    bpmRanges: [
+      { id: 'all', label: 'All BPMs', min: 0, max: 999 },
+      { id: '60-80', label: '60-80 BPM', min: 60, max: 80 },
+      { id: '80-100', label: '80-100 BPM', min: 80, max: 100 },
+      { id: '100-120', label: '100-120 BPM', min: 100, max: 120 },
+    ],
+    tags: ['vintage', 'warm', 'vocals', 'brass', 'organ', 'guitar', 'strings', 'classic'],
+    gradient: 'from-pink-600 via-purple-600 to-indigo-700',
+    accentColor: 'pink',
+  },
+  rnb: {
+    title: 'Free R&B Samples & Loops | Download R&B Sounds | LoopLib',
+    description: 'Download 400+ free R&B samples and loops. Smooth vocals, jazzy chords, and soulful melodies for R&B music production. 70-140 BPM. Royalty-free.',
+    keywords: 'free r&b samples, r&b loops, smooth vocals, jazz chords, r&b drums, neo soul samples, contemporary r&b, r&b production',
+    bpmRanges: [
+      { id: 'all', label: 'All BPMs', min: 0, max: 999 },
+      { id: '70-90', label: '70-90 BPM', min: 70, max: 90 },
+      { id: '90-110', label: '90-110 BPM', min: 90, max: 110 },
+      { id: '110-130', label: '110-130 BPM', min: 110, max: 130 },
+    ],
+    tags: ['smooth', 'vocals', 'jazzy', 'neo-soul', 'contemporary', 'silky', 'romantic', 'groove'],
+    gradient: 'from-purple-600 via-purple-700 to-purple-900',
+    accentColor: 'purple',
+  },
+  hiphop: {
+    title: 'Free Hip-Hop Samples & Loops | Download Hip-Hop Sounds | LoopLib',
+    description: 'Download 400+ free hip-hop samples and loops. Classic beats, soulful melodies, and modern vibes for hip-hop music production. 80-120 BPM. Royalty-free.',
+    keywords: 'free hip-hop samples, hip-hop loops, classic beats, soulful melodies, hip-hop drums, modern hip-hop, free hip-hop sounds, hip-hop production',
+    bpmRanges: [
+      { id: 'all', label: 'All BPMs', min: 0, max: 999 },
+      { id: '80-100', label: '80-100 BPM', min: 80, max: 100 },
+      { id: '100-120', label: '100-120 BPM', min: 100, max: 120 },
+    ],
+    tags: ['classic', 'beats', 'soulful', 'modern', 'groove', 'rhythmic', 'vocal chops'],
+    gradient: 'from-blue-600 via-blue-700 to-blue-900',
+    accentColor: 'blue',
+  },
+};

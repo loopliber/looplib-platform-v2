@@ -38,9 +38,17 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 
 interface SampleBrowserProps {
   initialGenre?: Genre;
+  pageTitle?: string;
+  pageSubtitle?: string;
+  accentColor?: string;
 }
 
-export default function SampleBrowser({ initialGenre = 'all' }: SampleBrowserProps = {}) {
+export default function SampleBrowser({ 
+  initialGenre = 'all', 
+  pageTitle,
+  pageSubtitle,
+  accentColor = 'orange'
+}: SampleBrowserProps) {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(true);
@@ -379,138 +387,6 @@ export default function SampleBrowser({ initialGenre = 'all' }: SampleBrowserPro
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
-        <div className="max-w-none mx-auto px-0">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center pl-6">
-              <img 
-                src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
-                alt="LoopLib"
-                className="h-8 w-auto"
-              />
-            </div>
-            
-            {/* Add Sample Genre Navigation */}
-            <nav className="hidden md:flex items-center space-x-6" role="navigation" aria-label="Sample genres">
-              <Link 
-                href="/"
-                className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                  selectedGenre === 'all' ? 'text-orange-400' : 'text-neutral-300'
-                }`}
-              >
-                All Samples
-              </Link>
-              <Link 
-                href="/samples/trap"
-                className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                  selectedGenre === 'trap' ? 'text-orange-400' : 'text-neutral-300'
-                }`}
-              >
-                🔥 Trap
-              </Link>
-              <Link 
-                href="/samples/rnb"
-                className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                  selectedGenre === 'rnb' ? 'text-orange-400' : 'text-neutral-300'
-                }`}
-              >
-                💫 R&B
-              </Link>
-              <Link 
-                href="/samples/soul"
-                className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                  selectedGenre === 'soul' ? 'text-orange-400' : 'text-neutral-300'
-                }`}
-              >
-                ❤️ Soul
-              </Link>
-              
-              {/* Mobile Menu Button */}
-              <button
-                className="md:hidden p-2 text-neutral-400 hover:text-white"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-                aria-label="Toggle mobile menu"
-              >
-                <Filter className="w-5 h-5" />
-              </button>
-            </nav>
-            
-            <div className="flex items-center space-x-4 pr-6">
-              {user ? (
-                <>
-                  <button
-                    onClick={() => setShowDashboard(true)}
-                    className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-                  >
-                    <User className="w-4 h-4" />
-                    <span className="hidden sm:inline">Dashboard</span>
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span className="hidden sm:inline">Logout</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors font-medium"
-                >
-                  Login / Sign Up
-                </button>
-              )}
-            </div>
-          </div>
-          
-          {/* Mobile Genre Navigation */}
-          {showMobileMenu && (
-            <div className="md:hidden bg-neutral-900 border-t border-neutral-800 p-4">
-              <nav className="flex flex-col space-y-3" role="navigation" aria-label="Mobile sample genres">
-                <Link 
-                  href="/"
-                  className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                    selectedGenre === 'all' ? 'text-orange-400' : 'text-neutral-300'
-                  }`}
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  All Samples
-                </Link>
-                <Link 
-                  href="/samples/trap"
-                  className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                    selectedGenre === 'trap' ? 'text-orange-400' : 'text-neutral-300'
-                  }`}
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  🔥 Trap
-                </Link>
-                <Link 
-                  href="/samples/rnb"
-                  className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                    selectedGenre === 'rnb' ? 'text-orange-400' : 'text-neutral-300'
-                  }`}
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  💫 R&B
-                </Link>
-                <Link 
-                  href="/samples/soul"
-                  className={`text-sm font-medium transition-colors hover:text-orange-400 ${
-                    selectedGenre === 'soul' ? 'text-orange-400' : 'text-neutral-300'
-                  }`}
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  ❤️ Soul
-                </Link>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
-
       {/* Breadcrumb Navigation */}
       {selectedGenre !== 'all' && (
         <div className="bg-neutral-900/30 border-b border-neutral-800 px-6 py-3">
@@ -655,6 +531,22 @@ export default function SampleBrowser({ initialGenre = 'all' }: SampleBrowserPro
               </div>
             </div>
           </div>
+
+          {/* Page Titles - Right After Search Section */}
+          {pageTitle && (
+            <div className="pt-8 pb-6 px-6">
+              <div className="max-w-6xl mx-auto">
+                <h1 className="text-3xl font-bold mb-2 text-white">
+                  {pageTitle}
+                </h1>
+                {pageSubtitle && (
+                  <h2 className={`text-xl font-semibold text-${accentColor}-400`}>
+                    {pageSubtitle}
+                  </h2>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Samples List */}
           <div className="p-6">
@@ -873,6 +765,7 @@ export default function SampleBrowser({ initialGenre = 'all' }: SampleBrowserPro
         onClose={() => setShowAuthModal(false)}
         onSuccess={() => {
           checkUser();
+          setShowAuthModal(false);
         }}
       />
     </div>

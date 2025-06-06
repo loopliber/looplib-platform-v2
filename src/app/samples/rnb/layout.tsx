@@ -2,16 +2,8 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Free R&B Samples & Loops | Download R&B Sounds | LoopLib',
-  description: 'Download 400+ free R&B samples and loops. Smooth vocals, jazzy chords, and soulful melodies for R&B music production. 70-140 BPM. Royalty-free.',
-  keywords: 'free r&b samples, r&b loops, smooth vocals, jazz chords, r&b drums, neo soul samples, contemporary r&b, r&b production',
-  openGraph: {
-    title: 'Free R&B Samples & Loops - LoopLib',
-    description: 'Professional R&B samples for music producers. Download free smooth vocals, jazzy chords, and soulful melodies.',
-    url: 'https://looplib.com/samples/rnb',
-  },
-  alternates: {
-    canonical: 'https://looplib.com/samples/rnb',
-  },
+  description: 'Download 80+ free R&B samples and loops. Smooth melodies, modern chords, and silky sounds for R&B music production. Royalty-free with commercial licenses.',
+  keywords: 'free rnb samples, r&b loops, rnb sounds, smooth samples, modern rnb, rnb production, contemporary r&b',
 };
 
 export default function RnBSamplesLayout({
@@ -19,5 +11,5 @@ export default function RnBSamplesLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return children;
 }
