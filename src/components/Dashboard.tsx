@@ -34,6 +34,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
     avgBpm: 0,
     recentActivity: 0
   });
+  const [producerName, setProducerName] = useState('');
 
   const supabase = createClient();
 
@@ -51,6 +52,21 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
       if (!userIdentifier) {
         setLoading(false);
         return;
+      }
+
+      // Fetch producer name from profiles table
+      if (user?.id) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('producer_name')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (profileData?.producer_name) {
+          setProducerName(profileData.producer_name);
+        } else if (user?.user_metadata?.producer_name) {
+          setProducerName(user.user_metadata.producer_name);
+        }
       }
       
       // Fetch liked samples
@@ -241,7 +257,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
             <div className="flex items-center space-x-4 pr-6">
               <div className="flex items-center space-x-2 text-neutral-400">
                 <User className="w-4 h-4" />
-                <span className="text-sm">Dashboard</span>
+                <span className="text-sm">{producerName || 'Producer'}</span>
               </div>
               <button
                 onClick={onLogout}
@@ -258,7 +274,9 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Your Music Dashboard</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Welcome back, {producerName || 'Producer'}! 👋
+          </h1>
           <p className="text-neutral-400">
             Track your favorite samples and music preferences
           </p>
