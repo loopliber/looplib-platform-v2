@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Sample, License, Genre, SortBy } from '@/types';
 import { 
   Play, Pause, Download, Heart, Search, 
   Music, ShoppingCart, X, Check, Loader2, Filter,
-  TrendingUp, Clock, Hash, User, LogOut
+  TrendingUp, Clock, Hash, User, LogOut, Shuffle
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
@@ -24,6 +24,16 @@ const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), {
 });
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+// Fisher-Yates shuffle algorithm
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 export default function SampleBrowser() {
   const [samples, setSamples] = useState<Sample[]>([]);
@@ -43,10 +53,8 @@ export default function SampleBrowser() {
   const [displayedSampleCount, setDisplayedSampleCount] = useState(5);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [isClientMounted, setIsClientMounted] = useState(false);
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
-  const [randomSeed, setRandomSeed] = useState(Math.random());
-  const [seenSampleIds, setSeenSampleIds] = useState<Set<string>>(new Set());
+  const [shuffleKey, setShuffleKey] = useState(0); // Key to force re-shuffle
   const [showDashboard, setShowDashboard] = useState(false);
 
   const SAMPLES_PER_PAGE = 5;
@@ -59,28 +67,25 @@ export default function SampleBrowser() {
     { id: 'soul', name: 'Soul', emoji: '❤️' },
   ];
 
-  // Fetch samples and licenses
+  // Initialize
   useEffect(() => {
     fetchSamples();
     fetchLicenses();
     loadUserLikes();
     checkUser();
-  }, []);
-
-  // Client-side effect for mounting
-  useEffect(() => {
-    setIsClientMounted(true);
+    
+    // Load localStorage values
     if (typeof window !== 'undefined') {
       setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
       setDownloadCount(parseInt(localStorage.getItem('download_count') || '0'));
     }
   }, []);
 
-  // Shuffle when filters change
+  // Auto-shuffle when filters change
   useEffect(() => {
-    setRandomSeed(Math.random());
+    setShuffleKey(prev => prev + 1);
     setDisplayedSampleCount(SAMPLES_PER_PAGE);
-  }, [selectedGenre, selectedTags, searchTerm]);
+  }, [selectedGenre, selectedTags]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -154,84 +159,67 @@ export default function SampleBrowser() {
   };
 
   // Filter samples
-  const filteredSamples = samples.filter(sample => {
-    const matchesGenre = selectedGenre === 'all' || sample.genre === selectedGenre;
-    const matchesSearch = sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sample.artist?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sample.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.some(tag => sample.tags.includes(tag));
-    return matchesGenre && matchesSearch && matchesTags;
-  });
+  const filteredSamples = useMemo(() => {
+    return samples.filter(sample => {
+      const matchesGenre = selectedGenre === 'all' || sample.genre === selectedGenre;
+      const matchesSearch = searchTerm === '' || 
+        sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sample.artist?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        sample.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesTags = selectedTags.length === 0 || 
+        selectedTags.some(tag => sample.tags.includes(tag));
+      
+      return matchesGenre && matchesSearch && matchesTags;
+    });
+  }, [samples, selectedGenre, searchTerm, selectedTags]);
 
-  // Sort samples with randomization
-  const sortedSamples = [...filteredSamples].sort((a, b) => {
-    // Prioritize unseen samples
-    const aUnseen = !seenSampleIds.has(a.id);
-    const bUnseen = !seenSampleIds.has(b.id);
+  // Sort and shuffle samples
+  const sortedAndShuffledSamples = useMemo(() => {
+    let result = [...filteredSamples];
     
-    if (aUnseen && !bUnseen) return -1;
-    if (!aUnseen && bUnseen) return 1;
-    
-    // Then apply normal sorting with randomization
-    const getStableRandom = (sampleA: Sample, sampleB: Sample) => {
-      const combined = sampleA.id + sampleB.id + randomSeed.toString();
-      let hash = 0;
-      for (let i = 0; i < combined.length; i++) {
-        const char = combined.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-      }
-      return (hash % 1000) / 1000 - 0.5;
-    };
-
+    // Apply sorting
     switch(sortBy) {
-      case 'popular': 
-        const popularDiff = b.downloads - a.downloads;
-        return popularDiff === 0 ? getStableRandom(a, b) : popularDiff;
-      case 'newest': 
-        const dateDiff = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        return dateDiff === 0 ? getStableRandom(a, b) : dateDiff;
-      case 'bpm': 
-        const bpmDiff = a.bpm - b.bpm;
-        return bpmDiff === 0 ? getStableRandom(a, b) : bpmDiff;
-      case 'name': 
-        const nameDiff = a.name.localeCompare(b.name);
-        return nameDiff === 0 ? getStableRandom(a, b) : nameDiff;
-      default: 
-        return getStableRandom(a, b);
+      case 'popular':
+        result.sort((a, b) => b.downloads - a.downloads);
+        break;
+      case 'newest':
+        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case 'bpm':
+        result.sort((a, b) => a.bpm - b.bpm);
+        break;
+      case 'name':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
     }
-  });
+    
+    // Always shuffle to add randomness
+    return shuffleArray(result);
+  }, [filteredSamples, sortBy, shuffleKey]);
 
-  const displayedSamples = sortedSamples.slice(0, displayedSampleCount);
-  const allTags = Array.from(new Set(samples.flatMap(s => s.tags)));
+  const displayedSamples = sortedAndShuffledSamples.slice(0, displayedSampleCount);
+  
+  // Get all unique tags
+  const allTags = useMemo(() => 
+    Array.from(new Set(samples.flatMap(s => s.tags))).sort(),
+    [samples]
+  );
 
-  const togglePlay = async (sampleId: string) => {
-    if (playingId === sampleId) {
-      setPlayingId(null);
-    } else {
-      setPlayingId(sampleId);
-    }
+  const togglePlay = (sampleId: string) => {
+    setPlayingId(playingId === sampleId ? null : sampleId);
   };
-
-  // Update the toggleLike function to handle the unique constraint properly:
 
   const toggleLike = async (sampleId: string) => {
     const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
     const isLiked = likedSamples.has(sampleId);
 
-    console.log('Toggle like:', { sampleId, userIdentifier, isLiked }); // DEBUG
-
     try {
       if (isLiked) {
-        // Remove like
         const { error } = await supabase
           .from('user_likes')
           .delete()
           .eq('user_identifier', userIdentifier)
           .eq('sample_id', sampleId);
-        
-        console.log('Delete like result:', { error }); // DEBUG
         
         if (error) throw error;
         
@@ -242,7 +230,6 @@ export default function SampleBrowser() {
         });
         toast.success('Removed from liked samples');
       } else {
-        // Add like using upsert to handle duplicates
         const { error } = await supabase
           .from('user_likes')
           .upsert({
@@ -251,8 +238,6 @@ export default function SampleBrowser() {
           }, {
             onConflict: 'user_identifier,sample_id'
           });
-        
-        console.log('Insert like result:', { error }); // DEBUG
         
         if (error) throw error;
         
@@ -280,9 +265,7 @@ export default function SampleBrowser() {
         
         const newCount = anonymousDownloads + 1;
         setAnonymousDownloads(newCount);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('anonymous_downloads', newCount.toString());
-        }
+        localStorage.setItem('anonymous_downloads', newCount.toString());
       }
 
       // Create filename
@@ -293,9 +276,9 @@ export default function SampleBrowser() {
       
       await downloadFile(sample.file_url, downloadFilename);
       
-      // Track download with proper user identification
+      // Track download
       const userEmail = user?.email || 'anonymous@looplib.com';
-      const response = await fetch('/api/download', {
+      await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -304,18 +287,12 @@ export default function SampleBrowser() {
         })
       });
 
-      if (!response.ok) {
-        console.warn('Download tracking failed, but file downloaded successfully');
-      }
-
       toast.success('Download complete! Check your downloads folder.');
       
       // Update download count
       const newCount = downloadCount + 1;
       setDownloadCount(newCount);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('download_count', newCount.toString());
-      }
+      localStorage.setItem('download_count', newCount.toString());
       
       if (!user && anonymousDownloads === 0) {
         toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
@@ -366,61 +343,24 @@ export default function SampleBrowser() {
     }
   };
 
-  const handleRefresh = () => {
-    // Get all samples that match current filters
-    const availableSamples = filteredSamples;
-    
-    // If we've seen most samples, reset the seen list
-    if (seenSampleIds.size >= availableSamples.length * 0.8) {
-      setSeenSampleIds(new Set());
-    }
-    
-    // Generate new random seed for fresh ordering
-    setRandomSeed(Math.random());
-    
-    // Reset pagination
-    setDisplayedSampleCount(SAMPLES_PER_PAGE);
-    
-    // Mark currently displayed samples as seen
-    const newSeenIds = new Set(seenSampleIds);
-    displayedSamples.forEach(sample => newSeenIds.add(sample.id));
-    setSeenSampleIds(newSeenIds);
-    
-    toast.success('🎲 Fresh samples loaded!', { duration: 1500 });
-  };
+  const handleRefresh = useCallback(() => {
+    setShuffleKey(prev => prev + 1);
+    toast.success('🎲 Samples shuffled!', { duration: 1500 });
+  }, []);
 
-  // Update the header section to include Dashboard link
-  const renderHeader = () => (
-    <div className="flex items-center space-x-4 pr-6">
-      {user ? (
-        <>
-          <button
-            onClick={() => setShowDashboard(true)}
-            className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-          >
-            <User className="w-4 h-4" />
-            <span>Dashboard</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </button>
-        </>
-      ) : (
-        <button
-          onClick={() => setShowAuthModal(true)}
-          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors font-medium"
-        >
-          Login / Sign Up
-        </button>
-      )}
-    </div>
-  );
+  const handleTagClick = useCallback((tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  }, []);
 
-  // Add conditional rendering for Dashboard
+  const handleGenreClick = useCallback((genreId: Genre) => {
+    setSelectedGenre(genreId);
+    setSearchTerm(''); // Clear search when changing genre
+  }, []);
+
   if (showDashboard) {
     return (
       <Dashboard 
@@ -437,7 +377,6 @@ export default function SampleBrowser() {
       <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
         <div className="max-w-none mx-auto px-0">
           <div className="flex items-center justify-between h-16">
-            {/* Logo positioned to align with sidebar */}
             <div className="flex items-center pl-6">
               <img 
                 src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
@@ -446,7 +385,33 @@ export default function SampleBrowser() {
               />
             </div>
             
-            {renderHeader()}
+            <div className="flex items-center space-x-4 pr-6">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => setShowDashboard(true)}
+                    className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors font-medium"
+                >
+                  Login / Sign Up
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -466,7 +431,7 @@ export default function SampleBrowser() {
               {genres.map((genre) => (
                 <button
                   key={genre.id}
-                  onClick={() => setSelectedGenre(genre.id)}
+                  onClick={() => handleGenreClick(genre.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
                     selectedGenre === genre.id
                       ? 'bg-neutral-800 text-white'
@@ -488,11 +453,7 @@ export default function SampleBrowser() {
                 {allTags.map((tag) => (
                   <button
                     key={tag}
-                    onClick={() => setSelectedTags(prev => 
-                      prev.includes(tag) 
-                        ? prev.filter(t => t !== tag)
-                        : [...prev, tag]
-                    )}
+                    onClick={() => handleTagClick(tag)}
                     className={`px-3 py-1 text-xs rounded-full transition-colors ${
                       selectedTags.includes(tag)
                         ? 'bg-orange-500 text-white'
@@ -563,25 +524,12 @@ export default function SampleBrowser() {
                   </button>
                 </div>
 
-                {/* Add Refresh Button */}
                 <button
                   onClick={handleRefresh}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center space-x-2 font-medium"
                   title="Shuffle samples"
                 >
-                  <svg 
-                    className="w-4 h-4" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
-                    />
-                  </svg>
+                  <Shuffle className="w-4 h-4" />
                   <span>Shuffle</span>
                 </button>
               </div>
@@ -595,7 +543,7 @@ export default function SampleBrowser() {
                 <div className="flex items-center justify-center py-20">
                   <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
                 </div>
-              ) : sortedSamples.length === 0 ? (
+              ) : sortedAndShuffledSamples.length === 0 ? (
                 <div className="text-center py-20">
                   <p className="text-neutral-400">No samples found</p>
                 </div>
@@ -702,13 +650,13 @@ export default function SampleBrowser() {
                   ))}
                   
                   {/* Load More Button */}
-                  {displayedSampleCount < sortedSamples.length && (
+                  {displayedSampleCount < sortedAndShuffledSamples.length && (
                     <div className="flex justify-center pt-8">
                       <button
                         onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
                         className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
                       >
-                        Load More
+                        Load More ({sortedAndShuffledSamples.length - displayedSampleCount} remaining)
                       </button>
                     </div>
                   )}
