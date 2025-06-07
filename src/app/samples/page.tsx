@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { 
-  Music, User, LogOut, ArrowRight, Sparkles,
-  Flame, Heart, Headphones, Play, Pause
+  Music, ArrowRight, Sparkles,
+  Flame, Heart, Headphones
 } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 interface GenreStats {
   genre: string;
@@ -26,16 +25,12 @@ interface GenreCollection {
   tags: string[];
   gradient: string;
   accentColor: string;
-  previewUrl?: string;
 }
 
 export default function SamplesCollectionPage() {
-  const [user, setUser] = useState<any>(null);
   const [genreStats, setGenreStats] = useState<Record<string, GenreStats>>({});
   const [loading, setLoading] = useState(true);
-  const [playingGenre, setPlayingGenre] = useState<string | null>(null);
   const [hoveredGenre, setHoveredGenre] = useState<string | null>(null);
-  const [audioElements, setAudioElements] = useState<{ [key: string]: HTMLAudioElement }>({});
   
   const supabase = createClient();
 
@@ -51,8 +46,7 @@ export default function SamplesCollectionPage() {
       bpmRange: '140-170 BPM',
       tags: ['808', 'Hi-Hats', 'Dark', 'Hard'],
       gradient: 'from-orange-600 via-red-600 to-red-800',
-      accentColor: 'orange',
-      previewUrl: '/samples/trap-preview.mp3' // Add preview URLs when available
+      accentColor: 'orange'
     },
     {
       id: 'soul',
@@ -64,8 +58,7 @@ export default function SamplesCollectionPage() {
       bpmRange: '70-110 BPM',
       tags: ['Vintage', 'Warm', 'Gospel', 'Classic'],
       gradient: 'from-pink-600 via-purple-600 to-indigo-700',
-      accentColor: 'pink',
-      previewUrl: '/samples/soul-preview.mp3'
+      accentColor: 'pink'
     },
     {
       id: 'rnb',
@@ -77,31 +70,22 @@ export default function SamplesCollectionPage() {
       bpmRange: '60-100 BPM',
       tags: ['Smooth', 'Melodic', 'Modern', 'Chill'],
       gradient: 'from-purple-600 via-purple-700 to-purple-900',
-      accentColor: 'purple',
-      previewUrl: '/samples/rnb-preview.mp3'
+      accentColor: 'purple'
     }
   ];
 
   useEffect(() => {
-    checkUser();
     fetchGenreStats();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-  };
-
   const fetchGenreStats = async () => {
     try {
-      // Fetch sample counts by genre
       const { data: samples, error } = await supabase
         .from('samples')
         .select('genre, created_at');
 
       if (error) throw error;
 
-      // Calculate stats
       const stats: Record<string, GenreStats> = {};
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -126,40 +110,6 @@ export default function SamplesCollectionPage() {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    toast.success('Logged out successfully');
-  };
-
-  const playPreview = async (genre: string, previewUrl?: string) => {
-    if (!previewUrl) return;
-
-    // Stop all other previews
-    Object.values(audioElements).forEach(audio => audio.pause());
-
-    if (playingGenre === genre) {
-      setPlayingGenre(null);
-      return;
-    }
-
-    let audio = audioElements[genre];
-    if (!audio) {
-      audio = new Audio(previewUrl);
-      audio.volume = 0.5;
-      audio.addEventListener('ended', () => setPlayingGenre(null));
-      setAudioElements(prev => ({ ...prev, [genre]: audio }));
-    }
-
-    try {
-      await audio.play();
-      setPlayingGenre(genre);
-    } catch (error) {
-      console.error('Error playing preview:', error);
-    }
-  };
-
-  const totalSamples = Object.values(genreStats).reduce((sum, stat) => sum + stat.count, 0);
   const totalNew = Object.values(genreStats).reduce((sum, stat) => sum + stat.newThisWeek, 0);
 
   return (
@@ -173,13 +123,8 @@ export default function SamplesCollectionPage() {
               Professional samples and loops organized by genre
             </p>
             
-            {/* Stats */}
+            {/* Stats - Removed Total Samples */}
             <div className="flex justify-center items-center space-x-6 sm:space-x-8 text-sm">
-              <div>
-                <p className="text-2xl sm:text-3xl font-bold text-orange-400">{totalSamples}</p>
-                <p className="text-xs sm:text-sm text-neutral-400">Total Samples</p>
-              </div>
-              <div className="w-px h-12 bg-neutral-700" />
               <div>
                 <p className="text-2xl sm:text-3xl font-bold text-green-400">{totalNew}</p>
                 <p className="text-xs sm:text-sm text-neutral-400">New This Week</p>
@@ -199,8 +144,6 @@ export default function SamplesCollectionPage() {
         <div className="space-y-4 sm:space-y-6">
           {genreCollections.map((genre) => {
             const stats = genreStats[genre.id] || { count: 0, newThisWeek: 0 };
-            const isHovered = hoveredGenre === genre.id;
-            const isPlaying = playingGenre === genre.id;
             
             return (
               <Link
@@ -245,26 +188,6 @@ export default function SamplesCollectionPage() {
                             <p className="text-neutral-400 text-sm sm:text-base">{genre.description}</p>
                           </div>
                         </div>
-                        
-                        {/* Play Preview Button - Desktop only */}
-                        {genre.previewUrl && (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              playPreview(genre.id, genre.previewUrl);
-                            }}
-                            className={`
-                              hidden sm:flex w-12 h-12 rounded-full items-center justify-center
-                              transition-all transform hover:scale-110
-                              ${isPlaying 
-                                ? 'bg-green-500 text-white' 
-                                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white'
-                              }
-                            `}
-                          >
-                            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
-                          </button>
-                        )}
                       </div>
                       
                       {/* Stats and Tags */}
