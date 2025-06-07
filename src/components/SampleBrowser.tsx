@@ -1,3 +1,5 @@
+// components/SampleBrowser.tsx
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -5,15 +7,13 @@ import { createClient } from '@/lib/supabase/client';
 import { Sample, License, Genre, SortBy } from '@/types';
 import { 
   Play, Pause, Download, Heart, Search, 
-  Music, ShoppingCart, X, Check, Loader2, Filter,
-  TrendingUp, Clock, Hash, User, LogOut, Shuffle
+  Music, X, Loader2, Filter, Shuffle
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
-import Dashboard from './Dashboard';
 import Link from 'next/link';
 import LicenseModal from '@/components/LicenseModal';
 
@@ -21,7 +21,7 @@ import LicenseModal from '@/components/LicenseModal';
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-12 bg-neutral-800 rounded animate-pulse" />
+    <div className="w-full h-10 bg-neutral-800 rounded animate-pulse" />
   )
 });
 
@@ -42,7 +42,7 @@ interface SampleBrowserProps {
   pageTitle?: string;
   pageSubtitle?: string;
   accentColor?: string;
-  initialSamples?: Sample[]; // Add this
+  initialSamples?: Sample[];
 }
 
 export default function SampleBrowser({ 
@@ -50,32 +50,40 @@ export default function SampleBrowser({
   pageTitle,
   pageSubtitle,
   accentColor = 'orange',
-  initialSamples = [] // Add this
+  initialSamples = []
 }: SampleBrowserProps) {
-  const [samples, setSamples] = useState<Sample[]>(initialSamples); // Use initial data
+  // Core state
+  const [samples, setSamples] = useState<Sample[]>(initialSamples);
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [loading, setLoading] = useState(false); // Start as false
+  const [loading, setLoading] = useState(initialSamples.length === 0);
+  
+  // Filter state
   const [selectedGenre, setSelectedGenre] = useState<Genre>(initialGenre);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortBy>('popular');
+  const [shuffleKey, setShuffleKey] = useState(0);
+  
+  // UI state
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  
+  // User state
+  const [user, setUser] = useState<any>(null);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
+  const [anonymousDownloads, setAnonymousDownloads] = useState(0);
+  
+  // Loading states
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [purchasingLicense, setPurchasingLicense] = useState<string | null>(null);
-  const [downloadCount, setDownloadCount] = useState(0);
-  const [displayedSampleCount, setDisplayedSampleCount] = useState(5);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [anonymousDownloads, setAnonymousDownloads] = useState(0);
-  const [shuffleKey, setShuffleKey] = useState(0); // Key to force re-shuffle
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false); // Add state for mobile sidebar
-
-  const SAMPLES_PER_PAGE = 5;
+  
+  // Pagination - Show only 7 initially for home page
+  const [displayedSampleCount, setDisplayedSampleCount] = useState(7);
+  const SAMPLES_PER_PAGE = 7;
+  
   const supabase = createClient();
 
   const genres: { id: Genre; name: string; emoji: string }[] = [
@@ -85,41 +93,48 @@ export default function SampleBrowser({
     { id: 'soul', name: 'Soul', emoji: '❤️' },
   ];
 
-  // Initialize
+  // Initialize component
   useEffect(() => {
-    if (initialSamples.length === 0) {
-      fetchSamples();
-    }
-    fetchLicenses();
-    loadUserLikes();
-    checkUser();
-    
-    // Load localStorage values
-    if (typeof window !== 'undefined') {
-      setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
-      setDownloadCount(parseInt(localStorage.getItem('download_count') || '0'));
-    }
+    const initializeComponent = async () => {
+      try {
+        if (initialSamples.length === 0) {
+          await fetchSamples();
+        }
+        await fetchLicenses();
+        await loadUserLikes();
+        await checkUser();
+        
+        if (typeof window !== 'undefined') {
+          const savedDownloads = parseInt(localStorage.getItem('anonymous_downloads') || '0');
+          setAnonymousDownloads(savedDownloads);
+        }
+      } catch (error) {
+        console.error('Initialization error:', error);
+        toast.error('Failed to initialize application');
+      }
+    };
+
+    initializeComponent();
   }, []);
 
-  // Auto-shuffle when filters change
+  // Reset displayed count when filters change
   useEffect(() => {
-    setShuffleKey(prev => prev + 1);
     setDisplayedSampleCount(SAMPLES_PER_PAGE);
+    setShuffleKey(prev => prev + 1);
   }, [selectedGenre, selectedTags]);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    toast.success('Logged out successfully');
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      setUser(user);
+    } catch (error) {
+      console.error('Error checking user:', error);
+    }
   };
 
   const fetchSamples = async () => {
-    if (initialSamples.length > 0) return; // Skip if we have initial data
+    if (initialSamples.length > 0) return;
     
     setLoading(true);
     try {
@@ -156,9 +171,9 @@ export default function SampleBrowser({
   };
 
   const loadUserLikes = async () => {
-    const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
-    
     try {
+      const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+      
       const { data, error } = await supabase
         .from('user_likes')
         .select('sample_id')
@@ -174,69 +189,75 @@ export default function SampleBrowser({
   };
 
   const generateUserIdentifier = () => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined') return '';
     
     const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('user_identifier', id);
     return id;
   };
 
-  // Filter samples
-  const filteredSamples = useMemo(() => {
-    return samples.filter(sample => {
-      const matchesGenre = selectedGenre === 'all' || sample.genre === selectedGenre;
-      const matchesSearch = searchTerm === '' || 
-        sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sample.artist?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sample.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesTags = selectedTags.length === 0 || 
-        selectedTags.some(tag => sample.tags.includes(tag));
+  // Memoized filtered and sorted samples
+  const { filteredSamples, sortedSamples } = useMemo(() => {
+    try {
+      const filtered = samples.filter(sample => {
+        const matchesGenre = selectedGenre === 'all' || sample.genre === selectedGenre;
+        const matchesSearch = searchTerm === '' || 
+          sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          sample.artist?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          sample.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesTags = selectedTags.length === 0 || 
+          selectedTags.some(tag => sample.tags.includes(tag));
+        
+        return matchesGenre && matchesSearch && matchesTags;
+      });
       
-      return matchesGenre && matchesSearch && matchesTags;
-    });
-  }, [samples, selectedGenre, searchTerm, selectedTags]);
-
-  // Sort and shuffle samples
-  const sortedAndShuffledSamples = useMemo(() => {
-    let result = [...filteredSamples];
-    
-    // Apply sorting
-    switch(sortBy) {
-      case 'popular':
-        result.sort((a, b) => b.downloads - a.downloads);
-        break;
-      case 'newest':
-        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        break;
-      case 'bpm':
-        result.sort((a, b) => a.bpm - b.bpm);
-        break;
-      case 'name':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
+      let sorted = [...filtered];
+      switch(sortBy) {
+        case 'popular':
+          sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+          break;
+        case 'newest':
+          sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          break;
+        case 'bpm':
+          sorted.sort((a, b) => a.bpm - b.bpm);
+          break;
+        case 'name':
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+      }
+      
+      return {
+        filteredSamples: filtered,
+        sortedSamples: shuffleArray(sorted)
+      };
+    } catch (error) {
+      console.error('Error filtering samples:', error);
+      return { filteredSamples: [], sortedSamples: [] };
     }
-    
-    // Always shuffle to add randomness
-    return shuffleArray(result);
-  }, [filteredSamples, sortBy, shuffleKey]);
+  }, [samples, selectedGenre, searchTerm, selectedTags, sortBy, shuffleKey]);
 
-  const displayedSamples = sortedAndShuffledSamples.slice(0, displayedSampleCount);
+  const displayedSamples = useMemo(() => 
+    sortedSamples.slice(0, displayedSampleCount),
+    [sortedSamples, displayedSampleCount]
+  );
   
   // Get all unique tags
   const allTags = useMemo(() => 
-    Array.from(new Set(samples.flatMap(s => s.tags))).sort(),
+    Array.from(new Set(samples.flatMap(s => s.tags || []))).sort(),
     [samples]
   );
 
-  const togglePlay = (sampleId: string) => {
-    setPlayingId(playingId === sampleId ? null : sampleId);
-  };
+  // Event handlers
+  const togglePlay = useCallback((sampleId: string) => {
+    setPlayingId(current => current === sampleId ? null : sampleId);
+  }, []);
 
   const toggleLike = async (sampleId: string) => {
-    const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
-    const isLiked = likedSamples.has(sampleId);
-
     try {
+      const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+      const isLiked = likedSamples.has(sampleId);
+
       if (isLiked) {
         const { error } = await supabase
           .from('user_likes')
@@ -255,11 +276,9 @@ export default function SampleBrowser({
       } else {
         const { error } = await supabase
           .from('user_likes')
-          .upsert({
+          .insert({
             user_identifier: userIdentifier,
             sample_id: sampleId
-          }, {
-            onConflict: 'user_identifier,sample_id'
           });
         
         if (error) throw error;
@@ -277,21 +296,21 @@ export default function SampleBrowser({
     setDownloadingId(sample.id);
     
     try {
-      // Check if user is logged in
+      if (!user && anonymousDownloads >= 1) {
+        setShowAuthModal(true);
+        setDownloadingId(null);
+        toast.error('Please create an account to continue downloading');
+        return;
+      }
+      
       if (!user) {
-        if (anonymousDownloads >= 1) {
-          setShowAuthModal(true);
-          setDownloadingId(null);
-          toast.error('Please create an account to continue downloading');
-          return;
-        }
-        
         const newCount = anonymousDownloads + 1;
         setAnonymousDownloads(newCount);
-        localStorage.setItem('anonymous_downloads', newCount.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('anonymous_downloads', newCount.toString());
+        }
       }
 
-      // Create filename
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
@@ -299,7 +318,6 @@ export default function SampleBrowser({
       
       await downloadFile(sample.file_url, downloadFilename);
       
-      // Track download
       const userEmail = user?.email || 'anonymous@looplib.com';
       await fetch('/api/download', {
         method: 'POST',
@@ -311,11 +329,6 @@ export default function SampleBrowser({
       });
 
       toast.success('Download complete! Check your downloads folder.');
-      
-      // Update download count
-      const newCount = downloadCount + 1;
-      setDownloadCount(newCount);
-      localStorage.setItem('download_count', newCount.toString());
       
       if (!user && anonymousDownloads === 0) {
         toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
@@ -350,10 +363,18 @@ export default function SampleBrowser({
         })
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
       const { sessionId } = await response.json();
       
       const stripe = await stripePromise;
-      const { error } = await stripe!.redirectToCheckout({ sessionId });
+      if (!stripe) {
+        throw new Error('Stripe failed to load');
+      }
+
+      const { error } = await stripe.redirectToCheckout({ sessionId });
       
       if (error) {
         throw error;
@@ -366,11 +387,6 @@ export default function SampleBrowser({
     }
   };
 
-  const handleRefresh = useCallback(() => {
-    setShuffleKey(prev => prev + 1);
-    toast.success('🎲 Samples shuffled!', { duration: 1500 });
-  }, []);
-
   const handleTagClick = useCallback((tag: string) => {
     setSelectedTags(prev => 
       prev.includes(tag) 
@@ -379,330 +395,336 @@ export default function SampleBrowser({
     );
   }, []);
 
-  const handleGenreClick = useCallback((genreId: Genre) => {
-    setSelectedGenre(genreId);
-    setSearchTerm(''); // Clear search when changing genre
+  const handleRefresh = useCallback(() => {
+    setShuffleKey(prev => prev + 1);
+    toast.success('🎲 Samples shuffled!', { duration: 1500 });
   }, []);
-
-  if (showDashboard) {
-    return (
-      <Dashboard 
-        user={user}
-        onBack={() => setShowDashboard(false)}
-        onLogout={handleLogout}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Breadcrumb Navigation */}
-      {selectedGenre !== 'all' && (
-        <div className="bg-neutral-900/30 border-b border-neutral-800 px-6 py-3">
-          <nav className="max-w-6xl mx-auto" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2 text-sm">
-              <li>
-                <Link href="/" className="text-neutral-400 hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li className="text-neutral-600">/</li>
-              <li>
-                <span className="text-neutral-400">Samples</span>
-              </li>
-              <li className="text-neutral-600">/</li>
-              <li>
-                <span className="text-white font-medium capitalize">
-                  {selectedGenre === 'rnb' ? 'R&B' : selectedGenre}
-                </span>
-              </li>
-            </ol>
-          </nav>
+      {/* Main Content - Full Width */}
+      <main className="w-full">
+        {/* Hero Banner */}
+        <div className="relative h-96 overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url(https://images.unsplash.com/photo-1626126525134-fbbc07afb32c?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)'
+            }}
+          />
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/50" />
+          
+          {/* Hero Content */}
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <div className="text-center px-4">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                Industry Samples & Loops For Your Next Hit
+              </h1>
+              <p className="text-xl md:text-2xl text-white/90 mb-8">
+                Discover premium sounds for your next hit
+              </p>
+              <Link 
+                href="/pricing"
+                className="inline-block px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full transition-colors"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
         </div>
-      )}
 
-      <div className="flex">
-        {/* Sidebar */}
         {/* Mobile Filter Button */}
-        <div className="md:hidden p-4 border-b border-neutral-800">
+        <div className="md:hidden px-4 py-3 border-b border-neutral-800">
           <button
             onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
             className="flex items-center space-x-2 text-neutral-400 hover:text-white"
           >
             <Filter className="w-5 h-5" />
             <span>Filters</span>
-            {selectedTags.length > 0 && (
-              <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
-                {selectedTags.length}
+            {(selectedTags.length > 0 || selectedGenre !== 'all') && (
+              <span className="px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">
+                {selectedTags.length + (selectedGenre !== 'all' ? 1 : 0)}
               </span>
             )}
           </button>
         </div>
 
-        <aside className={`
-          fixed md:relative md:block
-          ${mobileSidebarOpen ? 'left-0' : '-left-64'}
-          w-64 border-r border-neutral-800 bg-neutral-900 md:bg-neutral-900/30 
-          min-h-screen p-6 transition-all duration-300 z-30
-          md:translate-x-0
-        `}>
-          {/* Close button for mobile */}
-          <div className="md:hidden flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold flex items-center space-x-2">
-              <Filter className="w-5 h-5" />
-              <span>Filters</span>
-            </h2>
-            <button
-              onClick={() => setMobileSidebarOpen(false)}
-              className="p-2 hover:bg-neutral-800 rounded-lg"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <h2 className="text-lg font-semibold mb-6 flex items-center space-x-2">
-            <Filter className="w-5 h-5" />
-            <span>Filters</span>
-          </h2>
-          
-          {/* Genres */}
-          <div className="mb-8">
-            <h3 className="text-xs font-semibold uppercase text-neutral-400 mb-3">Genres</h3>
-            <div className="space-y-1">
-              {genres.map((genre) => (
-                <button
-                  key={genre.id}
-                  onClick={() => handleGenreClick(genre.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                    selectedGenre === genre.id
-                      ? 'bg-neutral-800 text-white'
-                      : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
-                  }`}
-                >
-                  <span className="font-medium">{genre.name}</span>
-                  <span className="text-lg">{genre.emoji}</span>
-                </button>
-              ))}
+        {/* Search Bar */}
+        <div className="sticky top-0 z-20 bg-black border-b border-neutral-800 p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search any sound like dark piano"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-neutral-900 border border-neutral-700 rounded-full 
+                  focus:outline-none focus:border-blue-500 transition-colors text-white"
+              />
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 
+                  bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-colors"
+              >
+                Search
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Tags */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase text-neutral-400 mb-3">Tags</h3>
-            <div className="max-h-60 overflow-y-auto">
+        {/* Browse by Genre */}
+        <div className="p-4 md:p-6 border-b border-neutral-800">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-neutral-400 mb-3">Browse genres</h3>
               <div className="flex flex-wrap gap-2">
-                {allTags.map((tag) => (
+                {genres.map((genre) => (
+                  <button
+                    key={genre.id}
+                    onClick={() => setSelectedGenre(genre.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all
+                      ${selectedGenre === genre.id 
+                        ? 'bg-white text-black' 
+                        : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}
+                  >
+                    {genre.name}
+                  </button>
+                ))}
+                <button className="px-4 py-2 rounded-full text-sm font-medium bg-neutral-800 text-white hover:bg-neutral-700">
+                  Explore All
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Samples Grid - Boxed Layout */}
+        <div className="flex-1">
+          <div className="max-w-4xl mx-auto p-4 md:p-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+              </div>
+            ) : sortedSamples.length === 0 ? (
+              <div className="text-center py-20">
+                <Music className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
+                <p className="text-neutral-400 text-lg mb-2">No samples found</p>
+                <p className="text-neutral-500 text-sm">Try adjusting your filters or search terms</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {displayedSamples.map((sample) => (
+                  <div 
+                    key={sample.id} 
+                    className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
+                  >
+                    {/* Header with BPM, Key and Like button */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
+                        <span className="text-sm text-neutral-500">•</span>
+                        <span className="text-sm text-neutral-400">{sample.key}</span>
+                      </div>
+                      <button
+                        onClick={() => toggleLike(sample.id)}
+                        className={`p-2 rounded-md transition-colors ${
+                          likedSamples.has(sample.id)
+                            ? 'bg-red-500/20 text-red-500' 
+                            : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                        }`}
+                      >
+                        <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
+                      </button>
+                    </div>
+                    
+                    {/* Title and artist */}
+                    <h3 className="font-medium text-white text-base mb-1">{sample.name}</h3>
+                    <p className="text-sm text-neutral-400 mb-4">{sample.artist?.name || 'LoopLib'}</p>
+                    
+                    {/* Waveform */}
+                    <div className="mb-4 h-16">
+                      <WaveformPlayer
+                        url={sample.file_url}
+                        isPlaying={playingId === sample.id}
+                        onPlayPause={() => togglePlay(sample.id)}
+                        height={64}
+                        waveColor="#666666"
+                        progressColor="#f97316"
+                      />
+                    </div>
+                    
+                    {/* Tags and Actions */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {sample.tags.slice(0, 3).map(tag => (
+                          <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleFreeDownload(sample)}
+                          disabled={downloadingId === sample.id}
+                          className="flex-1 sm:flex-none px-4 py-2 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-2 text-sm disabled:opacity-50"
+                        >
+                          {downloadingId === sample.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                          <span>Free Download</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setSelectedSample(sample);
+                            setShowLicenseModal(true);
+                          }}
+                          className="flex-1 sm:flex-none px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-sm"
+                        >
+                          License
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Load More */}
+            {displayedSampleCount < sortedSamples.length && (
+              <div className="mt-8 text-center">
+                <button
+                  onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
+                  className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
+                >
+                  Load More Samples ({sortedSamples.length - displayedSampleCount} remaining)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer Benefits */}
+        <div className="bg-black border-t border-neutral-800 p-8 md:p-12">
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Music className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-yellow-400 mb-2">100% royalty free</h3>
+              <p className="text-sm text-neutral-400">Use your sounds anywhere, cleared for all projects</p>
+            </div>
+            <div>
+              <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Download className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-yellow-400 mb-2">Yours forever</h3>
+              <p className="text-sm text-neutral-400">Every sound you download is yours to keep forever</p>
+            </div>
+            <div>
+              <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <X className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-yellow-400 mb-2">Cancel anytime</h3>
+              <p className="text-sm text-neutral-400">No commitments here. Change your mind? No problem</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Filter Overlay */}
+      {mobileSidebarOpen && (
+        <>
+          <div 
+            className="md:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          <div className="md:hidden fixed left-0 top-0 h-full w-80 bg-neutral-900 z-50 p-6 overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold">Filters</h2>
+              <button
+                onClick={() => setMobileSidebarOpen(false)}
+                className="p-2 hover:bg-neutral-800 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Mobile Sort */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-neutral-400 mb-3">SORT BY</h3>
+              <div className="space-y-1">
+                {[
+                  { id: 'popular', label: 'Most Popular' },
+                  { id: 'newest', label: 'Newest First' },
+                  { id: 'bpm', label: 'BPM' },
+                  { id: 'name', label: 'Name' }
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => {
+                      setSortBy(option.id as SortBy);
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors
+                      ${sortBy === option.id 
+                        ? 'bg-blue-600 text-white' 
+                        : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Tags */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-neutral-400 mb-3">TAGS</h3>
+              <div className="flex flex-wrap gap-2">
+                {allTags.slice(0, 20).map((tag) => (
                   <button
                     key={tag}
                     onClick={() => handleTagClick(tag)}
-                    className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                      selectedTags.includes(tag)
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700'
-                    }`}
+                    className={`px-3 py-1 text-xs rounded-full transition-colors
+                      ${selectedTags.includes(tag)
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white'}`}
                   >
                     {tag}
                   </button>
                 ))}
               </div>
-            </div>
-            
-            {selectedTags.length > 0 && (
-              <button
-                onClick={() => setSelectedTags([])}
-                className="mt-3 text-xs text-orange-400 hover:text-orange-300 transition-colors"
-              >
-                Clear all tags ({selectedTags.length})
-              </button>
-            )}
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1">
-          {/* Search & Sort */}
-          <div className="border-b border-neutral-800 bg-neutral-900/30 p-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-500 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search samples, artists, or tags..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-neutral-800 border border-neutral-700 rounded-md focus:outline-none focus:border-orange-500 transition-colors"
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-2 bg-neutral-800 border border-neutral-700 rounded-md">
-                  <button 
-                    onClick={() => setSortBy('popular')}
-                    className={`px-3 py-2 transition-colors ${
-                      sortBy === 'popular' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
-                    }`}
-                    title="Popular"
-                  >
-                    <TrendingUp className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => setSortBy('newest')}
-                    className={`px-3 py-2 transition-colors ${
-                      sortBy === 'newest' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
-                    }`}
-                    title="Newest"
-                  >
-                    <Clock className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => setSortBy('bpm')}
-                    className={`px-3 py-2 transition-colors ${
-                      sortBy === 'bpm' ? 'text-orange-400' : 'text-neutral-400 hover:text-white'
-                    }`}
-                    title="BPM"
-                  >
-                    <Hash className="w-5 h-5" />
-                  </button>
-                </div>
-
+              {selectedTags.length > 0 && (
                 <button
-                  onClick={handleRefresh}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center space-x-2 font-medium"
-                  title="Shuffle samples"
+                  onClick={() => setSelectedTags([])}
+                  className="mt-3 text-xs text-blue-400 hover:text-blue-300"
                 >
-                  <Shuffle className="w-4 h-4" />
-                  <span>Shuffle</span>
+                  Clear all
                 </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Page Titles - Right After Search Section */}
-          {pageTitle && (
-            <div className="pt-8 pb-6 px-6">
-              <div className="max-w-6xl mx-auto">
-                <h1 className="text-3xl font-bold mb-2 text-white">
-                  {pageTitle}
-                </h1>
-                {pageSubtitle && (
-                  <h2 className={`text-xl font-semibold text-${accentColor}-400`}>
-                    {pageSubtitle}
-                  </h2>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Samples List */}
-          <div className="p-6">
-            <div className="max-w-6xl mx-auto">
-              {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-                </div>
-              ) : sortedAndShuffledSamples.length === 0 ? (
-                <div className="text-center py-20">
-                  <p className="text-neutral-400">No samples found</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {/* Sample Cards Grid */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {displayedSamples.map((sample) => (
-                      <div key={sample.id} className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-3 sm:p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all">
-                        {/* Mobile-optimized layout */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-                            <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
-                            <span className="text-xs sm:text-sm text-neutral-500">•</span>
-                            <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
-                          </div>
-                          <button
-                            onClick={() => toggleLike(sample.id)}
-                            className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
-                              likedSamples.has(sample.id)
-                                ? 'bg-red-500/20 text-red-500' 
-                                : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                            }`}
-                          >
-                            <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
-                          </button>
-                        </div>
-                        
-                        {/* Title and artist */}
-                        <h3 className="font-medium text-white text-sm sm:text-base mb-1">{sample.name}</h3>
-                        <p className="text-xs sm:text-sm text-neutral-400 mb-3">{sample.artist?.name || 'LoopLib'}</p>
-                        
-                        {/* Waveform */}
-                        <div className="mb-4 h-12 sm:h-16">
-                          <WaveformPlayer
-                            url={sample.file_url}
-                            isPlaying={playingId === sample.id}
-                            onPlayPause={() => togglePlay(sample.id)}
-                            height={48}
-                            waveColor="#666666"
-                            progressColor="#f97316"
-                          />
-                        </div>
-                        
-                        {/* Action buttons - stack on mobile */}
-                        <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-                          <div className="flex flex-wrap gap-1">
-                            {sample.tags.slice(0, 2).map(tag => (
-                              <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleFreeDownload(sample)}
-                              disabled={downloadingId === sample.id}
-                              className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
-                            >
-                              {downloadingId === sample.id ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <Download className="w-3 h-3" />
-                              )}
-                              <span>Free</span>
-                            </button>
-                            
-                            <button
-                              onClick={() => {
-                                setSelectedSample(sample);
-                                setShowLicenseModal(true);
-                              }}
-                              className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
-                            >
-                              License
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Load More Button */}
-                  {displayedSampleCount < sortedAndShuffledSamples.length && (
-                    <div className="flex justify-center pt-8">
-                      <button
-                        onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
-                        className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-                      >
-                        Load More ({sortedAndShuffledSamples.length - displayedSampleCount} remaining)
-                      </button>
-                    </div>
-                  )}
-                </div>
               )}
             </div>
-          </div>
-        </main>
-      </div>
 
-      {/* License Modal */}
+            {/* Mobile Shuffle Button */}
+            <button
+              onClick={() => {
+                handleRefresh();
+                setMobileSidebarOpen(false);
+              }}
+              className="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg 
+                transition-colors flex items-center justify-center space-x-2 font-medium"
+            >
+              <Shuffle className="w-4 h-4" />
+              <span>Shuffle Results</span>
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Modals */}
       <LicenseModal
         isOpen={showLicenseModal}
         onClose={() => setShowLicenseModal(false)}
@@ -710,7 +732,6 @@ export default function SampleBrowser({
         onPurchase={handleLicensePurchase}
       />
 
-      {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -719,14 +740,6 @@ export default function SampleBrowser({
           setShowAuthModal(false);
         }}
       />
-      
-      {/* Mobile Overlay */}
-      {mobileSidebarOpen && (
-        <div 
-          className="md:hidden fixed inset-0 bg-black/50 z-20"
-          onClick={() => setMobileSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 }
