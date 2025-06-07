@@ -42,9 +42,9 @@ export default function SamplesCollectionPage() {
       slug: 'trap',
       emoji: '🔥',
       icon: <Flame className="w-6 h-6" />,
-      description: 'Hard-hitting 808s and dark melodies',
+      description: 'In styles of Travis Scott, Future, Metro Boomin',
       bpmRange: '140-170 BPM',
-      tags: ['808', 'Hi-Hats', 'Dark', 'Hard'],
+      tags: ['Dark', 'Atmospheric', 'Melody', 'Lead'],
       gradient: 'from-orange-600 via-red-600 to-red-800',
       accentColor: 'orange'
     },
@@ -54,9 +54,9 @@ export default function SamplesCollectionPage() {
       slug: 'soul',
       emoji: '❤️',
       icon: <Heart className="w-6 h-6" />,
-      description: 'Warm vintage sounds and gospel chords',
+      description: 'In styles of Anderson .Paak, D\'Angelo, Alicia Keys',
       bpmRange: '70-110 BPM',
-      tags: ['Vintage', 'Warm', 'Gospel', 'Classic'],
+      tags: ['Vintage', 'Warm', 'Keys', 'Gospel'],
       gradient: 'from-pink-600 via-purple-600 to-indigo-700',
       accentColor: 'pink'
     },
@@ -66,9 +66,9 @@ export default function SamplesCollectionPage() {
       slug: 'rnb',
       emoji: '💫',
       icon: <Sparkles className="w-6 h-6" />,
-      description: 'Smooth melodies and modern vibes',
+      description: 'In styles of The Weeknd, SZA, Frank Ocean',
       bpmRange: '60-100 BPM',
-      tags: ['Smooth', 'Melodic', 'Modern', 'Chill'],
+      tags: ['Smooth', 'Melodic', 'Modern', 'Harmonic'],
       gradient: 'from-purple-600 via-purple-700 to-purple-900',
       accentColor: 'purple'
     }
@@ -118,12 +118,12 @@ export default function SamplesCollectionPage() {
       <section className="bg-gradient-to-b from-neutral-900 to-black border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2">Free Sample Collections</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-2">Free Melody Collections</h1>
             <p className="text-neutral-400 text-base sm:text-lg mb-6">
-              Professional samples and loops organized by genre
+              Professional melody samples and loops organized by genre
             </p>
             
-            {/* Stats - Removed Total Samples */}
+            {/* Stats */}
             <div className="flex justify-center items-center space-x-6 sm:space-x-8 text-sm">
               <div>
                 <p className="text-2xl sm:text-3xl font-bold text-green-400">{totalNew}</p>
@@ -178,7 +178,7 @@ export default function SamplesCollectionPage() {
                           </div>
                           <div>
                             <h2 className="text-2xl sm:text-3xl font-bold flex items-center">
-                              {genre.name} Samples
+                              {genre.name} Melodies
                               {stats.newThisWeek > 0 && (
                                 <span className="ml-2 px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
                                   +{stats.newThisWeek} new
@@ -195,7 +195,7 @@ export default function SamplesCollectionPage() {
                         <div className="flex items-center space-x-4 sm:space-x-6 text-sm">
                           <div className="flex items-center space-x-2">
                             <Music className="w-4 h-4 text-neutral-400" />
-                            <span className="text-white font-medium">{stats.count} Samples</span>
+                            <span className="text-white font-medium">Royalty-Free Melodies</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Headphones className="w-4 h-4 text-neutral-400" />
@@ -254,9 +254,9 @@ export default function SamplesCollectionPage() {
       {/* SEO Content */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">
         <p className="text-neutral-400 leading-relaxed">
-          Explore our curated collection of royalty-free samples organized by genre. 
-          Each collection features professionally produced loops and samples perfect for 
-          music production. Download samples free for personal use, or purchase a license 
+          Explore our curated collection of royalty-free melody samples organized by genre. 
+          Each collection features professionally produced melodies and chord progressions perfect for 
+          music production. Download melody samples free for personal use, or purchase a license 
           when you're ready to release your music commercially.
         </p>
       </section>

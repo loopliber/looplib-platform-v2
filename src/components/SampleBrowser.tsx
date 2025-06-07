@@ -424,12 +424,6 @@ export default function SampleBrowser({
               <p className="text-xl md:text-2xl text-white/90 mb-8">
                 Discover premium sounds for your next hit
               </p>
-              <Link 
-                href="/pricing"
-                className="inline-block px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full transition-colors"
-              >
-                Get Started
-              </Link>
             </div>
           </div>
         </div>
@@ -601,7 +595,7 @@ export default function SampleBrowser({
                   onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
                   className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
                 >
-                  Load More Samples ({sortedSamples.length - displayedSampleCount} remaining)
+                  Load More Samples
                 </button>
               </div>
             )}

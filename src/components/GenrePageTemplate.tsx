@@ -363,10 +363,6 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
             </div>
             <div className="hidden md:flex items-center space-x-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-orange-400">{samples.length}</p>
-                <p className="text-xs text-neutral-400">{config.genre} Samples</p>
-              </div>
-              <div className="text-center">
                 <p className="text-2xl font-bold text-orange-400">100%</p>
                 <p className="text-xs text-neutral-400">Royalty Free</p>
               </div>
