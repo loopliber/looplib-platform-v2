@@ -10,33 +10,31 @@ export interface Artist {
 export interface Sample {
   id: string;
   name: string;
+  file_url: string;
+  bpm: number;
+  key: string;
+  genre: string;
+  tags: string[];
+  downloads: number;
+  created_at: string;
+  has_stems?: boolean;
   artist?: {
     id: string;
     name: string;
   };
-  genre: string;
-  bpm: number;
-  key: string;
-  duration: string;
-  file_url: string;
-  has_stems: boolean; // This is what controls the STEMS badge
-  tags: string[];
-  downloads: number;
-  likes: number;
-  is_premium?: boolean;
-  created_at: string;
-  updated_at?: string;
-  waveform_data?: number[];
 }
 
 export interface License {
   id: string;
   name: string;
   price: number;
-  features: string[];
-  is_popular: boolean;
+  description: string;
+  features?: string[];
+  max_streams?: number;
+  max_copies?: number;
+  max_revenue?: number;
+  is_popular?: boolean;
   sort_order: number;
-  created_at: string;
 }
 
 export interface UserDownload {

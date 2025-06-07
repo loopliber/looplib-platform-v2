@@ -32,3 +32,20 @@
     @apply bg-orange-500;
   }
 }
+
+@layer utilities {
+  /* Hide scrollbar for mobile horizontal scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Touch-friendly tap targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

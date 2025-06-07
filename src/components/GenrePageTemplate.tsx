@@ -12,6 +12,7 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
 import AuthModal from '@/components/AuthModal';
+import LicenseModal from '@/components/LicenseModal';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -378,184 +379,177 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search & Filters Row */}
         <div className="mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col gap-4">
             {/* Search */}
-            <div className="flex-1 relative">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-500 w-5 h-5" />
               <input
                 type="text"
                 placeholder={`Search ${config.genre.toLowerCase()} samples...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-neutral-900 border border-neutral-800 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                className="w-full pl-12 pr-4 py-3 bg-neutral-900 border border-neutral-800 rounded-lg focus:outline-none focus:border-orange-500 transition-colors text-sm md:text-base"
               />
             </div>
 
-            {/* BPM Filter */}
-            <select
-              value={selectedBpmRange}
-              onChange={(e) => setSelectedBpmRange(e.target.value)}
-              className="px-4 py-3 bg-neutral-900 border border-neutral-800 rounded-lg focus:outline-none focus:border-orange-500"
-            >
-              {config.bpmRanges.map(range => (
-                <option key={range.id} value={range.id}>{range.label}</option>
-              ))}
-            </select>
+            {/* Mobile Filter Row */}
+            <div className="flex flex-wrap gap-2">
+              {/* BPM Filter */}
+              <select
+                value={selectedBpmRange}
+                onChange={(e) => setSelectedBpmRange(e.target.value)}
+                className="flex-1 min-w-[120px] px-3 py-2 bg-neutral-900 border border-neutral-800 rounded-lg focus:outline-none focus:border-orange-500 text-sm"
+              >
+                {config.bpmRanges.map(range => (
+                  <option key={range.id} value={range.id}>{range.label}</option>
+                ))}
+              </select>
 
-            {/* Sort */}
-            <div className="flex bg-neutral-900 border border-neutral-800 rounded-lg">
-              <button 
-                onClick={() => setSortBy('popular')}
-                className={`px-4 py-3 ${sortBy === 'popular' ? 'text-orange-400' : 'text-neutral-400'}`}
+              {/* Sort - Mobile Responsive */}
+              <div className="flex bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden">
+                <button 
+                  onClick={() => setSortBy('popular')}
+                  className={`px-3 py-2 text-sm ${sortBy === 'popular' ? 'text-orange-400' : 'text-neutral-400'}`}
+                >
+                  Popular
+                </button>
+                <button 
+                  onClick={() => setSortBy('newest')}
+                  className={`px-3 py-2 text-sm ${sortBy === 'newest' ? 'text-orange-400' : 'text-neutral-400'}`}
+                >
+                  New
+                </button>
+                <button 
+                  onClick={() => setSortBy('bpm')}
+                  className={`px-3 py-2 text-sm ${sortBy === 'bpm' ? 'text-orange-400' : 'text-neutral-400'}`}
+                >
+                  BPM
+                </button>
+              </div>
+
+              {/* Shuffle */}
+              <button
+                onClick={() => setShuffleKey(prev => prev + 1)}
+                className="px-3 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center space-x-1 text-sm"
               >
-                Popular
-              </button>
-              <button 
-                onClick={() => setSortBy('newest')}
-                className={`px-4 py-3 ${sortBy === 'newest' ? 'text-orange-400' : 'text-neutral-400'}`}
-              >
-                Newest
-              </button>
-              <button 
-                onClick={() => setSortBy('bpm')}
-                className={`px-4 py-3 ${sortBy === 'bpm' ? 'text-orange-400' : 'text-neutral-400'}`}
-              >
-                BPM
+                <Shuffle className="w-4 h-4" />
+                <span className="hidden sm:inline">Shuffle</span>
               </button>
             </div>
 
-            {/* Shuffle */}
-            <button
-              onClick={() => setShuffleKey(prev => prev + 1)}
-              className="px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center space-x-2"
-            >
-              <Shuffle className="w-4 h-4" />
-              <span>Shuffle</span>
-            </button>
-          </div>
-
-          {/* Tag Filters */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {config.commonTags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTags(prev => 
-                  prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-                )}
-                className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                  selectedTags.includes(tag)
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-neutral-900 text-neutral-400 hover:text-white'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
+            {/* Tag Filters - Scrollable on mobile */}
+            <div className="overflow-x-auto pb-2">
+              <div className="flex gap-2 min-w-max">
+                {config.commonTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTags(prev => 
+                      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+                    )}
+                    className={`px-3 py-1 rounded-full text-sm transition-colors whitespace-nowrap ${
+                      selectedTags.includes(tag)
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-neutral-900 text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         <h2 className="text-xl font-semibold mb-4">Popular {config.genre} Samples This Week</h2>
 
         {/* Samples Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {displayedSamples.map((sample) => (
-                <div
-                  key={sample.id}
-                  className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
-                      <span className="text-sm text-neutral-500">•</span>
-                      <span className="text-sm text-neutral-400">{sample.key}</span>
-                      {sample.has_stems && (
-                        <span className="px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded text-xs font-semibold">
-                          STEMS
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => toggleLike(sample.id)}
-                      className={`p-2 rounded-md transition-colors ${
-                        likedSamples.has(sample.id)
-                          ? 'bg-red-500/20 text-red-500' 
-                          : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
-                    </button>
-                  </div>
-                  
-                  <h3 className="font-medium text-white mb-1">{sample.name}</h3>
-                  <p className="text-sm text-neutral-400 mb-4">{sample.artist?.name || 'LoopLib'}</p>
-                  
-                  <div className="mb-4">
-                    <WaveformPlayer
-                      url={sample.file_url}
-                      isPlaying={playingId === sample.id}
-                      onPlayPause={() => togglePlay(sample.id)}
-                      height={40}
-                      waveColor="#525252"
-                      progressColor="#f97316"
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-wrap gap-1">
-                      {sample.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleFreeDownload(sample)}
-                        disabled={downloadingId === sample.id}
-                        className="px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center space-x-1 text-sm disabled:opacity-50"
-                      >
-                        {downloadingId === sample.id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Download className="w-3 h-3" />
-                        )}
-                        <span>Free</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => {
-                          setSelectedSample(sample);
-                          setShowLicenseModal(true);
-                        }}
-                        className="px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-sm"
-                      >
-                        License
-                      </button>
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+          {displayedSamples.map((sample) => (
+            <div key={sample.id} className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-3 sm:p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all">
+              {/* Mobile-optimized layout */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                  <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
+                  <span className="text-xs sm:text-sm text-neutral-500">•</span>
+                  <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
                 </div>
-              ))}
-            </div>
-
-            {/* Load More */}
-            {displayedSampleCount < sortedSamples.length && (
-              <div className="flex justify-center mb-12">
                 <button
-                  onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
-                  className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                  onClick={() => toggleLike(sample.id)}
+                  className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
+                    likedSamples.has(sample.id)
+                      ? 'bg-red-500/20 text-red-500' 
+                      : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                  }`}
                 >
-                  Load More {config.genre} Samples ({sortedSamples.length - displayedSampleCount} remaining)
+                  <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
                 </button>
               </div>
-            )}
-          </>
+              
+              {/* Title and artist */}
+              <h3 className="font-medium text-white text-sm sm:text-base mb-1">{sample.name}</h3>
+              <p className="text-xs sm:text-sm text-neutral-400 mb-3">{sample.artist?.name || 'LoopLib'}</p>
+              
+              {/* Waveform */}
+              <div className="mb-4 h-12 sm:h-16">
+                <WaveformPlayer
+                  url={sample.file_url}
+                  isPlaying={playingId === sample.id}
+                  onPlayPause={() => setPlayingId(playingId === sample.id ? null : sample.id)}
+                  height={48} // Smaller on mobile
+                  waveColor="#666666"
+                  progressColor="#f97316"
+                />
+              </div>
+              
+              {/* Action buttons - stack on mobile */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                <div className="flex flex-wrap gap-1">
+                  {sample.tags.slice(0, 2).map(tag => (
+                    <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleFreeDownload(sample)}
+                    disabled={downloadingId === sample.id}
+                    className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
+                  >
+                    {downloadingId === sample.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Download className="w-3 h-3" />
+                    )}
+                    <span>Free</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setSelectedSample(sample);
+                      setShowLicenseModal(true);
+                    }}
+                    className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
+                  >
+                    License
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Load More */}
+        {displayedSampleCount < sortedSamples.length && (
+          <div className="flex justify-center mb-12">
+            <button
+              onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+            >
+              Load More {config.genre} Samples ({sortedSamples.length - displayedSampleCount} remaining)
+            </button>
+          </div>
         )}
 
         {/* SEO Content Section */}
@@ -596,84 +590,12 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
       </div>
 
       {/* License Modal */}
-      {showLicenseModal && selectedSample && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-neutral-900 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-neutral-800">
-            <div className="p-6 border-b border-neutral-800">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Choose Your License</h2>
-                  <p className="text-neutral-400 mt-1">
-                    {selectedSample.name} by {selectedSample.artist?.name || 'Unknown Artist'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowLicenseModal(false)}
-                  className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-8">
-              <div className="grid md:grid-cols-3 gap-6">
-                {licenses.map((license) => (
-                  <div
-                    key={license.id}
-                    className={`relative p-6 rounded-xl border-2 transition-all ${
-                      license.is_popular
-                        ? 'border-orange-500 bg-orange-500/5'
-                        : 'border-neutral-700 bg-neutral-800/30'
-                    }`}
-                  >
-                    {license.is_popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="px-3 py-1 bg-orange-500 text-xs font-bold rounded-full uppercase">
-                          Most Popular
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="text-center mb-6">
-                      <h4 className="text-xl font-bold mb-2">{license.name}</h4>
-                      <div className="flex items-baseline justify-center">
-                        <span className="text-3xl font-bold">${license.price}</span>
-                        <span className="text-neutral-400 ml-1">USD</span>
-                      </div>
-                    </div>
-                    
-                    <ul className="space-y-3 mb-6">
-                      {license.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start space-x-3">
-                          <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-gray-300">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <button 
-                      onClick={() => handleLicensePurchase(license)}
-                      disabled={purchasingLicense === license.id}
-                      className={`w-full py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 ${
-                        license.is_popular
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                          : 'bg-neutral-700 hover:bg-neutral-600 text-white'
-                      }`}
-                    >
-                      {purchasingLicense === license.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                      ) : (
-                        `Get ${license.name}`
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <LicenseModal
+        isOpen={showLicenseModal}
+        onClose={() => setShowLicenseModal(false)}
+        sample={selectedSample}
+        onPurchase={handleLicensePurchase}
+      />
 
       {/* Auth Modal */}
       <AuthModal

@@ -15,6 +15,7 @@ import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Dashboard from './Dashboard';
 import Link from 'next/link';
+import LicenseModal from '@/components/LicenseModal';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -72,6 +73,7 @@ export default function SampleBrowser({
   const [shuffleKey, setShuffleKey] = useState(0); // Key to force re-shuffle
   const [showDashboard, setShowDashboard] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false); // Add state for mobile sidebar
 
   const SAMPLES_PER_PAGE = 5;
   const supabase = createClient();
@@ -421,7 +423,43 @@ export default function SampleBrowser({
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-neutral-800 bg-neutral-900/30 min-h-screen p-6">
+        {/* Mobile Filter Button */}
+        <div className="md:hidden p-4 border-b border-neutral-800">
+          <button
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            className="flex items-center space-x-2 text-neutral-400 hover:text-white"
+          >
+            <Filter className="w-5 h-5" />
+            <span>Filters</span>
+            {selectedTags.length > 0 && (
+              <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
+                {selectedTags.length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        <aside className={`
+          fixed md:relative md:block
+          ${mobileSidebarOpen ? 'left-0' : '-left-64'}
+          w-64 border-r border-neutral-800 bg-neutral-900 md:bg-neutral-900/30 
+          min-h-screen p-6 transition-all duration-300 z-30
+          md:translate-x-0
+        `}>
+          {/* Close button for mobile */}
+          <div className="md:hidden flex justify-between items-center mb-6">
+            <h2 className="text-lg font-semibold flex items-center space-x-2">
+              <Filter className="w-5 h-5" />
+              <span>Filters</span>
+            </h2>
+            <button
+              onClick={() => setMobileSidebarOpen(false)}
+              className="p-2 hover:bg-neutral-800 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
           <h2 className="text-lg font-semibold mb-6 flex items-center space-x-2">
             <Filter className="w-5 h-5" />
             <span>Filters</span>
@@ -568,105 +606,83 @@ export default function SampleBrowser({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {displayedSamples.map((sample) => (
-                    <div
-                      key={sample.id}
-                      className="group bg-neutral-900/30 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/50 hover:border-neutral-700 transition-all"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between text-sm text-neutral-400 mb-3">
-                            <div className="flex items-center space-x-2">
-                              <span className="px-2 py-1 bg-neutral-800 rounded text-xs">
-                                {sample.genre}
+                  {/* Sample Cards Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {displayedSamples.map((sample) => (
+                      <div key={sample.id} className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-3 sm:p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all">
+                        {/* Mobile-optimized layout */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                            <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
+                            <span className="text-xs sm:text-sm text-neutral-500">•</span>
+                            <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
+                          </div>
+                          <button
+                            onClick={() => toggleLike(sample.id)}
+                            className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
+                              likedSamples.has(sample.id)
+                                ? 'bg-red-500/20 text-red-500' 
+                                : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                            }`}
+                          >
+                            <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
+                          </button>
+                        </div>
+                        
+                        {/* Title and artist */}
+                        <h3 className="font-medium text-white text-sm sm:text-base mb-1">{sample.name}</h3>
+                        <p className="text-xs sm:text-sm text-neutral-400 mb-3">{sample.artist?.name || 'LoopLib'}</p>
+                        
+                        {/* Waveform */}
+                        <div className="mb-4 h-12 sm:h-16">
+                          <WaveformPlayer
+                            url={sample.file_url}
+                            isPlaying={playingId === sample.id}
+                            onPlayPause={() => togglePlay(sample.id)}
+                            height={48}
+                            waveColor="#666666"
+                            progressColor="#f97316"
+                          />
+                        </div>
+                        
+                        {/* Action buttons - stack on mobile */}
+                        <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                          <div className="flex flex-wrap gap-1">
+                            {sample.tags.slice(0, 2).map(tag => (
+                              <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
+                                {tag}
                               </span>
-                              {sample.has_stems && (
-                                <span className="px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded text-xs font-semibold">
-                                  STEMS
-                                </span>
+                            ))}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleFreeDownload(sample)}
+                              disabled={downloadingId === sample.id}
+                              className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
+                            >
+                              {downloadingId === sample.id ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Download className="w-3 h-3" />
                               )}
-                            </div>
-                            <span>{sample.bpm} BPM</span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between mb-4">
-                            <div>
-                              <h3 className="font-medium text-white text-lg mb-1">{sample.name}</h3>
-                              <p className="text-sm text-neutral-400">{sample.artist?.name || 'LoopLib'}</p>
-                            </div>
+                              <span>Free</span>
+                            </button>
                             
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-neutral-400">{sample.key}</span>
-                            </div>
-                          </div>
-                          
-                          {/* Waveform Player */}
-                          <div className="mb-4">
-                            <WaveformPlayer
-                              url={sample.file_url}
-                              isPlaying={playingId === sample.id}
-                              onPlayPause={() => togglePlay(sample.id)}
-                              height={48}
-                              waveColor="#525252"
-                              progressColor="#f97316"
-                            />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              {sample.tags.slice(0, 3).map(tag => (
-                                <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <button
-                                onClick={() => toggleLike(sample.id)}
-                                className={`p-2 rounded-md transition-colors ${
-                                  likedSamples.has(sample.id)
-                                    ? 'bg-red-500/20 text-red-500' 
-                                    : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                                }`}
-                              >
-                                <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
-                              </button>
-                              
-                              <button
-                                onClick={() => handleFreeDownload(sample)}
-                                disabled={downloadingId === sample.id}
-                                className="px-4 py-2 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center space-x-2 disabled:opacity-50"
-                              >
-                                {downloadingId === sample.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Download className="w-4 h-4" />
-                                )}
-                                <span>
-                                  {!user && anonymousDownloads >= 1 
-                                    ? 'Sign Up for More' 
-                                    : 'Free'
-                                  }
-                                </span>
-                              </button>
-                              
-                              <button
-                                onClick={() => {
-                                  setSelectedSample(sample);
-                                  setShowLicenseModal(true);
-                                }}
-                                className="px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors flex items-center space-x-2"
-                              >
-                                <ShoppingCart className="w-4 h-4" />
-                                <span>License</span>
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => {
+                                setSelectedSample(sample);
+                                setShowLicenseModal(true);
+                              }}
+                              className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
+                            >
+                              License
+                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                   
                   {/* Load More Button */}
                   {displayedSampleCount < sortedAndShuffledSamples.length && (
@@ -687,84 +703,12 @@ export default function SampleBrowser({
       </div>
 
       {/* License Modal */}
-      {showLicenseModal && selectedSample && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-neutral-900 rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-neutral-800">
-            <div className="p-6 border-b border-neutral-800">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">Choose Your License</h2>
-                  <p className="text-neutral-400 mt-1">
-                    {selectedSample.name} by {selectedSample.artist?.name || 'Unknown Artist'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowLicenseModal(false)}
-                  className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-8">
-              <div className="grid md:grid-cols-3 gap-6">
-                {licenses.map((license) => (
-                  <div
-                    key={license.id}
-                    className={`relative p-6 rounded-xl border-2 transition-all ${
-                      license.is_popular
-                        ? 'border-orange-500 bg-orange-500/5'
-                        : 'border-neutral-700 bg-neutral-800/30'
-                    }`}
-                  >
-                    {license.is_popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="px-3 py-1 bg-orange-500 text-xs font-bold rounded-full uppercase">
-                          Most Popular
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="text-center mb-6">
-                      <h4 className="text-xl font-bold mb-2">{license.name}</h4>
-                      <div className="flex items-baseline justify-center">
-                        <span className="text-3xl font-bold">${license.price}</span>
-                        <span className="text-neutral-400 ml-1">USD</span>
-                      </div>
-                    </div>
-                    
-                    <ul className="space-y-3 mb-6">
-                      {license.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start space-x-3">
-                          <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm text-gray-300">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <button 
-                      onClick={() => handleLicensePurchase(license)}
-                      disabled={purchasingLicense === license.id}
-                      className={`w-full py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 ${
-                        license.is_popular
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                          : 'bg-neutral-700 hover:bg-neutral-600 text-white'
-                      }`}
-                    >
-                      {purchasingLicense === license.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                      ) : (
-                        `Get ${license.name}`
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <LicenseModal
+        isOpen={showLicenseModal}
+        onClose={() => setShowLicenseModal(false)}
+        sample={selectedSample}
+        onPurchase={handleLicensePurchase}
+      />
 
       {/* Auth Modal */}
       <AuthModal
@@ -775,6 +719,14 @@ export default function SampleBrowser({
           setShowAuthModal(false);
         }}
       />
+      
+      {/* Mobile Overlay */}
+      {mobileSidebarOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-20"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Menu, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function Header() {
     try {
       await supabase.auth.signOut();
       toast.success('Logged out successfully');
+      setMobileMenuOpen(false);
     } catch (error) {
       toast.error('Error logging out');
     }
@@ -41,21 +43,21 @@ export default function Header() {
   return (
     <>
       <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo - positioned to the left */}
-            <div className="flex items-center -ml-20">
+            {/* Logo - responsive positioning */}
+            <div className="flex items-center">
               <Link href="/" className="flex items-center">
                 <img 
                   src="https://cdn.shopify.com/s/files/1/0816/1257/0973/files/aed347ef-bf6d-4634-9fcc-c94fd42726f3.png?v=1749219551"
                   alt="LoopLib"
-                  className="h-8 w-auto"
+                  className="h-6 sm:h-8 w-auto"
                 />
               </Link>
             </div>
 
-            {/* Navigation - centered independently */}
-            <nav className="hidden md:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
               <Link 
                 href="/samples" 
                 className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
@@ -85,13 +87,13 @@ export default function Header() {
               </Link>
             </nav>
             
-            {/* Login/User section - positioned to the right */}
-            <div className="flex items-center space-x-4">
+            {/* Desktop User Section */}
+            <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 text-sm">
                     <User className="w-4 h-4 text-neutral-400" />
-                    <span className="text-neutral-300 hidden sm:inline">
+                    <span className="text-neutral-300">
                       {user.email?.split('@')[0]}
                     </span>
                   </div>
@@ -100,19 +102,91 @@ export default function Header() {
                     className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span className="hidden sm:inline">Logout</span>
+                    <span>Logout</span>
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="px-3 sm:px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors text-sm sm:text-base font-medium"
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors text-sm font-medium"
                 >
                   Login / Sign Up
                 </button>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-neutral-400 hover:text-white"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-neutral-800">
+              <nav className="px-2 pt-2 pb-3 space-y-1">
+                <Link 
+                  href="/samples"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                >
+                  All Samples
+                </Link>
+                <Link 
+                  href="/samples/trap"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                >
+                  🔥 Trap
+                </Link>
+                <Link 
+                  href="/samples/rnb"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                >
+                  💫 R&B
+                </Link>
+                <Link 
+                  href="/samples/soul"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                >
+                  ❤️ Soul
+                </Link>
+                
+                <div className="pt-2 border-t border-neutral-800">
+                  {user ? (
+                    <>
+                      <div className="px-3 py-2 text-sm text-neutral-400">
+                        <User className="w-4 h-4 inline mr-2" />
+                        {user.email?.split('@')[0]}
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                      >
+                        <LogOut className="w-4 h-4 inline mr-2" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setShowAuthModal(true);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 text-base font-medium bg-orange-500 text-white rounded-md"
+                    >
+                      Login / Sign Up
+                    </button>
+                  )}
+                </div>
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 

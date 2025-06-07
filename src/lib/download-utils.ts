@@ -5,47 +5,26 @@
  * Downloads a file by fetching it as a blob and triggering a download
  * This ensures the file downloads instead of opening in a new tab
  */
-export async function downloadFile(url: string, filename: string): Promise<void> {
+export const downloadFile = async (url: string, filename: string) => {
   try {
-    // Show loading state
-    const loadingToast = (await import('react-hot-toast')).default.loading('Preparing download...');
-    
-    // Fetch the file as a blob
     const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
     const blob = await response.blob();
     
-    // Create a blob URL
-    const blobUrl = window.URL.createObjectURL(blob);
-    
-    // Create a temporary anchor element and trigger download
+    const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = blobUrl;
+    link.href = downloadUrl;
     link.download = filename;
-    link.style.display = 'none';
-    
-    // Append to body, click, and remove
     document.body.appendChild(link);
     link.click();
+    
+    // Cleanup
     document.body.removeChild(link);
-    
-    // Clean up the blob URL after a short delay
-    setTimeout(() => {
-      window.URL.revokeObjectURL(blobUrl);
-    }, 100);
-    
-    // Dismiss loading toast
-    (await import('react-hot-toast')).default.dismiss(loadingToast);
-    
+    window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error('Download failed:', error);
     throw error;
   }
-}
+};
 
 /**
  * Alternative download method using modern File System Access API
