@@ -61,12 +61,13 @@ export interface GenrePageConfig {
 
 interface GenrePageTemplateProps {
   config: GenrePageConfig;
+  initialSamples?: Sample[]; // Add this
 }
 
-export default function GenrePageTemplate({ config }: GenrePageTemplateProps) {
-  const [samples, setSamples] = useState<Sample[]>([]);
+export default function GenrePageTemplate({ config, initialSamples = [] }: GenrePageTemplateProps) {
+  const [samples, setSamples] = useState<Sample[]>(initialSamples); // Use initial data
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start as false if we have initial data
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBpmRange, setSelectedBpmRange] = useState<string>('all');
@@ -88,7 +89,9 @@ export default function GenrePageTemplate({ config }: GenrePageTemplateProps) {
 
   // Initialize
   useEffect(() => {
-    fetchGenreSamples();
+    if (initialSamples.length === 0) {
+      fetchGenreSamples();
+    }
     fetchLicenses();
     loadUserLikes();
     checkUser();
@@ -107,6 +110,9 @@ export default function GenrePageTemplate({ config }: GenrePageTemplateProps) {
   const [user, setUser] = useState<any>(null);
 
   const fetchGenreSamples = async () => {
+    if (initialSamples.length > 0) return; // Skip if we already have data
+    
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('samples')

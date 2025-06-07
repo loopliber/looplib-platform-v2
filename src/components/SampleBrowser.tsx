@@ -41,17 +41,19 @@ interface SampleBrowserProps {
   pageTitle?: string;
   pageSubtitle?: string;
   accentColor?: string;
+  initialSamples?: Sample[]; // Add this
 }
 
 export default function SampleBrowser({ 
   initialGenre = 'all', 
   pageTitle,
   pageSubtitle,
-  accentColor = 'orange'
+  accentColor = 'orange',
+  initialSamples = [] // Add this
 }: SampleBrowserProps) {
-  const [samples, setSamples] = useState<Sample[]>([]);
+  const [samples, setSamples] = useState<Sample[]>(initialSamples); // Use initial data
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start as false
   const [selectedGenre, setSelectedGenre] = useState<Genre>(initialGenre);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -83,7 +85,9 @@ export default function SampleBrowser({
 
   // Initialize
   useEffect(() => {
-    fetchSamples();
+    if (initialSamples.length === 0) {
+      fetchSamples();
+    }
     fetchLicenses();
     loadUserLikes();
     checkUser();
@@ -101,18 +105,6 @@ export default function SampleBrowser({
     setDisplayedSampleCount(SAMPLES_PER_PAGE);
   }, [selectedGenre, selectedTags]);
 
-  // Add this useEffect to refetch when initialGenre changes
-  useEffect(() => {
-    if (selectedGenre !== initialGenre) {
-      setSelectedGenre(initialGenre);
-    }
-  }, [initialGenre, selectedGenre]);
-
-  // And make sure fetchSamples is called when selectedGenre changes:
-  useEffect(() => {
-    fetchSamples();
-  }, [selectedGenre]);
-
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
@@ -125,6 +117,9 @@ export default function SampleBrowser({
   };
 
   const fetchSamples = async () => {
+    if (initialSamples.length > 0) return; // Skip if we have initial data
+    
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('samples')

@@ -1,7 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import GenrePageTemplate, { GenrePageConfig } from '@/components/GenrePageTemplate';
+import SampleSkeleton from '@/components/SampleSkeleton';
 import { Zap, Target, Gauge } from 'lucide-react';
+import { Sample } from '@/types';
 
 const trapConfig: GenrePageConfig = {
   genre: 'Trap',
@@ -47,5 +51,41 @@ const trapConfig: GenrePageConfig = {
 };
 
 export default function TrapSamplesPage() {
-  return <GenrePageTemplate config={trapConfig} />;
+  const [initialSamples, setInitialSamples] = useState<Sample[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchTrapSamples = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('samples')
+          .select(`
+            *,
+            artist:artists(*)
+          `)
+          .eq('genre', 'trap')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setInitialSamples(data || []);
+      } catch (error) {
+        console.error('Error fetching trap samples:', error);
+        // Retry after delay
+        setTimeout(fetchTrapSamples, 2000);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Add small delay to ensure client is ready
+    const timer = setTimeout(fetchTrapSamples, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <SampleSkeleton />;
+  }
+
+  return <GenrePageTemplate config={trapConfig} initialSamples={initialSamples} />;
 }

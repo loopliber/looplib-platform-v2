@@ -1,13 +1,17 @@
 'use client';
 
+import { Suspense, useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import GenrePageTemplate, { GenrePageConfig } from '@/components/GenrePageTemplate';
+import SampleSkeleton from '@/components/SampleSkeleton';
 import { Heart, Music, Mic } from 'lucide-react';
+import { Sample } from '@/types';
 
 const soulConfig: GenrePageConfig = {
   genre: 'Soul',
   genreSlug: 'soul',
   title: 'Free Soul Samples & Loops',
-  subtitle: '70+ vintage soul sounds • 70-110 BPM • Instant download',
+  subtitle: '70+ warm soul sounds • 70-110 BPM • Instant download',
   metaDescription: 'Download free soul samples and loops. Vintage keys, gospel chords, and warm basslines for soul music production. Royalty-free with commercial licenses.',
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },
@@ -15,7 +19,7 @@ const soulConfig: GenrePageConfig = {
     { id: '80-90', label: '80-90 BPM', min: 80, max: 90 },
     { id: '90-110', label: '90-110 BPM', min: 90, max: 110 },
   ],
-  commonTags: ['vintage', 'gospel', 'warm', 'classic', 'piano', 'strings', 'brass', 'choir'],
+  commonTags: ['vintage', 'warm', 'gospel', 'keys', 'bass', 'classic', 'smooth', 'organic'],
   heroGradient: 'from-pink-900/20',
   icon: Heart,
   educationalContent: {
@@ -23,29 +27,65 @@ const soulConfig: GenrePageConfig = {
       icon: Music,
       title: 'Essential Soul Elements',
       items: [
-        '• Warm analog basslines',
+        '• Warm vintage keyboard sounds',
         '• Gospel-inspired chord progressions',
-        '• Live drum grooves with swing',
-        '• Vintage keyboard sounds (Rhodes, Wurlitzer)',
+        '• Smooth basslines and grooves',
+        '• Live drum feels and fills',
       ],
     },
     productionTips: {
       icon: Mic,
       title: 'Soul Production Tips',
       items: [
-        '• Add tape saturation for warmth',
-        '• Use vintage compressor emulations',
-        '• Layer strings for richness',
-        '• Keep the mix warm and mid-focused',
+        '• Use analog warmth and saturation',
+        '• Layer multiple keyboard parts',
+        '• Add subtle vinyl crackle for vintage feel',
+        '• Keep arrangements spacious and organic',
       ],
     },
     description: [
-      'Soul music production is all about capturing emotion and warmth. Our free soul samples are inspired by the golden era of Motown, Stax, and Philadelphia soul, featuring authentic vintage sounds.',
-      'When producing soul beats, focus on creating a warm, inviting mix with plenty of mid-range frequencies. Start with a solid drum groove that has a human feel, then layer in basslines that complement the rhythm section.',
+      'Soul music production focuses on creating warm, emotional soundscapes that touch the heart. Our free soul samples feature authentic vintage instruments and timeless grooves.',
+      'When producing soul music, prioritize feel over technical perfection. Use warm analog sounds, gospel-inspired chord progressions, and leave space for the music to breathe naturally.',
     ],
   },
 };
 
 export default function SoulSamplesPage() {
-  return <GenrePageTemplate config={soulConfig} />;
+  const [initialSamples, setInitialSamples] = useState<Sample[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchSoulSamples = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('samples')
+          .select(`
+            *,
+            artist:artists(*)
+          `)
+          .eq('genre', 'soul')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setInitialSamples(data || []);
+      } catch (error) {
+        console.error('Error fetching soul samples:', error);
+        // Retry after delay
+        setTimeout(fetchSoulSamples, 2000);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Add small delay to ensure client is ready
+    const timer = setTimeout(fetchSoulSamples, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <SampleSkeleton />;
+  }
+
+  return <GenrePageTemplate config={soulConfig} initialSamples={initialSamples} />;
 }
