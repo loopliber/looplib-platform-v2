@@ -26,7 +26,6 @@ export default function WaveformPlayer({
   const containerRef = useRef<HTMLDivElement>(null);
   const wavesurferRef = useRef<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const initWaveSurfer = async () => {
@@ -35,10 +34,12 @@ export default function WaveformPlayer({
       try {
         const WaveSurfer = (await import('wavesurfer.js')).default;
 
+        // Clean up existing instance
         if (wavesurferRef.current) {
           wavesurferRef.current.destroy();
         }
 
+        // Create new instance
         const wavesurfer = WaveSurfer.create({
           container: containerRef.current,
           waveColor,
@@ -47,37 +48,35 @@ export default function WaveformPlayer({
           barWidth: 2,
           barGap: 1,
           normalize: true,
-          backend: 'MediaElement', // Use MediaElement backend for better CORS handling
-          mediaControls: false,
-          interact: true,
-          dragToSeek: true,
         });
 
         wavesurferRef.current = wavesurfer;
 
         wavesurfer.on('ready', () => {
           setLoading(false);
-          setError(null);
         });
 
-        wavesurfer.on('error', (err: string) => {
-          console.error('WaveSurfer error:', err);
-          setError('Failed to load audio');
+        wavesurfer.on('finish', () => {
+          onPlayPause(); // Stop playing when finished
+        });
+
+        // Fix: Change error handler to accept Error object
+        wavesurfer.on('error', (error: Error) => {
+          console.error('WaveSurfer error:', error);
           setLoading(false);
         });
 
-        // Load with crossOrigin attribute
-        await wavesurfer.load(url, undefined, undefined, undefined);
+        await wavesurfer.load(url);
 
       } catch (error) {
         console.error('Error initializing WaveSurfer:', error);
-        setError('Failed to initialize player');
         setLoading(false);
       }
     };
 
     initWaveSurfer();
 
+    // Cleanup function
     return () => {
       if (wavesurferRef.current) {
         try {
@@ -90,6 +89,7 @@ export default function WaveformPlayer({
     };
   }, [url, waveColor, progressColor, backgroundColor, height]);
 
+  // Handle play/pause from parent
   useEffect(() => {
     if (!wavesurferRef.current || loading) return;
 
@@ -105,22 +105,13 @@ export default function WaveformPlayer({
   }, [isPlaying, loading]);
 
   const handlePlayPause = () => {
-    if (!wavesurferRef.current || loading || error) return;
+    if (!wavesurferRef.current || loading) return;
     onPlayPause();
   };
 
-  if (error) {
-    return (
-      <div className="relative w-full group">
-        <div className="flex items-center justify-center h-12 bg-neutral-800 rounded text-red-400 text-sm">
-          Audio unavailable
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative w-full group">
+      {/* Play/Pause Button */}
       <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
         <button
           onClick={handlePlayPause}
@@ -130,13 +121,14 @@ export default function WaveformPlayer({
           {loading ? (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : isPlaying ? (
-            <Pause className="w-4 h-4 text-white" />
+            <Pause className="w-4 h-4 text-white ml-0.5" />
           ) : (
             <Play className="w-4 h-4 text-white ml-0.5" />
           )}
         </button>
       </div>
 
+      {/* Waveform Container */}
       <div className="ml-14 relative">
         <div 
           ref={containerRef} 
@@ -147,6 +139,7 @@ export default function WaveformPlayer({
           }}
         />
         
+        {/* Loading overlay */}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-neutral-800/50 rounded">
             <span className="text-xs text-neutral-400">Loading...</span>
