@@ -1,76 +1,79 @@
 // app/api/admin/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { processAudioFile } from '@/lib/audio-processing';
+import { createClient } from '@/lib/supabase/client';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const metadata = JSON.parse(formData.get('metadata') as string);
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    const metadataString = formData.get('metadata') as string;
+    
+    if (!file || !metadataString) {
+      return NextResponse.json({ error: 'Missing file or metadata' }, { status: 400 });
     }
 
-    // Convert file to buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const metadata = JSON.parse(metadataString);
+    const supabase = createClient();
 
-    // Generate sample ID
-    const sampleId = crypto.randomUUID();
+    // Create a unique filename
+    const timestamp = Date.now();
+    const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const fileName = `${timestamp}_${cleanName}`;
 
-    // Process audio (generate preview, upload to R2, extract waveform)
-    const processed = await processAudioFile(buffer, file.name, sampleId);
-
-    // Get or create artist
-    let { data: artist } = await supabaseAdmin
-      .from('artists')
-      .select()
-      .eq('name', metadata.artistName)
-      .single();
-
-    if (!artist) {
-      const { data: newArtist } = await supabaseAdmin
-        .from('artists')
-        .insert({ name: metadata.artistName })
-        .select()
-        .single();
-      artist = newArtist;
-    }
-
-    // Insert sample record with R2 URLs
-    const { data, error: dbError } = await supabaseAdmin
+    // Upload file to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('samples')
-      .insert({
-        id: sampleId,
-        name: metadata.name,
-        artist_id: artist.id,
-        genre: metadata.genre,
-        bpm: parseInt(metadata.bpm),
-        key: metadata.key,
-        duration: Math.round(processed.duration).toString(),
-        tags: metadata.tags,
-        file_url: processed.fullUrl,        // R2 full file URL
-        preview_url: processed.previewUrl,   // R2 preview URL
-        waveform_data: processed.waveformData,
-        downloads: 0,
-        likes: 0,
-        is_premium: false
-      })
+      .upload(fileName, file, {
+        contentType: file.type,
+        cacheControl: '3600',
+      });
+
+    if (uploadError) {
+      console.error('Storage upload error:', uploadError);
+      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
+    }
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('samples')
+      .getPublicUrl(fileName);
+
+    // Insert sample metadata into database
+    const { data: sampleData, error: dbError } = await supabase
+      .from('samples')
+      .insert([
+        {
+          name: metadata.name,
+          artist_name: metadata.artistName,
+          genre: metadata.genre,
+          bpm: parseInt(metadata.bpm),
+          key: metadata.key,
+          tags: metadata.tags,
+          file_url: publicUrl,
+          file_name: fileName,
+          file_size: file.size,
+          has_stems: metadata.has_stems,
+          duration: null,
+          created_at: new Date().toISOString(),
+        }
+      ])
       .select()
       .single();
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('Database error:', dbError);
+      // Clean up uploaded file if database insert fails
+      await supabase.storage.from('samples').remove([fileName]);
+      return NextResponse.json({ error: 'Failed to save sample metadata' }, { status: 500 });
+    }
 
-    return NextResponse.json({ success: true, data });
-  } catch (error: any) {
+    return NextResponse.json({ 
+      success: true, 
+      sample: sampleData 
+    });
+
+  } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
