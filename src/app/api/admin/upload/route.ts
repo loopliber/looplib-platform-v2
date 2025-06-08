@@ -1,6 +1,7 @@
 // app/api/admin/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/client';
+import { uploadToR2 } from '@/lib/r2-client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,25 +19,13 @@ export async function POST(request: NextRequest) {
     // Create a unique filename
     const timestamp = Date.now();
     const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const fileName = `${timestamp}_${cleanName}`;
+    const fileName = `samples/${timestamp}_${cleanName}`;
 
-    // Upload file to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('samples')
-      .upload(fileName, file, {
-        contentType: file.type,
-        cacheControl: '3600',
-      });
+    // Convert file to buffer for R2 upload
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
-    }
-
-    // Get the public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('samples')
-      .getPublicUrl(fileName);
+    // Upload file to Cloudflare R2
+    const fileUrl = await uploadToR2(fileName, fileBuffer, file.type);
 
     // Insert sample metadata into database
     const { data: sampleData, error: dbError } = await supabase
@@ -49,7 +38,7 @@ export async function POST(request: NextRequest) {
           bpm: parseInt(metadata.bpm),
           key: metadata.key,
           tags: metadata.tags,
-          file_url: publicUrl,
+          file_url: fileUrl,
           file_name: fileName,
           file_size: file.size,
           has_stems: metadata.has_stems,
@@ -62,8 +51,6 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error('Database error:', dbError);
-      // Clean up uploaded file if database insert fails
-      await supabase.storage.from('samples').remove([fileName]);
       return NextResponse.json({ error: 'Failed to save sample metadata' }, { status: 500 });
     }
 
