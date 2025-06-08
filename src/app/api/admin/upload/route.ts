@@ -1,47 +1,32 @@
 // app/api/admin/upload/route.ts
-
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { processAudioFile } from '@/lib/audio-processing';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if environment variables exist
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('Missing environment variables');
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
-    // Create admin client inside the function
     const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const metadata = JSON.parse(formData.get('metadata') as string);
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Upload file to storage
-    const fileName = `${Date.now()}_${file.name}`;
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from('samples')
-      .upload(fileName, file);
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    if (uploadError) throw uploadError;
+    // Generate sample ID
+    const sampleId = crypto.randomUUID();
 
-    // Get public URL
-    const { data: { publicUrl } } = supabaseAdmin.storage
-      .from('samples')
-      .getPublicUrl(fileName);
+    // Process audio (generate preview, upload to R2, extract waveform)
+    const processed = await processAudioFile(buffer, file.name, sampleId);
 
     // Get or create artist
     let { data: artist } = await supabaseAdmin
@@ -59,19 +44,21 @@ export async function POST(request: NextRequest) {
       artist = newArtist;
     }
 
-    // Insert sample record
+    // Insert sample record with R2 URLs
     const { data, error: dbError } = await supabaseAdmin
       .from('samples')
       .insert({
+        id: sampleId,
         name: metadata.name,
         artist_id: artist.id,
         genre: metadata.genre,
         bpm: parseInt(metadata.bpm),
         key: metadata.key,
-        duration: metadata.duration,
+        duration: Math.round(processed.duration).toString(),
         tags: metadata.tags,
-        file_url: publicUrl,
-        waveform_data: generateWaveformData(),
+        file_url: processed.fullUrl,        // R2 full file URL
+        preview_url: processed.previewUrl,   // R2 preview URL
+        waveform_data: processed.waveformData,
         downloads: 0,
         likes: 0,
         is_premium: false
@@ -84,13 +71,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
     console.error('Upload error:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
-
-function generateWaveformData(length = 64) {
-  return Array.from({ length }, () => Math.random() * 0.8 + 0.2);
 }

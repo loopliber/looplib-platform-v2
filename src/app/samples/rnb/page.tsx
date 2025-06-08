@@ -11,7 +11,7 @@ const rnbConfig: GenrePageConfig = {
   genre: 'R&B',
   genreSlug: 'rnb',
   title: 'Free R&B Samples & Loops',
-  subtitle: 'smooth R&B melodies • 60-100 BPM • Instant download',
+  subtitle: 'Smooth R&B melodies • 60-100 BPM • Instant download',
   metaDescription: 'Download free R&B melody samples and loops. Smooth melodies, modern chords, and silky leads for R&B music production. Royalty-free with commercial licenses.',
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },
