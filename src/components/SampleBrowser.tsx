@@ -345,7 +345,18 @@ export default function SampleBrowser({
         });
       }
       
-      fetchSamples();
+      // Remove this line - it causes the page refresh:
+      // fetchSamples();
+      
+      // Optional: Update download count locally without refetching
+      setSamples(prevSamples => 
+        prevSamples.map(s => 
+          s.id === sample.id 
+            ? { ...s, download_count: (s.download_count || 0) + 1 }
+            : s
+        )
+      );
+      
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Failed to download sample');

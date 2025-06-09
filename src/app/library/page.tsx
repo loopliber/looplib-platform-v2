@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import { downloadSample } from '@/lib/download-utils';
 
 interface DownloadedSample extends Sample {
   downloaded_at: string;
@@ -146,15 +147,12 @@ export default function MyLibraryPage() {
         })
       });
 
-      // Trigger download
-      const link = document.createElement('a');
-      link.href = sample.file_url;
-      link.download = `${sample.name} - LoopLib.mp3`;
-      link.click();
+      // Use the proper download utility instead of simple link click
+      await downloadSample(sample, sample.genre);
 
       toast.success('Download started!');
       
-      // Refresh to update count
+      // Refresh to update count (but this won't cause a page refresh)
       if (user?.email) {
         fetchDownloadHistory(user.email);
       }
