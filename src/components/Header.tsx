@@ -6,18 +6,36 @@ import Link from 'next/link';
 import { User, LogOut, Menu, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
+import Dashboard from './Dashboard';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [producerName, setProducerName] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
+      // Fetch producer name if user exists
+      if (user?.id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('producer_name')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (profileData?.producer_name) {
+          setProducerName(profileData.producer_name);
+        } else if (user?.user_metadata?.producer_name) {
+          setProducerName(user.user_metadata.producer_name);
+        }
+      }
     };
 
     getUser();
@@ -25,6 +43,10 @@ export default function Header() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user || null);
+        if (!session?.user) {
+          setProducerName('');
+          setShowDashboard(false);
+        }
       }
     );
 
@@ -34,6 +56,8 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
+      setShowDashboard(false);
+      setProducerName('');
       toast.success('Logged out successfully');
       setMobileMenuOpen(false);
     } catch (error) {
@@ -41,12 +65,23 @@ export default function Header() {
     }
   };
 
+  // If dashboard is shown, render it instead of header
+  if (showDashboard && user) {
+    return (
+      <Dashboard
+        user={user}
+        onBack={() => setShowDashboard(false)}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   return (
     <>
       <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo - responsive positioning */}
+            {/* Logo */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
                 <img 
@@ -93,17 +128,20 @@ export default function Header() {
                 <span>Soul</span>
               </Link>
             </nav>
-            
+
             {/* Desktop User Section */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2 text-sm">
-                    <User className="w-4 h-4 text-neutral-400" />
-                    <span className="text-neutral-300">
-                      {user.email?.split('@')[0]}
-                    </span>
-                  </div>
+                  <button
+                    onClick={() => setShowDashboard(true)}
+                    className="flex items-center space-x-2 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
+                  >
+                    <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
+                      {(producerName || user.email || 'U')[0].toUpperCase()}
+                    </div>
+                    <span className="text-sm text-white">{producerName || user.email?.split('@')[0] || 'Producer'}</span>
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
@@ -174,10 +212,16 @@ export default function Header() {
                 <div className="pt-2 border-t border-neutral-800">
                   {user ? (
                     <>
-                      <div className="px-3 py-2 text-sm text-neutral-400">
+                      <button
+                        onClick={() => {
+                          setShowDashboard(true);
+                          setMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                      >
                         <User className="w-4 h-4 inline mr-2" />
-                        {user.email?.split('@')[0]}
-                      </div>
+                        {producerName || user.email?.split('@')[0] || 'Dashboard'}
+                      </button>
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"

@@ -16,7 +16,6 @@ import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import LicenseModal from '@/components/LicenseModal';
-import Dashboard from './Dashboard'; // Add this import
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -82,8 +81,6 @@ export default function SampleBrowser({
   const [user, setUser] = useState<any>(null);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [producerName, setProducerName] = useState('');
   
   // Loading states
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -137,21 +134,6 @@ export default function SampleBrowser({
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error) throw error;
       setUser(user);
-      
-      // Fetch producer name if user exists
-      if (user?.id) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('producer_name')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (profileData?.producer_name) {
-          setProducerName(profileData.producer_name);
-        } else if (user?.user_metadata?.producer_name) {
-          setProducerName(user.user_metadata.producer_name);
-        }
-      }
     } catch (error) {
       console.error('Error checking user:', error);
     }
@@ -436,77 +418,12 @@ export default function SampleBrowser({
     toast.success('🎲 Samples shuffled!', { duration: 1500 });
   }, []);
 
-  // Add logout handler
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setProducerName('');
-      setShowDashboard(false);
-      toast.success('Logged out successfully');
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast.error('Failed to logout');
-    }
-  };
-
-  // If dashboard is shown, render it instead of the main content
-  if (showDashboard && user) {
-    return (
-      <Dashboard
-        user={user}
-        onBack={() => setShowDashboard(false)}
-        onLogout={handleLogout}
-      />
-    );
-  }
+  // Remove logout handler
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Add Header with User Menu */}
-      <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-sm border-b border-neutral-800">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-4">
-            <img 
-              src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
-              alt="LoopLib"
-              className="h-8 w-auto"
-            />
-          </div>
-
-          {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => setShowDashboard(true)}
-                  className="flex items-center space-x-2 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
-                >
-                  <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
-                    {(producerName || user.email || 'U')[0].toUpperCase()}
-                  </div>
-                  <span className="text-sm text-white">{producerName || 'Producer'}</span>
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm"
-              >
-                Sign In
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
+      {/* Remove the duplicate header - it's already in layout */}
+      
       {/* Main Content - Full Width */}
       <main className="w-full">
         {/* Hero Banner */}
@@ -734,7 +651,7 @@ export default function SampleBrowser({
           </div>
         </div>
       </main>
-
+      
       {/* Mobile Filter Overlay */}
       {mobileSidebarOpen && (
         <>
