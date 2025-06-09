@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { User, LogOut, Menu, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
@@ -22,7 +23,7 @@ export default function Header() {
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user || null);
       }
     );
