@@ -208,10 +208,13 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     
     switch(sortBy) {
       case 'popular':
-        result.sort((a, b) => b.downloads - a.downloads);
+        result.sort((a, b) => (b.downloads ?? 0) - (a.downloads ?? 0));
         break;
       case 'newest':
-        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        result.sort(
+          (a, b) =>
+            new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
+        );
         break;
       case 'bpm':
         result.sort((a, b) => a.bpm - b.bpm);
