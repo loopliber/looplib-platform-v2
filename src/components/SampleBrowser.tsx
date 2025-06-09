@@ -45,6 +45,12 @@ interface SampleBrowserProps {
   initialSamples?: Sample[];
 }
 
+interface UserLike {
+  sample_id: string;
+  user_identifier: string;
+  created_at?: string;
+}
+
 export default function SampleBrowser({ 
   initialGenre = 'all', 
   pageTitle,
@@ -171,9 +177,9 @@ export default function SampleBrowser({
   };
 
   const loadUserLikes = async () => {
+    const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+    
     try {
-      const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
-      
       const { data, error } = await supabase
         .from('user_likes')
         .select('sample_id')
@@ -181,7 +187,10 @@ export default function SampleBrowser({
 
       if (error) throw error;
       
-      const likedIds = new Set(data?.map(like => like.sample_id) || []);
+      // Fix: Add proper type annotation
+      const likedIds = new Set<string>(
+        data?.map((like: { sample_id: string }) => like.sample_id) || []
+      );
       setLikedSamples(likedIds);
     } catch (error) {
       console.error('Error loading likes:', error);
