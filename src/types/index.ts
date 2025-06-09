@@ -18,8 +18,9 @@ export interface Sample {
   artist?: Artist;
   created_at?: string;
   tags: string[];
-  downloads?: number; // Add this optional property
-  download_count?: number; // Add this optional property
+  downloads?: number;
+  download_count?: number;
+  has_stems?: boolean; // Add this optional property
 }
 
 export interface License {
@@ -46,36 +47,36 @@ export interface UserDownload {
 export interface UserPurchase {
   id: string;
   user_email: string;
-  sample_id: string;
   license_id: string;
   stripe_payment_id: string;
-  amount: number;
+  amount: number;id: string;
   purchased_at: string;
+} purchased_at: string;
 }
-
 export interface UserLike {
-  id: string;
+  id: string;ace UserLike {
   user_identifier: string;
-  sample_id: string;
+  sample_id: string;tring;
   created_at: string;
+} created_at: string;
 }
-
 export type Genre = 'all' | 'trap' | 'rnb' | 'soul';
 export type SortBy = 'popular' | 'newest' | 'bpm' | 'name';
-
+export type SortBy = 'popular' | 'newest' | 'bpm' | 'name';
 export interface EmailCaptureModalProps {
-  isOpen: boolean;
+  isOpen: boolean;mailCaptureModalProps {
   onClose: () => void;
   onSuccess: (email: string) => void;
   triggerType: 'download_limit' | 'premium_sample' | 'feature_access';
+} triggerType: 'download_limit' | 'premium_sample' | 'feature_access';
 }
-
 export interface WaveformPlayerProps {
-  url: string;
+  url: string;ce WaveformPlayerProps {
   isPlaying: boolean;
   onPlayPause: () => void;
-  height?: number;
+  height?: number;=> void;
   waveColor?: string;
   progressColor?: string;
   backgroundColor?: string;
+} backgroundColor?: string;
 }
