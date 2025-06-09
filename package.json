@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "upload-sample": "node scripts/upload-samples.js"
+    "upload:r2": "node scripts/smart-r2-bulk-upload.js",
+    "upload:test": "npx tsx scripts/test-and-populate.ts",
+    "upload:migrate": "npx tsx scripts/migrate-to-supabase.ts",
+    "db:populate": "curl http://localhost:3000/api/populate-test-data",
+    "r2:diagnose": "npx tsx scripts/test-and-populate.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.826.0",

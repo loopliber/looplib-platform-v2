@@ -11,7 +11,7 @@ const soulConfig: GenrePageConfig = {
   genre: 'Soul',
   genreSlug: 'soul',
   title: 'Free Soul Samples & Loops',
-  subtitle: 'vintage soul melodies • 70-110 BPM • Instant download',
+  subtitle: 'Vintage soul melodies • 70-110 BPM • Instant download',
   metaDescription: 'Download free soul melody samples and loops. Vintage keys, gospel chords, and warm melodies for soul music production. Royalty-free with commercial licenses.',
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },

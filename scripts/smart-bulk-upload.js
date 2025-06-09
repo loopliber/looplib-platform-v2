@@ -1,16 +1,28 @@
-// scripts/smart-bulk-upload.js
-// Enhanced bulk upload with intelligent filename parsing and tag selection
+// scripts/smart-r2-bulk-upload.js
+// Enhanced bulk upload to R2 with intelligent filename parsing and database sync
 
 const { createClient } = require('@supabase/supabase-js');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 require('dotenv').config({ path: '.env.local' });
 
+// Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Initialize R2 client
+const R2 = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
 
 // Color codes for terminal
 const colors = {
@@ -43,9 +55,14 @@ const tagCategories = {
   4: { 
     name: 'Drill Energy', 
     tags: ['drill', 'aggressive', 'intense', 'urban'],
-    genre: 'drill'
+    genre: 'trap'  // drill is a subgenre of trap
   },
   5: { 
+    name: 'Hip-Hop Classic', 
+    tags: ['hip-hop', 'boom bap', 'classic', 'beats'],
+    genre: 'hip-hop'
+  },
+  6: { 
     name: 'Custom', 
     tags: [],
     genre: null
@@ -67,13 +84,14 @@ function question(query) {
 
 // Enhanced metadata parser for LoopLib naming convention
 function parseFilename(filename) {
-  // Remove file extension
   const nameWithoutExt = path.parse(filename).name;
   
-  // Split by common separators and clean
+  // Clean and split
   const parts = nameWithoutExt
     .replace(/@LOOPLIB/gi, '')
-    .split(/[_\-\s]+/)
+    .replace(/[_\-]+/g, ' ')
+    .trim()
+    .split(/\s+/)
     .filter(part => part.length > 0);
   
   let name = '';
@@ -83,20 +101,13 @@ function parseFilename(filename) {
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i].trim();
     
-    // Check for BPM (numbers like 120, 130, etc.)
+    // Check for BPM
     if (/^\d{2,3}$/.test(part) && parseInt(part) >= 60 && parseInt(part) <= 200) {
       bpm = parseInt(part);
     }
-    // Check for key (like dmin, gmaj, f#min, etc.)
-    else if (/^[a-g][#b]?(min|maj|m|M)?$/i.test(part)) {
-      key = part.toLowerCase()
-        .replace('min', ' minor')
-        .replace('maj', ' major')
-        .replace(/^([a-g][#b]?)m$/i, '$1 minor')
-        .replace(/^([a-g][#b]?)M$/i, '$1 major');
-      
-      // Capitalize first letter
-      key = key.charAt(0).toUpperCase() + key.slice(1);
+    // Check for key notation
+    else if (/^[a-g][#b]?(min|maj|minor|major|m|M)?$/i.test(part)) {
+      key = formatKey(part);
     }
     // Otherwise, it's part of the name
     else {
@@ -105,34 +116,31 @@ function parseFilename(filename) {
     }
   }
   
-  // Clean up and format name
+  // Format name
   if (name) {
     name = name
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   } else {
-    name = path.parse(filename).name.replace(/@LOOPLIB/gi, '').trim();
+    name = nameWithoutExt.replace(/@LOOPLIB/gi, '').trim();
   }
   
   return { name, bpm, key };
 }
 
-// Detect genre from filename and metadata
-function detectGenre(filename, metadata) {
-  const text = (filename + ' ' + metadata.name).toLowerCase();
+function formatKey(keyStr) {
+  let key = keyStr.toLowerCase();
   
-  if (text.includes('trap')) return 'trap';
-  if (text.includes('drill')) return 'drill';
-  if (text.includes('soul') || text.includes('vintage')) return 'soul';
-  if (text.includes('rnb') || text.includes('r&b')) return 'rnb';
-  if (text.includes('hip') && text.includes('hop')) return 'hip-hop';
-  if (text.includes('jazz')) return 'jazz';
-  if (text.includes('funk')) return 'funk';
-  if (text.includes('house')) return 'house';
-  if (text.includes('techno')) return 'techno';
+  // Convert various notations to standard format
+  key = key
+    .replace(/^([a-g][#b]?)min$/i, '$1 minor')
+    .replace(/^([a-g][#b]?)maj$/i, '$1 major')
+    .replace(/^([a-g][#b]?)m$/i, '$1 minor')
+    .replace(/^([a-g][#b]?)M$/i, '$1 major');
   
-  return 'hip-hop'; // Default genre
+  // Capitalize first letter
+  return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
 async function selectTagCategory() {
@@ -145,17 +153,17 @@ async function selectTagCategory() {
     }
   });
   
-  const choice = await question('\nEnter choice (1-5): ');
+  const choice = await question('\nEnter choice (1-6): ');
   const selectedCategory = tagCategories[choice];
   
   if (!selectedCategory) {
-    log('Invalid choice, using default soul/vintage tags', 'yellow');
-    return { tags: tagCategories[1].tags, genre: tagCategories[1].genre };
+    log('Invalid choice, using default trap tags', 'yellow');
+    return { tags: tagCategories[2].tags, genre: tagCategories[2].genre };
   }
   
   if (selectedCategory.name === 'Custom') {
     const customTags = await question('Enter custom tags (comma-separated): ');
-    const customGenre = await question('Enter genre: ');
+    const customGenre = await question('Enter genre (trap/soul/rnb): ');
     return {
       tags: customTags.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag.length > 0),
       genre: customGenre.trim().toLowerCase()
@@ -166,70 +174,91 @@ async function selectTagCategory() {
   return { tags: selectedCategory.tags, genre: selectedCategory.genre };
 }
 
-async function uploadSample(filePath, metadata, selectedTags, selectedGenre) {
+async function uploadToR2(filePath, storageKey) {
+  const fileBuffer = fs.readFileSync(filePath);
+  const fileExtension = path.extname(filePath).toLowerCase();
+  
+  const contentType = {
+    '.mp3': 'audio/mpeg',
+    '.wav': 'audio/wav',
+    '.aiff': 'audio/aiff',
+    '.flac': 'audio/flac'
+  }[fileExtension] || 'audio/mpeg';
+  
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME,
+    Key: storageKey,
+    Body: fileBuffer,
+    ContentType: contentType,
+    CacheControl: 'public, max-age=31536000', // 1 year cache
+  });
+  
+  await R2.send(command);
+  
+  // Return the public URL
+  return `${process.env.R2_PUBLIC_URL}/${storageKey}`;
+}
+
+async function uploadSample(filePath, metadata, selectedTags, selectedGenre, artistName = 'LoopLib') {
   try {
-    // Read the file
-    const fileBuffer = fs.readFileSync(filePath);
     const originalFilename = path.basename(filePath);
     const timestamp = Date.now();
     const fileExtension = path.extname(originalFilename);
-    const storageFilename = `${metadata.name.toLowerCase().replace(/\s+/g, '_')}_${timestamp}${fileExtension}`;
+    const cleanName = metadata.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const storageKey = `samples/${cleanName}_${timestamp}${fileExtension}`;
     
-    log(`⬆️  Uploading: ${originalFilename}`, 'cyan');
+    log(`⬆️  Uploading to R2: ${originalFilename}`, 'cyan');
     
-    // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('samples')
-      .upload(storageFilename, fileBuffer, {
-        contentType: fileExtension === '.mp3' ? 'audio/mpeg' : 'audio/wav'
-      });
+    // Upload to R2
+    const publicUrl = await uploadToR2(filePath, storageKey);
+    log(`   ✓ Uploaded to R2: ${storageKey}`, 'green');
     
-    if (uploadError) {
-      throw new Error(`Upload failed: ${uploadError.message}`);
-    }
+    // Get file size
+    const stats = fs.statSync(filePath);
+    const fileSize = stats.size;
     
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('samples')
-      .getPublicUrl(storageFilename);
-    
-    // Get or create artist
-    let artistId = null;
-    const { data: existingArtist } = await supabase
+    // Ensure artist exists (create default artist)
+    const { data: artists } = await supabase
       .from('artists')
       .select('id')
-      .eq('name', 'LoopLib')
-      .single();
+      .eq('name', artistName)
+      .limit(1);
     
-    if (existingArtist) {
-      artistId = existingArtist.id;
+    let artistId = null;
+    
+    if (artists && artists.length > 0) {
+      artistId = artists[0].id;
     } else {
+      // Create artist if doesn't exist
       const { data: newArtist, error: artistError } = await supabase
         .from('artists')
         .insert({
-          name: 'LoopLib',
+          name: artistName,
           bio: 'Premium samples and loops for music producers'
         })
         .select('id')
         .single();
       
-      if (artistError) throw artistError;
-      artistId = newArtist.id;
+      if (!artistError && newArtist) {
+        artistId = newArtist.id;
+      }
     }
     
-    // Insert sample record - USE selectedGenre instead of detectGenre
+    // Insert sample record
     const sampleData = {
       name: metadata.name,
       artist_id: artistId,
-      genre: selectedGenre, // ✅ Use the selected genre from tag categories
+      artist_name: artistName, // Also store as text for easier queries
+      genre: selectedGenre,
       bpm: metadata.bpm || 120,
-      key: metadata.key || 'C major',
-      duration: '0:30', // Default duration
+      key: metadata.key || 'C',
       tags: selectedTags,
       file_url: publicUrl,
+      file_name: originalFilename,
+      file_size: fileSize,
       downloads: 0,
-      likes: 0,
-      is_premium: false
+      has_stems: false,
+      created_at: new Date().toISOString()
     };
     
     const { data: sampleRecord, error: insertError } = await supabase
@@ -242,7 +271,8 @@ async function uploadSample(filePath, metadata, selectedTags, selectedGenre) {
       throw new Error(`Database insert failed: ${insertError.message}`);
     }
     
-    log(`✅ Successfully uploaded: ${metadata.name}`, 'green');
+    log(`✅ Success: ${metadata.name}`, 'green');
+    log(`   URL: ${publicUrl}`, 'blue');
     log(`   Genre: ${sampleData.genre} | BPM: ${sampleData.bpm} | Key: ${sampleData.key}`, 'blue');
     log(`   Tags: [${selectedTags.join(', ')}]`, 'magenta');
     
@@ -250,17 +280,57 @@ async function uploadSample(filePath, metadata, selectedTags, selectedGenre) {
     
   } catch (error) {
     log(`❌ Failed to upload ${path.basename(filePath)}: ${error.message}`, 'red');
+    console.error(error); // Log full error for debugging
     return null;
   }
 }
 
+async function checkR2Configuration() {
+  log('\n🔧 Checking R2 configuration...', 'cyan');
+  
+  const requiredEnvVars = [
+    'R2_ACCOUNT_ID',
+    'R2_ACCESS_KEY_ID',
+    'R2_SECRET_ACCESS_KEY',
+    'R2_BUCKET_NAME',
+    'R2_PUBLIC_URL'
+  ];
+  
+  let configValid = true;
+  
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      log(`❌ Missing environment variable: ${envVar}`, 'red');
+      configValid = false;
+    } else {
+      log(`✓ ${envVar}: ${envVar.includes('SECRET') ? '***' : process.env[envVar]}`, 'green');
+    }
+  }
+  
+  if (!configValid) {
+    log('\n❌ R2 configuration is incomplete. Please check your .env.local file.', 'red');
+    log('Required variables:', 'yellow');
+    log('  R2_ACCOUNT_ID=your_account_id', 'yellow');
+    log('  R2_ACCESS_KEY_ID=your_access_key', 'yellow');
+    log('  R2_SECRET_ACCESS_KEY=your_secret_key', 'yellow');
+    log('  R2_BUCKET_NAME=your_bucket_name', 'yellow');
+    log('  R2_PUBLIC_URL=https://pub-xxxxx.r2.dev', 'yellow');
+    process.exit(1);
+  }
+  
+  log('✅ R2 configuration valid', 'green');
+}
+
 async function main() {
   try {
-    log('🎵 LoopLib Smart Bulk Upload', 'cyan');
-    log('================================', 'cyan');
+    log('🎵 LoopLib Smart R2 Bulk Upload', 'cyan');
+    log('===================================', 'cyan');
+    
+    // Check R2 configuration
+    await checkR2Configuration();
     
     // Get folder path
-    const folderPath = await question('Enter folder path containing samples: ');
+    const folderPath = await question('\nEnter folder path containing samples: ');
     
     if (!fs.existsSync(folderPath)) {
       log('❌ Folder not found!', 'red');
@@ -279,21 +349,26 @@ async function main() {
     
     log(`\n📁 Found ${files.length} audio files`, 'blue');
     
+    // Optional: Get artist name
+    const customArtist = await question('\nArtist name (press Enter for "LoopLib"): ');
+    const artistName = customArtist.trim() || 'LoopLib';
+    
     // Select tags and genre for this folder
     const { tags: selectedTags, genre: selectedGenre } = await selectTagCategory();
     
     // Preview files and metadata
     log('\n📋 Preview of files to upload:', 'yellow');
-    files.slice(0, 3).forEach(file => {
+    files.slice(0, 5).forEach(file => {
       const metadata = parseFilename(path.basename(file));
-      log(`   ${path.basename(file)} → "${metadata.name}" (${metadata.bpm || 'unknown'} BPM, ${metadata.key || 'unknown'} key)`, 'blue');
+      log(`   ${path.basename(file)}`, 'cyan');
+      log(`   → "${metadata.name}" (${metadata.bpm || '?'} BPM, ${metadata.key || '?'})`, 'blue');
     });
     
-    if (files.length > 3) {
-      log(`   ... and ${files.length - 3} more files`, 'blue');
+    if (files.length > 5) {
+      log(`   ... and ${files.length - 5} more files`, 'blue');
     }
     
-    const confirm = await question(`\n🚀 Upload ${files.length} files with tags [${selectedTags.join(', ')}]? (y/N): `);
+    const confirm = await question(`\n🚀 Upload ${files.length} files to R2 with tags [${selectedTags.join(', ')}]? (y/N): `);
     
     if (confirm.toLowerCase() !== 'y' && confirm.toLowerCase() !== 'yes') {
       log('❌ Upload cancelled', 'yellow');
@@ -301,7 +376,7 @@ async function main() {
     }
     
     // Upload all files
-    log('\n🚀 Starting upload...', 'green');
+    log('\n🚀 Starting upload to R2...', 'green');
     let successCount = 0;
     let failCount = 0;
     
@@ -311,7 +386,7 @@ async function main() {
       
       log(`\n[${i + 1}/${files.length}] Processing: ${path.basename(file)}`, 'yellow');
       
-      const result = await uploadSample(file, metadata, selectedTags, selectedGenre);
+      const result = await uploadSample(file, metadata, selectedTags, selectedGenre, artistName);
       
       if (result) {
         successCount++;
@@ -320,7 +395,7 @@ async function main() {
       }
       
       // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
     
     // Final summary
@@ -330,9 +405,13 @@ async function main() {
       log(`❌ Failed uploads: ${failCount} files`, 'red');
     }
     log(`🏷️  All files tagged with: [${selectedTags.join(', ')}]`, 'magenta');
+    log(`🎨 Genre: ${selectedGenre}`, 'magenta');
+    log(`👤 Artist: ${artistName}`, 'magenta');
+    log(`🌐 R2 Bucket: ${process.env.R2_BUCKET_NAME}`, 'blue');
     
   } catch (error) {
     log(`❌ Unexpected error: ${error.message}`, 'red');
+    console.error(error);
   } finally {
     rl.close();
   }
