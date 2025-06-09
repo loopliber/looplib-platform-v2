@@ -279,10 +279,25 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     setDownloadingId(sample.id);
 
     try {
+      // Check download limits for anonymous users
+      if (!user && anonymousDownloads >= 1) {
+        setShowAuthModal(true);
+        setDownloadingId(null);
+        toast.error('Please create an account to continue downloading');
+        return;
+      }
+      
+      // Update anonymous download counter
+      if (!user) {
+        const newCount = anonymousDownloads + 1;
+        setAnonymousDownloads(newCount);
+        localStorage.setItem('anonymous_downloads', newCount.toString());
+      }
+
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
+      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted}_${config.genreSlug} @LOOPLIB.${extension}`;
 
       await downloadFile(sample.file_url, downloadFilename);
 
@@ -293,7 +308,21 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
         body: JSON.stringify({ sampleId: sample.id, email: userEmail }),
       });
 
-      toast.success('Download complete! Check your downloads folder.');
+      // Success message logic - FIXED
+      if (user) {
+        // User is logged in - show normal download success
+        toast.success('Download complete! Check your downloads folder.');
+      } else {
+        // User is anonymous - show different message based on download count
+        if (anonymousDownloads === 0) {
+          toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
+            duration: 5000
+          });
+        } else {
+          toast.success('Download complete! Check your downloads folder.');
+        }
+      }
+
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Failed to download sample');

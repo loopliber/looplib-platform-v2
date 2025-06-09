@@ -306,6 +306,7 @@ export default function SampleBrowser({
     setDownloadingId(sample.id);
     
     try {
+      // Check download limits for anonymous users
       if (!user && anonymousDownloads >= 1) {
         setShowAuthModal(true);
         setDownloadingId(null);
@@ -313,6 +314,7 @@ export default function SampleBrowser({
         return;
       }
       
+      // Update anonymous download counter
       if (!user) {
         const newCount = anonymousDownloads + 1;
         setAnonymousDownloads(newCount);
@@ -338,12 +340,19 @@ export default function SampleBrowser({
         })
       });
 
-      toast.success('Download complete! Check your downloads folder.');
-      
-      if (!user && anonymousDownloads === 0) {
-        toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
-          duration: 5000
-        });
+      // Success message logic - FIXED
+      if (user) {
+        // User is logged in - show normal download success
+        toast.success('Download complete! Check your downloads folder.');
+      } else {
+        // User is anonymous - show different message based on download count
+        if (anonymousDownloads === 0) {
+          toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
+            duration: 5000
+          });
+        } else {
+          toast.success('Download complete! Check your downloads folder.');
+        }
       }
       
     } catch (error) {
