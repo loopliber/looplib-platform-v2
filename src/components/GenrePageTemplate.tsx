@@ -67,7 +67,7 @@ interface GenrePageTemplateProps {
 
 interface UserLike {
   sample_id: string;
-  user_id: string;
+  user_identifier?: string;
   created_at?: string;
 }
 
@@ -165,7 +165,10 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
       if (error) throw error;
       
-      const likedIds = new Set(data?.map((like: UserLike) => like.sample_id) || []);
+      // Fix: Explicitly type the map function parameter and ensure string type
+      const likedIds = new Set<string>(
+        data?.map((like: { sample_id: string }) => like.sample_id) || []
+      );
       setLikedSamples(likedIds);
     } catch (error) {
       console.error('Error loading likes:', error);
