@@ -7,6 +7,7 @@ import {
   Music, ArrowRight, Sparkles,
   Flame, Heart, Headphones
 } from 'lucide-react';
+import { Sample } from '@/types';
 
 interface GenreStats {
   genre: string;
@@ -90,14 +91,16 @@ export default function SamplesCollectionPage() {
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-      samples?.forEach(sample => {
+      samples?.forEach((sample: Sample) => {
         const genre = sample.genre;
         if (!stats[genre]) {
           stats[genre] = { genre, count: 0, newThisWeek: 0 };
         }
         stats[genre].count++;
         
-        if (new Date(sample.created_at) > oneWeekAgo) {
+        // Check if sample is new this week
+        const sampleDate = new Date(sample.created_at);
+        if (sampleDate >= oneWeekAgo) {
           stats[genre].newThisWeek++;
         }
       });
