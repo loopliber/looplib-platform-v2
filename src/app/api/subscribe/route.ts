@@ -3,10 +3,18 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Function to create Supabase client with error handling
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    // Return null during build time
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +25,15 @@ export async function POST(request: NextRequest) {
         { error: 'Email is required' },
         { status: 400 }
       );
+    }
+
+    // Get Supabase client
+    const supabase = getSupabaseClient();
+    
+    if (!supabase) {
+      // If Supabase is not configured, just log the subscription
+      console.log('New subscriber (Supabase not configured):', { email, source, timestamp });
+      return NextResponse.json({ success: true, message: 'Subscription logged' });
     }
 
     // Create a subscribers table in Supabase first, or use your email service
