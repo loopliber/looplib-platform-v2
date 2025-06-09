@@ -99,7 +99,9 @@ export default function SamplesCollectionPage() {
         stats[genre].count++;
         
         // Check if sample is new this week
-        const sampleDate = new Date(sample.created_at);
+        // Ensure sample.created_at is defined before creating a Date object
+        const sampleDate = sample.created_at ? new Date(sample.created_at) : new Date(0); // Default to epoch if undefined
+
         if (sampleDate >= oneWeekAgo) {
           stats[genre].newThisWeek++;
         }

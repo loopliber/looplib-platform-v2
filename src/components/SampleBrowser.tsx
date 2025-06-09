@@ -214,8 +214,7 @@ export default function SampleBrowser({
           sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           sample.artist?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           sample.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesTags = selectedTags.length === 0 || 
-          selectedTags.some(tag => sample.tags.includes(tag));
+        const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => sample.tags?.includes(tag));
         
         return matchesGenre && matchesSearch && matchesTags;
       });
@@ -223,7 +222,7 @@ export default function SampleBrowser({
       let sorted = [...filtered];
       switch(sortBy) {
         case 'popular':
-          sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+          sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0)); // Add fallback for undefined downloads
           break;
         case 'newest':
           sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());

@@ -14,14 +14,12 @@ export interface Sample {
   bpm: number;
   key: string;
   genre: string;
+  artist_id?: string;
+  artist?: Artist;
+  created_at?: string;
   tags: string[];
-  downloads: number;
-  created_at: string;
-  has_stems?: boolean;
-  artist?: {
-    id: string;
-    name: string;
-  };
+  downloads?: number; // Add this optional property
+  download_count?: number; // Add this optional property
 }
 
 export interface License {

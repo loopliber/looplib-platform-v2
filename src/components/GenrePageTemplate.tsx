@@ -274,58 +274,33 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
   const handleFreeDownload = async (sample: Sample) => {
     setDownloadingId(sample.id);
-    
-    try {
-      if (!user) {
-        if (anonymousDownloads >= 1) {
-          setShowAuthModal(true);
-          setDownloadingId(null);
-          toast.error('Please create an account to continue downloading');
-          return;
-        }
-        
-        const newCount = anonymousDownloads + 1;
-        setAnonymousDownloads(newCount);
-        localStorage.setItem('anonymous_downloads', newCount.toString());
-      }
 
+    try {
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted}_${config.genreSlug} @LOOPLIB.${extension}`;
-      
+      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
+
       await downloadFile(sample.file_url, downloadFilename);
-      
+
       const userEmail = user?.email || 'anonymous@looplib.com';
       await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          sampleId: sample.id,
-          email: userEmail
-        })
+        body: JSON.stringify({ sampleId: sample.id, email: userEmail }),
       });
 
       toast.success('Download complete! Check your downloads folder.');
-      
-      if (!user && anonymousDownloads === 0) {
-        toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
-          duration: 5000
-        });
-      }
-      
+
       // Remove this line - it causes the page refresh:
       // fetchGenreSamples();
-      
-      // Optional: Update download count locally without refetching
-      setSamples(prevSamples => 
-        prevSamples.map(s => 
-          s.id === sample.id 
-            ? { ...s, download_count: (s.download_count || 0) + 1 }
-            : s
+
+      // Update download count locally without refetching
+      setSamples((prevSamples) =>
+        prevSamples.map((s) =>
+          s.id === sample.id ? { ...s, download_count: (s.download_count || 0) + 1 } : s
         )
       );
-      
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Failed to download sample');
