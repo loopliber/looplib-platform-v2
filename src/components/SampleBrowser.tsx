@@ -222,10 +222,12 @@ export default function SampleBrowser({
       let sorted = [...filtered];
       switch(sortBy) {
         case 'popular':
-          sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0)); // Add fallback for undefined downloads
+          sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
           break;
         case 'newest':
-          sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          sorted.sort((a, b) => 
+            new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+          );
           break;
         case 'bpm':
           sorted.sort((a, b) => a.bpm - b.bpm);
