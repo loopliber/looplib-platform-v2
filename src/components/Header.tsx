@@ -137,7 +137,7 @@ export default function Header() {
                 <span>Soul</span>
               </Link>
               <a 
-                href="https://www.shop.looplib.com"
+                href="https://shop.looplib.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
