@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { User, LogOut, Menu, X, Zap, Sparkles, Heart } from 'lucide-react';
+import { User, LogOut, Menu, X, Zap, Sparkles, Heart, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
@@ -136,6 +136,15 @@ export default function Header() {
                 <Heart className="w-4 h-4" />
                 <span>Soul</span>
               </Link>
+              <a 
+                href="https://www.shop.looplib.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Shop</span>
+              </a>
               {user && (
                 <Link 
                   href="/dashboard" 
@@ -221,6 +230,16 @@ export default function Header() {
                   <Heart className="w-4 h-4" />
                   <span>Soul</span>
                 </Link>
+                <a 
+                  href="https://www.shop.looplib.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Shop</span>
+                </a>
                 
                 <div className="pt-2 border-t border-neutral-800">
                   {user ? (
