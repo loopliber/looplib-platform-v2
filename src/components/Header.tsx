@@ -144,10 +144,10 @@ export default function Header() {
               </Link>
               {user && (
                 <Link 
-                  href="/library" 
+                  href="/dashboard" 
                   className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
                 >
-                  Library
+                  Dashboard
                 </Link>
               )}
             </nav>
@@ -157,7 +157,7 @@ export default function Header() {
               {user ? (
                 <div className="flex items-center space-x-4">
                   <Link
-                    href="/library"
+                    href="/dashboard"
                     className="flex items-center space-x-2 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
                   >
                     <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
@@ -236,12 +236,12 @@ export default function Header() {
                   {user ? (
                     <>
                       <Link
-                        href="/library"
+                        href="/dashboard"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block w-full text-left px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
                       >
                         <User className="w-4 h-4 inline mr-2" />
-                        Library / Dashboard
+                        Dashboard
                       </Link>
                       <button
                         onClick={handleLogout}

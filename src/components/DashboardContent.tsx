@@ -313,11 +313,14 @@ export default function DashboardContent({ user }: DashboardContentProps) {
               <p className="text-sm text-neutral-400">Browse our latest collection</p>
             </Link>
             
-            <div className="p-4 bg-neutral-900/50 border border-neutral-800 rounded-lg text-left">
-              <Heart className="w-6 h-6 text-red-500 mb-2" />
-              <h3 className="font-semibold mb-1">Create Playlist</h3>
-              <p className="text-sm text-neutral-400">Export your likes (Coming Soon)</p>
-            </div>
+            <Link
+              href="/library"
+              className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors text-left block"
+            >
+              <Download className="w-6 h-6 text-blue-500 mb-2" />
+              <h3 className="font-semibold mb-1">My Downloads</h3>
+              <p className="text-sm text-neutral-400">View download history</p>
+            </Link>
             
             <div className="p-4 bg-neutral-900/50 border border-neutral-800 rounded-lg text-left">
               <TrendingUp className="w-6 h-6 text-green-500 mb-2" />
