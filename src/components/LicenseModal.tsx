@@ -6,7 +6,6 @@ import { Sample, License } from '@/types';
 import { X, Music, Download, Loader2, Check, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
-import PaymentModal from './PaymentModal';
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -22,10 +21,8 @@ export default function LicenseModal({
   onPurchase 
 }: LicenseModalProps) {
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [selectedLicense, setSelectedLicense] = useState<License | null>(null);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const [downloadingFree, setDownloadingFree] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
 
@@ -79,8 +76,48 @@ export default function LicenseModal({
       return;
     }
 
-    setSelectedLicense(license);
-    setShowPaymentModal(true);
+    // Skip PaymentModal and go directly to Stripe Checkout
+    setPurchasingId(license.id);
+    
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sampleId: sample.id,
+          licenseId: license.id,
+          sampleName: sample.name,
+          licenseName: license.name,
+          amount: license.price
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { sessionId } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      const stripe = await import('@stripe/stripe-js').then(
+        ({ loadStripe }) => loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+      );
+      
+      if (!stripe) {
+        throw new Error('Stripe failed to load');
+      }
+
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      toast.error('Failed to process payment');
+    } finally {
+      setPurchasingId(null);
+    }
   };
 
   if (!isOpen || !sample) return null;
@@ -150,7 +187,7 @@ export default function LicenseModal({
                       ? 'border-orange-500 bg-orange-500/5'
                       : 'border-neutral-700 bg-neutral-800/30 hover:border-neutral-600'
                   }`}
-                  onClick={() => setSelectedLicense(license)}
+                  onClick={() => handlePurchase(license)}
                 >
                   {/* Popular Badge */}
                   {license.is_popular && (
@@ -211,7 +248,7 @@ export default function LicenseModal({
                     ) : (
                       <>
                         <CreditCard className="w-4 h-4" />
-                        <span>Select License</span>
+                        <span>Purchase License</span>
                       </>
                     )}
                   </button>
@@ -234,18 +271,6 @@ export default function LicenseModal({
           </div>
         </div>
       </div>
-
-      <PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        sample={sample}
-        license={selectedLicense}
-        userEmail={user?.email || ''}
-        onSuccess={() => {
-          setShowPaymentModal(false);
-          onPurchase(selectedLicense!);
-        }}
-      />
     </div>
   );
 }
