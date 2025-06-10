@@ -73,7 +73,7 @@ export default function MyLibraryPage() {
         .select(`
           downloaded_at,
           sample_id,
-          samples!inner (
+          samples (
             id,
             name,
             file_url,
@@ -100,9 +100,21 @@ export default function MyLibraryPage() {
         throw downloadError;
       }
 
+      // Debug: Check what we got
+      if (downloadData && downloadData.length > 0) {
+        console.log('🔍 First download record:', downloadData[0]);
+        console.log('🔍 Sample data in first record:', downloadData[0].samples);
+      }
+
       // Process the data - handle the nested structure properly
       const processedDownloads = downloadData
-        ?.filter((item: any) => item.samples) // Filter out null samples
+        ?.filter((item: any) => {
+          if (!item.samples) {
+            console.warn('⚠️ Download without sample data:', item);
+            return false;
+          }
+          return true;
+        })
         ?.map((item: any) => ({
           ...item.samples,
           artist: item.samples.artists, // Map the nested artist
@@ -112,21 +124,35 @@ export default function MyLibraryPage() {
 
       console.log('✅ Processed downloads:', processedDownloads);
       
-      // Group by sample_id to count multiple downloads
-      const downloadCounts = downloadData?.reduce((acc: any, item: any) => {
-        if (item.sample_id) {
-          acc[item.sample_id] = (acc[item.sample_id] || 0) + 1;
+      // Group by sample_id to remove duplicates and count downloads
+      const groupedDownloads = processedDownloads.reduce((acc: any, download: any) => {
+        const sampleId = download.id;
+        
+        if (!acc[sampleId]) {
+          // First occurrence of this sample
+          acc[sampleId] = {
+            ...download,
+            download_count: 1,
+            first_downloaded_at: download.downloaded_at,
+            downloaded_at: download.downloaded_at // Keep the most recent download date
+          };
+        } else {
+          // Subsequent occurrence - increment count and update to latest download date
+          acc[sampleId].download_count += 1;
+          // Keep the most recent download date
+          if (new Date(download.downloaded_at) > new Date(acc[sampleId].downloaded_at)) {
+            acc[sampleId].downloaded_at = download.downloaded_at;
+          }
         }
+        
         return acc;
       }, {});
 
-      // Update download counts
-      const downloadsWithCounts = processedDownloads.map((d: any) => ({
-        ...d,
-        download_count: downloadCounts[d.id] || 1
-      }));
+      // Convert back to array
+      const uniqueDownloads = Object.values(groupedDownloads);
+      console.log('🎯 Unique downloads with counts:', uniqueDownloads);
 
-      setDownloads(downloadsWithCounts);
+      setDownloads(uniqueDownloads);
 
     } catch (error) {
       console.error('💥 Error fetching downloads:', error);
