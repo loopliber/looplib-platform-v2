@@ -53,9 +53,13 @@ const trapConfig: GenrePageConfig = {
 export default function TrapSamplesPage() {
   const [initialSamples, setInitialSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
+    // Only fetch if we haven't already fetched
+    if (hasFetched) return;
+
     const fetchTrapSamples = async () => {
       try {
         const { data, error } = await supabase
@@ -69,10 +73,13 @@ export default function TrapSamplesPage() {
 
         if (error) throw error;
         setInitialSamples(data || []);
+        setHasFetched(true); // Mark as fetched
       } catch (error) {
         console.error('Error fetching trap samples:', error);
-        // Retry after delay
-        setTimeout(fetchTrapSamples, 2000);
+        // Retry after delay only if we haven't fetched yet
+        if (!hasFetched) {
+          setTimeout(fetchTrapSamples, 2000);
+        }
       } finally {
         setLoading(false);
       }
@@ -81,7 +88,7 @@ export default function TrapSamplesPage() {
     // Add small delay to ensure client is ready
     const timer = setTimeout(fetchTrapSamples, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [hasFetched, supabase]);
 
   if (loading) {
     return <SampleSkeleton />;

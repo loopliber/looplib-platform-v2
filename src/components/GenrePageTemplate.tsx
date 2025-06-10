@@ -16,6 +16,7 @@ import LicenseModal from '@/components/LicenseModal';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { getUserIdentifier } from '@/utils/user-identity';
 
 const WaveformPlayer = dynamic(() => import('@/components/WaveformPlayer'), { 
   ssr: false,
@@ -62,19 +63,13 @@ export interface GenrePageConfig {
 
 interface GenrePageTemplateProps {
   config: GenrePageConfig;
-  initialSamples?: Sample[]; // Add this
-}
-
-interface UserLike {
-  sample_id: string;
-  user_identifier?: string;
-  created_at?: string;
+  initialSamples?: Sample[];
 }
 
 export default function GenrePageTemplate({ config, initialSamples = [] }: GenrePageTemplateProps) {
-  const [samples, setSamples] = useState<Sample[]>(initialSamples); // Use initial data
+  const [samples, setSamples] = useState<Sample[]>(initialSamples);
   const [licenses, setLicenses] = useState<License[]>([]);
-  const [loading, setLoading] = useState(false); // Start as false if we have initial data
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBpmRange, setSelectedBpmRange] = useState<string>('all');
@@ -89,6 +84,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
   const [shuffleKey, setShuffleKey] = useState(0);
+  const [user, setUser] = useState<any>(null);
 
   const SAMPLES_PER_PAGE = 12;
   const supabase = createClient();
@@ -96,6 +92,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
   // Initialize
   useEffect(() => {
+    // Only fetch if we don't have initial samples
     if (initialSamples.length === 0) {
       fetchGenreSamples();
     }
@@ -110,14 +107,11 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    // Store user in local state for download logic
     setUser(user);
   };
 
-  const [user, setUser] = useState<any>(null);
-
   const fetchGenreSamples = async () => {
-    if (initialSamples.length > 0) return; // Skip if we already have data
+    if (initialSamples.length > 0) return;
     
     setLoading(true);
     try {
@@ -155,7 +149,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   };
 
   const loadUserLikes = async () => {
-    const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+    const userIdentifier = getUserIdentifier();
     
     try {
       const { data, error } = await supabase
@@ -165,7 +159,6 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
       if (error) throw error;
       
-      // Fix: Explicitly type the map function parameter and ensure string type
       const likedIds = new Set<string>(
         data?.map((like: { sample_id: string }) => like.sample_id) || []
       );
@@ -173,14 +166,6 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     } catch (error) {
       console.error('Error loading likes:', error);
     }
-  };
-
-  const generateUserIdentifier = () => {
-    if (typeof window === 'undefined') return null;
-    
-    const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('user_identifier', id);
-    return id;
   };
 
   // Filter samples
@@ -237,7 +222,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   };
 
   const toggleLike = async (sampleId: string) => {
-    const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+    const userIdentifier = getUserIdentifier();
     const isLiked = likedSamples.has(sampleId);
 
     try {
@@ -308,12 +293,9 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
         body: JSON.stringify({ sampleId: sample.id, email: userEmail }),
       });
 
-      // Success message logic - FIXED
       if (user) {
-        // User is logged in - show normal download success
         toast.success('Download complete! Check your downloads folder.');
       } else {
-        // User is anonymous - show different message based on download count
         if (anonymousDownloads === 0) {
           toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
             duration: 5000
@@ -476,93 +458,106 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
         <h2 className="text-xl font-semibold mb-4">Popular {config.genre} Samples This Week</h2>
 
         {/* Samples Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-          {displayedSamples.map((sample) => (
-            <div key={sample.id} className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-3 sm:p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all">
-              {/* Mobile-optimized layout */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-                  <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
-                  <span className="text-xs sm:text-sm text-neutral-500">•</span>
-                  <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
+        {loading && samples.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+          </div>
+        ) : displayedSamples.length === 0 ? (
+          <div className="text-center py-20">
+            <Music className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
+            <p className="text-neutral-400 text-lg">No samples found matching your filters</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+              {displayedSamples.map((sample) => (
+                <div key={sample.id} className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-3 sm:p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all">
+                  {/* Mobile-optimized layout */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                    <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                      <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
+                      <span className="text-xs sm:text-sm text-neutral-500">•</span>
+                      <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
+                    </div>
+                    <button
+                      onClick={() => toggleLike(sample.id)}
+                      className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
+                        likedSamples.has(sample.id)
+                          ? 'bg-red-500/20 text-red-500' 
+                          : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
+                  
+                  {/* Title and artist */}
+                  <h3 className="font-medium text-white text-sm sm:text-base mb-1">{sample.name}</h3>
+                  <p className="text-xs sm:text-sm text-neutral-400 mb-3">{sample.artist?.name || 'LoopLib'}</p>
+                  
+                  {/* Waveform */}
+                  <div className="mb-4 h-12 sm:h-16">
+                    <WaveformPlayer
+                      url={sample.file_url}
+                      isPlaying={playingId === sample.id}
+                      onPlayPause={() => togglePlay(sample.id)}
+                      height={48}
+                      waveColor="#666666"
+                      progressColor="#f97316"
+                    />
+                  </div>
+                  
+                  {/* Action buttons - stack on mobile */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                    <div className="flex flex-wrap gap-1">
+                      {sample.tags.slice(0, 2).map(tag => (
+                        <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleFreeDownload(sample)}
+                        disabled={downloadingId === sample.id}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
+                      >
+                        {downloadingId === sample.id ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Download className="w-3 h-3" />
+                        )}
+                        <span>Free</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setSelectedSample(sample);
+                          setShowLicenseModal(true);
+                        }}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
+                      >
+                        License
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Load More */}
+            {displayedSampleCount < sortedSamples.length && (
+              <div className="flex justify-center mb-12">
                 <button
-                  onClick={() => toggleLike(sample.id)}
-                  className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
-                    likedSamples.has(sample.id)
-                      ? 'bg-red-500/20 text-red-500' 
-                      : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                  }`}
+                  onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
+                  className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
                 >
-                  <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
+                  Load More {config.genre} Samples ({sortedSamples.length - displayedSampleCount} remaining)
                 </button>
               </div>
-              
-              {/* Title and artist */}
-              <h3 className="font-medium text-white text-sm sm:text-base mb-1">{sample.name}</h3>
-              <p className="text-xs sm:text-sm text-neutral-400 mb-3">{sample.artist?.name || 'LoopLib'}</p>
-              
-              {/* Waveform */}
-              <div className="mb-4 h-12 sm:h-16">
-                <WaveformPlayer
-                  url={sample.file_url}
-                  isPlaying={playingId === sample.id}
-                  onPlayPause={() => setPlayingId(playingId === sample.id ? null : sample.id)}
-                  height={48} // Smaller on mobile
-                  waveColor="#666666"
-                  progressColor="#f97316"
-                />
-              </div>
-              
-              {/* Action buttons - stack on mobile */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-                <div className="flex flex-wrap gap-1">
-                  {sample.tags.slice(0, 2).map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleFreeDownload(sample)}
-                    disabled={downloadingId === sample.id}
-                    className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
-                  >
-                    {downloadingId === sample.id ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <Download className="w-3 h-3" />
-                    )}
-                    <span>Free</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      setSelectedSample(sample);
-                      setShowLicenseModal(true);
-                    }}
-                    className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
-                  >
-                    License
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Load More */}
-        {displayedSampleCount < sortedSamples.length && (
-          <div className="flex justify-center mb-12">
-            <button
-              onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
-              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-            >
-              Load More {config.genre} Samples ({sortedSamples.length - displayedSampleCount} remaining)
-            </button>
-          </div>
+            )}
+          </>
         )}
 
         {/* SEO Content Section */}

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
+import { getUserIdentifier } from '@/utils/user-identity';
 
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
   ssr: false,
@@ -39,24 +40,17 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
   const supabase = createClient();
 
   useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
-  }, [user]);
+    fetchUserData();
+  }, []);
 
   const fetchUserData = async () => {
     try {
-      if (typeof window === 'undefined') return;
+      // Get the consistent user identifier
+      const userIdentifier = getUserIdentifier();
       
-      const userIdentifier = localStorage.getItem('user_identifier');
-      if (!userIdentifier) {
-        setLoading(false);
-        return;
-      }
-
       // Fetch producer name from profiles table
       if (user?.id) {
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('producer_name')
           .eq('id', user.id)
@@ -69,7 +63,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         }
       }
       
-      // Fetch liked samples
+      // Fetch liked samples using the consistent identifier
       const { data: likedData, error: likedError } = await supabase
         .from('user_likes')
         .select(`
@@ -84,7 +78,8 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         .order('created_at', { ascending: false });
 
       if (likedError) {
-        console.error('Liked samples error:', likedError);
+        console.error('Error fetching liked samples:', likedError);
+        toast.error('Failed to load liked samples');
       } else {
         const liked = likedData?.map((item: any) => ({
           ...item.samples,
@@ -98,13 +93,22 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
     } catch (error) {
       console.error('Error fetching user data:', error);
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
   const calculateStats = (samples: any[]) => {
-    if (samples.length === 0) return;
+    if (samples.length === 0) {
+      setStats({
+        totalLikes: 0,
+        favoriteGenre: 'N/A',
+        avgBpm: 0,
+        recentActivity: 0
+      });
+      return;
+    }
 
     // Favorite genre
     const genreCounts = samples.reduce((acc: any, sample) => {
@@ -129,7 +133,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
     setStats({
       totalLikes: samples.length,
-      favoriteGenre,
+      favoriteGenre: favoriteGenre.charAt(0).toUpperCase() + favoriteGenre.slice(1),
       avgBpm,
       recentActivity
     });
@@ -145,8 +149,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
   const removeLike = async (sampleId: string) => {
     try {
-      const userIdentifier = localStorage.getItem('user_identifier');
-      if (!userIdentifier) return;
+      const userIdentifier = getUserIdentifier();
 
       const { error } = await supabase
         .from('user_likes')
@@ -156,11 +159,12 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
       if (error) throw error;
 
-      setLikedSamples(prev => prev.filter(sample => sample.id !== sampleId));
+      // Update local state
+      const updatedSamples = likedSamples.filter(sample => sample.id !== sampleId);
+      setLikedSamples(updatedSamples);
       toast.success('Removed from liked samples');
       
       // Recalculate stats
-      const updatedSamples = likedSamples.filter(sample => sample.id !== sampleId);
       calculateStats(updatedSamples);
     } catch (error) {
       console.error('Error removing like:', error);
@@ -227,7 +231,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
       
       <div className="mt-3 pt-3 border-t border-neutral-800">
         <p className="text-xs text-neutral-500">
-          Liked {(sample as any).liked_at ? new Date((sample as any).liked_at).toLocaleDateString() : 'Unknown date'}
+          Liked {(sample as any).liked_at ? new Date((sample as any).liked_at).toLocaleDateString() : 'Recently'}
         </p>
       </div>
     </div>
@@ -257,7 +261,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
             <div className="flex items-center space-x-4 pr-6">
               <div className="flex items-center space-x-2 text-neutral-400">
                 <User className="w-4 h-4" />
-                <span className="text-sm">{producerName || 'Producer'}</span>
+                <span className="text-sm">{producerName || user?.email?.split('@')[0] || 'Producer'}</span>
               </div>
               <button
                 onClick={onLogout}
@@ -275,7 +279,7 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">
-            Welcome back, {producerName || 'Producer'}! 👋
+            Welcome back, {producerName || user?.email?.split('@')[0] || 'Producer'}! 👋
           </h1>
           <p className="text-neutral-400">
             Track your favorite samples and music preferences

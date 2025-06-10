@@ -53,9 +53,13 @@ const rnbConfig: GenrePageConfig = {
 export default function RnBSamplesPage() {
   const [initialSamples, setInitialSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
+    // Only fetch if we haven't already fetched
+    if (hasFetched) return;
+
     const fetchRnBSamples = async () => {
       try {
         const { data, error } = await supabase
@@ -69,10 +73,13 @@ export default function RnBSamplesPage() {
 
         if (error) throw error;
         setInitialSamples(data || []);
+        setHasFetched(true); // Mark as fetched
       } catch (error) {
         console.error('Error fetching R&B samples:', error);
-        // Retry after delay
-        setTimeout(fetchRnBSamples, 2000);
+        // Retry after delay only if we haven't fetched yet
+        if (!hasFetched) {
+          setTimeout(fetchRnBSamples, 2000);
+        }
       } finally {
         setLoading(false);
       }
@@ -81,7 +88,7 @@ export default function RnBSamplesPage() {
     // Add small delay to ensure client is ready
     const timer = setTimeout(fetchRnBSamples, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [hasFetched, supabase]);
 
   if (loading) {
     return <SampleSkeleton />;

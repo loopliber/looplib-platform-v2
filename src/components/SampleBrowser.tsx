@@ -16,6 +16,7 @@ import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import LicenseModal from '@/components/LicenseModal';
+import { getUserIdentifier } from '@/utils/user-identity';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -43,12 +44,6 @@ interface SampleBrowserProps {
   pageSubtitle?: string;
   accentColor?: string;
   initialSamples?: Sample[];
-}
-
-interface UserLike {
-  sample_id: string;
-  user_identifier: string;
-  created_at?: string;
 }
 
 export default function SampleBrowser({ 
@@ -177,7 +172,7 @@ export default function SampleBrowser({
   };
 
   const loadUserLikes = async () => {
-    const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+    const userIdentifier = getUserIdentifier();
     
     try {
       const { data, error } = await supabase
@@ -187,7 +182,6 @@ export default function SampleBrowser({
 
       if (error) throw error;
       
-      // Fix: Add proper type annotation
       const likedIds = new Set<string>(
         data?.map((like: { sample_id: string }) => like.sample_id) || []
       );
@@ -195,14 +189,6 @@ export default function SampleBrowser({
     } catch (error) {
       console.error('Error loading likes:', error);
     }
-  };
-
-  const generateUserIdentifier = () => {
-    if (typeof window === 'undefined') return '';
-    
-    const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('user_identifier', id);
-    return id;
   };
 
   // Memoized filtered and sorted samples
@@ -265,7 +251,7 @@ export default function SampleBrowser({
 
   const toggleLike = async (sampleId: string) => {
     try {
-      const userIdentifier = localStorage.getItem('user_identifier') || generateUserIdentifier();
+      const userIdentifier = getUserIdentifier();
       const isLiked = likedSamples.has(sampleId);
 
       if (isLiked) {
@@ -340,12 +326,9 @@ export default function SampleBrowser({
         })
       });
 
-      // Success message logic - FIXED
       if (user) {
-        // User is logged in - show normal download success
         toast.success('Download complete! Check your downloads folder.');
       } else {
-        // User is anonymous - show different message based on download count
         if (anonymousDownloads === 0) {
           toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
             duration: 5000
@@ -418,12 +401,8 @@ export default function SampleBrowser({
     toast.success('🎲 Samples shuffled!', { duration: 1500 });
   }, []);
 
-  // Remove logout handler
-
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Remove the duplicate header - it's already in layout */}
-      
       {/* Main Content - Full Width */}
       <main className="w-full">
         {/* Hero Banner */}

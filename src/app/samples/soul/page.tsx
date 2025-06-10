@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import GenrePageTemplate, { GenrePageConfig } from '@/components/GenrePageTemplate';
 import SampleSkeleton from '@/components/SampleSkeleton';
@@ -53,9 +53,13 @@ const soulConfig: GenrePageConfig = {
 export default function SoulSamplesPage() {
   const [initialSamples, setInitialSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
+    // Only fetch if we haven't already fetched
+    if (hasFetched) return;
+
     const fetchSoulSamples = async () => {
       try {
         const { data, error } = await supabase
@@ -69,10 +73,13 @@ export default function SoulSamplesPage() {
 
         if (error) throw error;
         setInitialSamples(data || []);
+        setHasFetched(true); // Mark as fetched
       } catch (error) {
         console.error('Error fetching soul samples:', error);
-        // Retry after delay
-        setTimeout(fetchSoulSamples, 2000);
+        // Retry after delay only if we haven't fetched yet
+        if (!hasFetched) {
+          setTimeout(fetchSoulSamples, 2000);
+        }
       } finally {
         setLoading(false);
       }
@@ -81,7 +88,7 @@ export default function SoulSamplesPage() {
     // Add small delay to ensure client is ready
     const timer = setTimeout(fetchSoulSamples, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [hasFetched, supabase]);
 
   if (loading) {
     return <SampleSkeleton />;
