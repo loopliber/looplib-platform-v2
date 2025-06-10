@@ -150,4 +150,4 @@ For support, email support@looplib.com or join our Discord community.
 
 ## License
 
-This project is proprietary software. All rights reserved.
+This project is proprietary software. All rights reserved.// Updated for test mode
