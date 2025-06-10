@@ -542,6 +542,15 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                       <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
                       <span className="text-xs sm:text-sm text-neutral-500">•</span>
                       <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
+                      {/* Add STEMS badge here */}
+                      {sample.has_stems && (
+                        <>
+                          <span className="text-xs sm:text-sm text-neutral-500">•</span>
+                          <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
+                            STEMS
+                          </span>
+                        </>
+                      )}
                     </div>
                     <button
                       onClick={() => toggleLike(sample.id)}

@@ -10,17 +10,17 @@ export interface Artist {
 export interface Sample {
   id: string;
   name: string;
+  artist?: {
+    name: string;
+  };
   file_url: string;
   bpm: number;
   key: string;
   genre: string;
-  artist_id?: string;
-  artist?: Artist;
-  created_at?: string;
   tags: string[];
   downloads?: number;
-  download_count?: number;
-  has_stems?: boolean;
+  created_at?: string;
+  has_stems?: boolean; // Add this line
 }
 
 export interface License {
