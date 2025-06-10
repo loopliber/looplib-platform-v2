@@ -452,18 +452,25 @@ export default function SampleBrowser({
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search any sound like dark piano"
+                placeholder="Search any sound.."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-neutral-900 border border-neutral-700 rounded-full 
+                className="w-full pl-12 pr-32 py-3 bg-neutral-900 border border-neutral-700 rounded-full 
                   focus:outline-none focus:border-blue-500 transition-colors text-white"
               />
-              <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 
-                  bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-colors"
-              >
-                Search
-              </button>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                <a
+                  href="https://www.looplib.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full text-sm font-medium transition-colors"
+                >
+                  Shop
+                </a>
+                <button className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-colors">
+                  Search
+                </button>
+              </div>
             </div>
           </div>
         </div>
