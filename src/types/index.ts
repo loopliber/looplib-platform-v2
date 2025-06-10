@@ -79,3 +79,16 @@ export interface WaveformPlayerProps {
   progressColor?: string;
   backgroundColor?: string;
 }
+
+export interface GenreCollection {
+  id: string;
+  name: string;
+  slug: string;
+  emoji?: string; // Make optional since we're removing emojis
+  icon: React.ReactNode;
+  description: string;
+  bpmRange: string;
+  tags: string[];
+  gradient: string;
+  accentColor: string;
+}

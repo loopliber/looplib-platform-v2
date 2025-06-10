@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { 
-  Music, ArrowRight, Sparkles,
-  Flame, Heart, Headphones
+  Music, Download, Heart, Sparkles, Zap, 
+  TrendingUp, Headphones, Clock, ArrowRight 
 } from 'lucide-react';
 import { Sample } from '@/types';
 
@@ -41,8 +41,8 @@ export default function SamplesCollectionPage() {
       id: 'trap',
       name: 'Trap',
       slug: 'trap',
-      emoji: '🔥',
-      icon: <Flame className="w-6 h-6" />,
+      emoji: '', // Remove emoji
+      icon: <Zap className="w-6 h-6" />,
       description: 'In styles of Travis Scott, Future, Metro Boomin',
       bpmRange: '140-170 BPM',
       tags: ['Dark', 'Atmospheric', 'Melody', 'Lead'],
@@ -53,7 +53,7 @@ export default function SamplesCollectionPage() {
       id: 'soul',
       name: 'Soul',
       slug: 'soul',
-      emoji: '❤️',
+      emoji: '', // Remove emoji
       icon: <Heart className="w-6 h-6" />,
       description: 'In styles of Anderson .Paak, D\'Angelo, Alicia Keys',
       bpmRange: '70-110 BPM',
@@ -65,7 +65,7 @@ export default function SamplesCollectionPage() {
       id: 'rnb',
       name: 'R&B',
       slug: 'rnb',
-      emoji: '💫',
+      emoji: '', // Remove emoji
       icon: <Sparkles className="w-6 h-6" />,
       description: 'In styles of The Weeknd, SZA, Frank Ocean',
       bpmRange: '60-100 BPM',
@@ -176,10 +176,10 @@ export default function SamplesCollectionPage() {
                           <div className={`
                             w-12 h-12 sm:w-14 sm:h-14 rounded-xl 
                             bg-gradient-to-br ${genre.gradient} 
-                            flex items-center justify-center text-2xl sm:text-3xl
+                            flex items-center justify-center
                             transform transition-transform group-hover:scale-110
                           `}>
-                            {genre.emoji}
+                            {genre.icon}
                           </div>
                           <div>
                             <h2 className="text-2xl sm:text-3xl font-bold flex items-center">

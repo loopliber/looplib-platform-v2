@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Sample, License, Genre, SortBy } from '@/types';
 import { 
   Play, Pause, Download, Heart, Search, 
-  Music, X, Loader2, Filter, Shuffle
+  Music, X, Loader2, Filter, Shuffle, Zap, Sparkles
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
@@ -87,11 +87,11 @@ export default function SampleBrowser({
   
   const supabase = createClient();
 
-  const genres: { id: Genre; name: string; emoji: string }[] = [
-    { id: 'all', name: 'All Genres', emoji: '🎵' },
-    { id: 'trap', name: 'Trap', emoji: '🔥' },
-    { id: 'rnb', name: 'R&B', emoji: '💫' },
-    { id: 'soul', name: 'Soul', emoji: '❤️' },
+  const genres: { id: Genre; name: string; icon: React.ReactNode }[] = [
+    { id: 'all', name: 'All Genres', icon: <Music className="w-4 h-4" /> },
+    { id: 'trap', name: 'Trap', icon: <Zap className="w-4 h-4" /> },
+    { id: 'rnb', name: 'R&B', icon: <Sparkles className="w-4 h-4" /> },
+    { id: 'soul', name: 'Soul', icon: <Heart className="w-4 h-4" /> },
   ];
 
   // Initialize component
@@ -478,12 +478,13 @@ export default function SampleBrowser({
                   <button
                     key={genre.id}
                     onClick={() => setSelectedGenre(genre.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all
                       ${selectedGenre === genre.id 
                         ? 'bg-white text-black' 
                         : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}
                   >
-                    {genre.name}
+                    {genre.icon}
+                    <span>{genre.name}</span>
                   </button>
                 ))}
                 <button className="px-4 py-2 rounded-full text-sm font-medium bg-neutral-800 text-white hover:bg-neutral-700">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { User, LogOut, Menu, X } from 'lucide-react';
+import { User, LogOut, Menu, X, Zap, Sparkles, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
@@ -123,23 +123,23 @@ export default function Header() {
               </Link>
               <Link 
                 href="/samples/trap" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-1"
+                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
               >
-                <span>🔥</span>
+                <Zap className="w-4 h-4" />
                 <span>Trap</span>
               </Link>
               <Link 
                 href="/samples/rnb" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-1"
+                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
               >
-                <span>💫</span>
+                <Sparkles className="w-4 h-4" />
                 <span>R&B</span>
               </Link>
               <Link 
                 href="/samples/soul" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-1"
+                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
               >
-                <span>❤️</span>
+                <Heart className="w-4 h-4" />
                 <span>Soul</span>
               </Link>
               {user && (
@@ -213,23 +213,26 @@ export default function Header() {
                 <Link 
                   href="/samples/trap"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
                 >
-                  🔥 Trap
+                  <Zap className="w-4 h-4" />
+                  <span>Trap</span>
                 </Link>
                 <Link 
                   href="/samples/rnb"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
                 >
-                  💫 R&B
+                  <Sparkles className="w-4 h-4" />
+                  <span>R&B</span>
                 </Link>
                 <Link 
                   href="/samples/soul"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
                 >
-                  ❤️ Soul
+                  <Heart className="w-4 h-4" />
+                  <span>Soul</span>
                 </Link>
                 
                 <div className="pt-2 border-t border-neutral-800">
