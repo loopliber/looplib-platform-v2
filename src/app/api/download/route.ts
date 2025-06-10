@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Insert download record
+    // Insert download record - only include fields that exist in the table
     const { data, error } = await supabase
       .from('user_downloads')
       .insert({
@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
         ip_address: request.headers.get('x-forwarded-for') || 
                    request.headers.get('x-real-ip') || 
                    'unknown',
-        user_agent: request.headers.get('user-agent') || 'unknown',
         downloaded_at: new Date().toISOString()
       })
       .select()
