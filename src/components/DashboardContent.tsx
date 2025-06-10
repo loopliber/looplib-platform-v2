@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Sample } from '@/types';
 import { 
-  Heart, ArrowLeft, Calendar, Music, User, LogOut,
-  TrendingUp, Clock, Play, Pause, Download, ShoppingCart,
+  Heart, Calendar, Music, User,
+  TrendingUp, Clock, Play, Pause, Download,
   BarChart3, Activity, Headphones
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { getUserIdentifier } from '@/utils/user-identity';
+import Link from 'next/link';
 
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
   ssr: false,
@@ -19,13 +20,11 @@ const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), {
   )
 });
 
-interface DashboardProps {
+interface DashboardContentProps {
   user: any;
-  onBack: () => void;
-  onLogout: () => void;
 }
 
-export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
+export default function DashboardContent({ user }: DashboardContentProps) {
   const [likedSamples, setLikedSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -239,42 +238,6 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
-        <div className="max-w-none mx-auto px-0">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center pl-6 space-x-4">
-              <img 
-                src="https://www.looplib.com/cdn/shop/files/looplib-logo-loop-kits.png?v=1735326433&width=370"
-                alt="LoopLib"
-                className="h-8 w-auto"
-              />
-              <button
-                onClick={onBack}
-                className="flex items-center space-x-2 text-neutral-400 hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to Samples</span>
-              </button>
-            </div>
-            
-            <div className="flex items-center space-x-4 pr-6">
-              <div className="flex items-center space-x-2 text-neutral-400">
-                <User className="w-4 h-4" />
-                <span className="text-sm">{producerName || user?.email?.split('@')[0] || 'Producer'}</span>
-              </div>
-              <button
-                onClick={onLogout}
-                className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -341,14 +304,14 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={onBack}
-              className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors text-left"
+            <Link
+              href="/"
+              className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors text-left block"
             >
               <Music className="w-6 h-6 text-orange-500 mb-2" />
               <h3 className="font-semibold mb-1">Discover New Samples</h3>
               <p className="text-sm text-neutral-400">Browse our latest collection</p>
-            </button>
+            </Link>
             
             <div className="p-4 bg-neutral-900/50 border border-neutral-800 rounded-lg text-left">
               <Heart className="w-6 h-6 text-red-500 mb-2" />
@@ -383,12 +346,12 @@ export default function Dashboard({ user, onBack, onLogout }: DashboardProps) {
               <p className="text-sm text-neutral-500 mb-4">
                 Start exploring and like samples to see them here!
               </p>
-              <button
-                onClick={onBack}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors"
+              <Link
+                href="/"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors inline-block"
               >
                 Browse Samples
-              </button>
+              </Link>
             </div>
           )}
         </div>
