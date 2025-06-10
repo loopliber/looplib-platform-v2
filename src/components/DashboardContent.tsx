@@ -6,11 +6,12 @@ import { Sample } from '@/types';
 import { 
   Heart, Calendar, Music, User,
   TrendingUp, Clock, Play, Pause, Download,
-  BarChart3, Activity, Headphones
+  BarChart3, Activity, Headphones, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { getUserIdentifier } from '@/utils/user-identity';
+import { downloadFile } from '@/lib/download-utils';
 import Link from 'next/link';
 
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -28,6 +29,7 @@ export default function DashboardContent({ user }: DashboardContentProps) {
   const [likedSamples, setLikedSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalLikes: 0,
     favoriteGenre: 'N/A',
@@ -171,6 +173,40 @@ export default function DashboardContent({ user }: DashboardContentProps) {
     }
   };
 
+  const handleDownload = async (sample: Sample) => {
+    setDownloadingId(sample.id);
+    
+    try {
+      // Create filename
+      const extension = sample.file_url.split('.').pop() || 'mp3';
+      const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
+      const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
+      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted}_${sample.genre} @LOOPLIB.${extension}`;
+
+      // Download the file
+      await downloadFile(sample.file_url, downloadFilename);
+
+      // Track the download
+      const userEmail = user?.email || 'anonymous@looplib.com';
+      await fetch('/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          sampleId: sample.id,
+          email: userEmail
+        })
+      });
+
+      toast.success('Download complete! Check your downloads folder.');
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download sample');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   const renderSampleCard = (sample: Sample) => (
     <div
       key={sample.id}
@@ -215,7 +251,7 @@ export default function DashboardContent({ user }: DashboardContentProps) {
         />
       </div>
       
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           {sample.tags.slice(0, 2).map(tag => (
             <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
@@ -228,10 +264,23 @@ export default function DashboardContent({ user }: DashboardContentProps) {
         </div>
       </div>
       
-      <div className="mt-3 pt-3 border-t border-neutral-800">
+      {/* Download Button */}
+      <div className="flex items-center justify-between pt-3 border-t border-neutral-800">
         <p className="text-xs text-neutral-500">
           Liked {(sample as any).liked_at ? new Date((sample as any).liked_at).toLocaleDateString() : 'Recently'}
         </p>
+        <button
+          onClick={() => handleDownload(sample)}
+          disabled={downloadingId === sample.id}
+          className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors text-xs font-medium flex items-center space-x-1 disabled:opacity-50"
+        >
+          {downloadingId === sample.id ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Download className="w-3 h-3" />
+          )}
+          <span>Download</span>
+        </button>
       </div>
     </div>
   );
