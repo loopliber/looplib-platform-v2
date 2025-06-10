@@ -15,7 +15,7 @@ const rnbConfig: GenrePageConfig = {
     { id: '70-80', label: '70-80 BPM', min: 70, max: 80 },
     { id: '80-100', label: '80-100 BPM', min: 80, max: 100 },
   ],
-  commonTags: ['smooth', 'melodic', 'modern', 'chill', 'keys', 'guitar', 'synth', 'chord'],
+  commonTags: ['rnb', 'deep', 'soft', 'melodic', 'melancholy', 'smooth'],
   heroGradient: 'from-purple-900/20',
   icon: Sparkles,
   educationalContent: {

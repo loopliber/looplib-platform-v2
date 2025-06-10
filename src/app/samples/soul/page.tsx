@@ -15,7 +15,7 @@ const soulConfig: GenrePageConfig = {
     { id: '80-90', label: '80-90 BPM', min: 80, max: 90 },
     { id: '90-110', label: '90-110 BPM', min: 90, max: 110 },
   ],
-  commonTags: ['vintage', 'warm', 'gospel', 'keys', 'classic', 'smooth', 'organic', 'chord'],
+  commonTags: ['soul', 'melodic', 'mellow', 'smooth', 'soulful', 'hip-hop'],
   heroGradient: 'from-pink-900/20',
   icon: Heart,
   educationalContent: {
