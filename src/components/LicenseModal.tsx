@@ -6,6 +6,7 @@ import { Sample, License } from '@/types';
 import { X, Music, Download, Loader2, Check, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
+import PaymentModal from './PaymentModal';
 
 interface LicenseModalProps {
   isOpen: boolean;
@@ -24,13 +25,21 @@ export default function LicenseModal({
   const [selectedLicense, setSelectedLicense] = useState<License | null>(null);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
   const [downloadingFree, setDownloadingFree] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const supabase = createClient();
 
   useEffect(() => {
     if (isOpen) {
       fetchLicenses();
+      checkUser();
     }
   }, [isOpen]);
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+  };
 
   const fetchLicenses = async () => {
     try {
@@ -64,10 +73,14 @@ export default function LicenseModal({
     }
   };
 
-  const handlePurchase = (license: License) => {
-    setPurchasingId(license.id);
-    onPurchase(license);
-    setPurchasingId(null);
+  const handlePurchase = async (license: License) => {
+    if (!user?.email) {
+      toast.error('Please login to purchase');
+      return;
+    }
+
+    setSelectedLicense(license);
+    setShowPaymentModal(true);
   };
 
   if (!isOpen || !sample) return null;
@@ -221,6 +234,18 @@ export default function LicenseModal({
           </div>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        sample={sample}
+        license={selectedLicense}
+        userEmail={user?.email || ''}
+        onSuccess={() => {
+          setShowPaymentModal(false);
+          onPurchase(selectedLicense!);
+        }}
+      />
     </div>
   );
 }
