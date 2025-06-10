@@ -107,19 +107,13 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Removed Collections */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link 
                 href="/" 
                 className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
               >
                 Home
-              </Link>
-              <Link 
-                href="/samples" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
-              >
-                Collections
               </Link>
               <Link 
                 href="/samples/trap" 
@@ -192,7 +186,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Removed Collections */}
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-neutral-800">
               <nav className="px-2 pt-2 pb-3 space-y-1">
@@ -202,13 +196,6 @@ export default function Header() {
                   className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
                 >
                   Home
-                </Link>
-                <Link 
-                  href="/samples"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  Collections
                 </Link>
                 <Link 
                   href="/samples/trap"
