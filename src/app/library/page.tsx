@@ -29,22 +29,40 @@ export default function MyLibraryPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      
+      if (user?.email) {
+        await fetchDownloadHistory(user);
+      } else {
+        setLoading(false);
+      }
+    };
+
     checkUser();
   }, []);
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-    if (user?.email) {
-      fetchDownloadHistory(user.email);
-    } else {
-      setLoading(false);
-    }
-  };
-
-  const fetchDownloadHistory = async (email: string) => {
+  const fetchDownloadHistory = async (user: any) => {
     try {
-      // Get download history
+      const userEmail = user?.email;
+      if (!userEmail) {
+        console.log('No user email found');
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔍 Fetching downloads for email:', userEmail);
+
+      // Check what emails exist in the downloads table
+      const { data: emailCheck } = await supabase
+        .from('user_downloads')
+        .select('user_email')
+        .limit(10);
+      
+      console.log('📧 Sample emails in database:', emailCheck?.map(e => e.user_email));
+
+      // Get download history for this user
       const { data: downloadData, error: downloadError } = await supabase
         .from('user_downloads')
         .select(`
@@ -55,32 +73,40 @@ export default function MyLibraryPage() {
             artist:artists(*)
           )
         `)
-        .eq('user_email', email)
+        .eq('user_email', userEmail)
         .order('downloaded_at', { ascending: false });
 
-      if (downloadError) throw downloadError;
+      console.log('📥 Download query result:', downloadData);
+      console.log('❌ Download error:', downloadError);
 
-      // Count downloads per sample
-      const downloadCounts = downloadData?.reduce((acc: any, item: any) => {
-        acc[item.sample_id] = (acc[item.sample_id] || 0) + 1;
-        return acc;
-      }, {});
+      if (downloadError) {
+        throw downloadError;
+      }
 
-      // Get unique samples with their first download date
-      const uniqueSamples = downloadData?.reduce((acc: any[], item: any) => {
-        if (!acc.find(s => s.id === item.sample_id)) {
-          acc.push({
-            ...item.samples,
-            downloaded_at: item.downloaded_at,
-            download_count: downloadCounts[item.sample_id] || 1
-          });
-        }
-        return acc;
-      }, []) || [];
+      // Process the data - filter out null samples
+      const processedDownloads = downloadData
+        ?.filter((item: any) => item.samples) // Filter out null samples
+        ?.map((item: any) => ({
+          ...item.samples,
+          downloaded_at: item.downloaded_at,
+          download_count: 1
+        })) || [];
 
-      setDownloads(uniqueSamples);
+      console.log('✅ Processed downloads:', processedDownloads);
+      setDownloads(processedDownloads);
+
+      // Calculate stats
+      const uniqueGenres = [...new Set(processedDownloads.map((d: any) => d.genre))];
+      const totalSize = processedDownloads.length;
+      const thisWeek = processedDownloads.filter((d: any) => {
+        const downloadDate = new Date(d.downloaded_at);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return downloadDate > weekAgo;
+      }).length;
+
     } catch (error) {
-      console.error('Error fetching downloads:', error);
+      console.error('💥 Error fetching downloads:', error);
       toast.error('Failed to load library');
     } finally {
       setLoading(false);
