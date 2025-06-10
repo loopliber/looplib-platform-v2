@@ -1,11 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import GenrePageTemplate, { GenrePageConfig } from '@/components/GenrePageTemplate';
-import SampleSkeleton from '@/components/SampleSkeleton';
 import { Sparkles, Headphones, Sliders } from 'lucide-react';
-import { Sample } from '@/types';
 
 const rnbConfig: GenrePageConfig = {
   genre: 'R&B',
@@ -51,48 +47,6 @@ const rnbConfig: GenrePageConfig = {
 };
 
 export default function RnBSamplesPage() {
-  const [initialSamples, setInitialSamples] = useState<Sample[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasFetched, setHasFetched] = useState(false);
-  const supabase = createClient();
-
-  useEffect(() => {
-    // Only fetch if we haven't already fetched
-    if (hasFetched) return;
-
-    const fetchRnBSamples = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('samples')
-          .select(`
-            *,
-            artist:artists(*)
-          `)
-          .eq('genre', 'rnb')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setInitialSamples(data || []);
-        setHasFetched(true); // Mark as fetched
-      } catch (error) {
-        console.error('Error fetching R&B samples:', error);
-        // Retry after delay only if we haven't fetched yet
-        if (!hasFetched) {
-          setTimeout(fetchRnBSamples, 2000);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Add small delay to ensure client is ready
-    const timer = setTimeout(fetchRnBSamples, 100);
-    return () => clearTimeout(timer);
-  }, [hasFetched, supabase]);
-
-  if (loading) {
-    return <SampleSkeleton />;
-  }
-
-  return <GenrePageTemplate config={rnbConfig} initialSamples={initialSamples} />;
+  // Remove ALL the fetching logic - let the template handle it
+  return <GenrePageTemplate config={rnbConfig} initialSamples={[]} />;
 }

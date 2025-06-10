@@ -87,6 +87,11 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [shuffleKey, setShuffleKey] = useState(0);
   const [user, setUser] = useState<any>(null);
 
+  // Add these state variables to track ongoing requests
+  const [isCheckingUser, setIsCheckingUser] = useState(false);
+  const [isFetchingLikes, setIsFetchingLikes] = useState(false);
+  const [isFetchingLicenses, setIsFetchingLicenses] = useState(false);
+
   const SAMPLES_PER_PAGE = 12;
   const supabase = createClient();
   const Icon = config.icon;
@@ -94,53 +99,68 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   // Initialize component with better error handling
   useEffect(() => {
     let mounted = true;
+    let fetchPromise: Promise<void> | null = null;
 
     const initialize = async () => {
-      try {
-        // Only fetch samples if we don't have initial samples
-        if (initialSamples.length === 0 && !initialLoadComplete) {
-          setLoading(true);
-          await fetchGenreSamples();
+      // Prevent multiple simultaneous fetches
+      if (fetchPromise) return fetchPromise;
+      
+      fetchPromise = (async () => {
+        try {
+          // Only fetch samples if we don't have initial samples
+          if (initialSamples.length === 0 && samples.length === 0) {
+            setLoading(true);
+            await fetchGenreSamples();
+          }
+          
+          // Fetch other data in parallel ONLY ONCE
+          await Promise.allSettled([
+            fetchLicenses(),
+            loadUserLikes(),
+            checkUser()
+          ]);
+          
+          if (mounted && typeof window !== 'undefined') {
+            setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
+          }
+        } catch (error) {
+          console.error('Initialization error:', error);
+          if (mounted) {
+            toast.error('Failed to load page data');
+          }
+        } finally {
+          if (mounted) {
+            setInitialLoadComplete(true);
+            setLoading(false);
+          }
+          fetchPromise = null; // Reset for potential retry
         }
-        
-        // These can run in parallel
-        const promises = [
-          fetchLicenses(),
-          loadUserLikes(),
-          checkUser()
-        ];
-        
-        await Promise.all(promises);
-        
-        if (mounted && typeof window !== 'undefined') {
-          setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
-        }
-      } catch (error) {
-        console.error('Initialization error:', error);
-        if (mounted) {
-          toast.error('Failed to load page data');
-        }
-      } finally {
-        if (mounted) {
-          setInitialLoadComplete(true);
-          setLoading(false);
-        }
-      }
+      })();
+      
+      return fetchPromise;
     };
 
-    initialize();
+    // Only initialize once
+    if (!initialLoadComplete) {
+      initialize();
+    }
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, []); // Empty dependency array - run only once
 
   const checkUser = async () => {
+    if (isCheckingUser) return;
+    setIsCheckingUser(true);
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
     } catch (error) {
       console.error('Error checking user:', error);
+    } finally {
+      setIsCheckingUser(false);
     }
   };
 
@@ -164,6 +184,9 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   };
 
   const fetchLicenses = async () => {
+    if (isFetchingLicenses) return;
+    setIsFetchingLicenses(true);
+    
     try {
       const { data, error } = await supabase
         .from('licenses')
@@ -174,10 +197,15 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
       setLicenses(data || []);
     } catch (error) {
       console.error('Error fetching licenses:', error);
+    } finally {
+      setIsFetchingLicenses(false);
     }
   };
 
   const loadUserLikes = async () => {
+    if (isFetchingLikes) return;
+    setIsFetchingLikes(true);
+    
     const userIdentifier = getUserIdentifier();
     
     try {
@@ -194,6 +222,8 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
       setLikedSamples(likedIds);
     } catch (error) {
       console.error('Error loading likes:', error);
+    } finally {
+      setIsFetchingLikes(false);
     }
   };
 
