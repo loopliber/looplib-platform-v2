@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { User, LogOut, Menu, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
-import { useRouter } from 'next/navigation';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function Header() {
@@ -14,43 +13,72 @@ export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [producerName, setProducerName] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
   const supabase = createClient();
-  const router = useRouter();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      // Fetch producer name if user exists
-      if (user?.id) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('producer_name')
-          .eq('id', user.id)
-          .maybeSingle();
+    // Only initialize once
+    if (isInitialized) return;
+    
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (profileData?.producer_name) {
-          setProducerName(profileData.producer_name);
-        } else if (user?.user_metadata?.producer_name) {
-          setProducerName(user.user_metadata.producer_name);
+        if (mounted) {
+          setUser(user);
+          
+          // Only fetch producer name if user exists and we don't have it yet
+          if (user?.id && !producerName) {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('producer_name')
+                .eq('id', user.id)
+                .maybeSingle();
+              
+              if (mounted) {
+                if (profileData?.producer_name) {
+                  setProducerName(profileData.producer_name);
+                } else if (user?.user_metadata?.producer_name) {
+                  setProducerName(user.user_metadata.producer_name);
+                }
+              }
+            } catch (error) {
+              console.error('Error fetching producer name:', error);
+            }
+          }
+          
+          setIsInitialized(true);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setIsInitialized(true);
         }
       }
     };
 
-    getUser();
+    initializeAuth();
 
+    // Set up auth state listener ONLY ONCE
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        setUser(session?.user || null);
-        if (!session?.user) {
-          setProducerName('');
+        if (mounted) {
+          setUser(session?.user || null);
+          if (!session?.user) {
+            setProducerName('');
+          }
         }
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [isInitialized]); // Only depend on isInitialized
 
   const handleLogout = async () => {
     try {
@@ -58,7 +86,6 @@ export default function Header() {
       setProducerName('');
       toast.success('Logged out successfully');
       setMobileMenuOpen(false);
-      router.push('/');
     } catch (error) {
       toast.error('Error logging out');
     }
@@ -115,6 +142,14 @@ export default function Header() {
                 <span>❤️</span>
                 <span>Soul</span>
               </Link>
+              {user && (
+                <Link 
+                  href="/library" 
+                  className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
+                >
+                  Library
+                </Link>
+              )}
             </nav>
 
             {/* Desktop User Section */}
@@ -122,13 +157,13 @@ export default function Header() {
               {user ? (
                 <div className="flex items-center space-x-4">
                   <Link
-                    href="/dashboard"
+                    href="/library"
                     className="flex items-center space-x-2 px-3 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
                   >
                     <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
                       {(producerName || user.email || 'U')[0].toUpperCase()}
                     </div>
-                    <span className="text-sm text-white">{producerName || user.email?.split('@')[0] || 'Producer'}</span>
+                    <span className="text-sm text-white">{producerName || user.email?.split('@')[0] || 'User'}</span>
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -201,12 +236,12 @@ export default function Header() {
                   {user ? (
                     <>
                       <Link
-                        href="/dashboard"
+                        href="/library"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block w-full text-left px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
                       >
                         <User className="w-4 h-4 inline mr-2" />
-                        {producerName || user.email?.split('@')[0] || 'Dashboard'}
+                        Library / Dashboard
                       </Link>
                       <button
                         onClick={handleLogout}
