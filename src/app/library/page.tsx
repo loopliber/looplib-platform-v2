@@ -125,7 +125,7 @@ export default function MyLibraryPage() {
       console.log('✅ Processed downloads:', processedDownloads);
       
       // Group by sample_id to remove duplicates and count downloads
-      const groupedDownloads = processedDownloads.reduce((acc: any, download: any) => {
+      const groupedDownloads: Record<string, DownloadedSample> = processedDownloads.reduce((acc: Record<string, DownloadedSample>, download: any) => {
         const sampleId = download.id;
         
         if (!acc[sampleId]) {
@@ -146,10 +146,10 @@ export default function MyLibraryPage() {
         }
         
         return acc;
-      }, {});
+      }, {} as Record<string, DownloadedSample>);
 
-      // Convert back to array
-      const uniqueDownloads = Object.values(groupedDownloads);
+      // Convert back to array with proper typing
+      const uniqueDownloads: DownloadedSample[] = Object.values(groupedDownloads);
       console.log('🎯 Unique downloads with counts:', uniqueDownloads);
 
       setDownloads(uniqueDownloads);
