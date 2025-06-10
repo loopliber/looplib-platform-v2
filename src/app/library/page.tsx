@@ -54,56 +54,79 @@ export default function MyLibraryPage() {
 
       console.log('🔍 Fetching downloads for email:', userEmail);
 
-      // Check what emails exist in the downloads table
-      const { data: emailCheck } = await supabase
+      // First, let's check if there are any downloads for this user
+      const { data: downloadCheck, error: downloadCheckError } = await supabase
         .from('user_downloads')
-        .select('user_email')
+        .select('*')
+        .eq('user_email', userEmail)
         .limit(10);
       
-      console.log('📧 Sample emails in database:', emailCheck?.map((e: { user_email: string }) => e.user_email));
+      console.log('📥 User downloads found:', downloadCheck);
+      
+      if (downloadCheckError) {
+        console.error('Download check error:', downloadCheckError);
+      }
 
-      // Get download history for this user
+      // Get download history with proper join
       const { data: downloadData, error: downloadError } = await supabase
         .from('user_downloads')
         .select(`
           downloaded_at,
           sample_id,
-          samples (
-            *,
-            artist:artists(*)
+          samples!inner (
+            id,
+            name,
+            file_url,
+            bpm,
+            key,
+            genre,
+            tags,
+            has_stems,
+            created_at,
+            artist_id,
+            artists (
+              id,
+              name
+            )
           )
         `)
         .eq('user_email', userEmail)
         .order('downloaded_at', { ascending: false });
 
-      console.log('📥 Download query result:', downloadData);
+      console.log('📥 Full download query result:', downloadData);
       console.log('❌ Download error:', downloadError);
 
       if (downloadError) {
         throw downloadError;
       }
 
-      // Process the data - filter out null samples
+      // Process the data - handle the nested structure properly
       const processedDownloads = downloadData
         ?.filter((item: any) => item.samples) // Filter out null samples
         ?.map((item: any) => ({
           ...item.samples,
+          artist: item.samples.artists, // Map the nested artist
           downloaded_at: item.downloaded_at,
           download_count: 1
         })) || [];
 
       console.log('✅ Processed downloads:', processedDownloads);
-      setDownloads(processedDownloads);
+      
+      // Group by sample_id to count multiple downloads
+      const downloadCounts = downloadData?.reduce((acc: any, item: any) => {
+        if (item.sample_id) {
+          acc[item.sample_id] = (acc[item.sample_id] || 0) + 1;
+        }
+        return acc;
+      }, {});
 
-      // Calculate stats
-      const uniqueGenres = [...new Set(processedDownloads.map((d: any) => d.genre))];
-      const totalSize = processedDownloads.length;
-      const thisWeek = processedDownloads.filter((d: any) => {
-        const downloadDate = new Date(d.downloaded_at);
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return downloadDate > weekAgo;
-      }).length;
+      // Update download counts
+      const downloadsWithCounts = processedDownloads.map((d: any) => ({
+        ...d,
+        download_count: downloadCounts[d.id] || 1
+      }));
+
+      setDownloads(downloadsWithCounts);
 
     } catch (error) {
       console.error('💥 Error fetching downloads:', error);
@@ -116,7 +139,7 @@ export default function MyLibraryPage() {
   // Filter and sort downloads
   const filteredDownloads = downloads.filter(sample => {
     const matchesSearch = sample.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sample.artist?.name.toLowerCase().includes(searchTerm.toLowerCase());
+                         sample.artist?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGenre = filterGenre === 'all' || sample.genre === filterGenre;
     return matchesSearch && matchesGenre;
   });
@@ -163,8 +186,11 @@ export default function MyLibraryPage() {
 
   const handleRedownload = async (sample: Sample) => {
     try {
+      // Use the proper download utility
+      await downloadSample(sample, sample.genre);
+
       // Track re-download
-      await fetch('/api/download', {
+      const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -173,16 +199,18 @@ export default function MyLibraryPage() {
         })
       });
 
-      // Use the proper download utility instead of simple link click
-      await downloadSample(sample, sample.genre);
+      if (!response.ok) {
+        console.error('Download tracking failed:', await response.text());
+      }
 
       toast.success('Download started!');
       
-      // Refresh to update count (but this won't cause a page refresh)
-      if (user?.email) {
-        fetchDownloadHistory(user.email);
+      // Refresh to update count
+      if (user) {
+        fetchDownloadHistory(user);
       }
     } catch (error) {
+      console.error('Download error:', error);
       toast.error('Download failed');
     }
   };
@@ -220,31 +248,6 @@ export default function MyLibraryPage() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                  <Music className="w-5 h-5 text-white" />
-                </div>
-                <h1 className="text-xl font-semibold">LoopLib</h1>
-              </Link>
-              
-              <nav className="hidden md:flex items-center space-x-6">
-                <Link href="/" className="text-neutral-400 hover:text-white transition-colors">
-                  Browse
-                </Link>
-                <Link href="/library" className="text-white font-medium">
-                  My Library
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Page Header */}
         <div className="mb-8">
@@ -327,7 +330,7 @@ export default function MyLibraryPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="font-medium text-white">{sample.name}</h3>
-                    <p className="text-sm text-neutral-400">{sample.artist?.name || 'Unknown'}</p>
+                    <p className="text-sm text-neutral-400">{sample.artist?.name || 'LoopLib'}</p>
                   </div>
                   <button
                     onClick={() => togglePlay(sample.id, sample.file_url)}
