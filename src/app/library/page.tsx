@@ -60,7 +60,7 @@ export default function MyLibraryPage() {
         .select('user_email')
         .limit(10);
       
-      console.log('📧 Sample emails in database:', emailCheck?.map(e => e.user_email));
+      console.log('📧 Sample emails in database:', emailCheck?.map((e: { user_email: string }) => e.user_email));
 
       // Get download history for this user
       const { data: downloadData, error: downloadError } = await supabase
