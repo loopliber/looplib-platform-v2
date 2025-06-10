@@ -76,6 +76,12 @@ export default function LicenseModal({
       return;
     }
 
+    // Add null check for sample
+    if (!sample) {
+      toast.error('Sample not found');
+      return;
+    }
+
     // Skip PaymentModal and go directly to Stripe Checkout
     setPurchasingId(license.id);
     
