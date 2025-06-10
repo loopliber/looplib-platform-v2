@@ -231,7 +231,7 @@ export default function Header() {
                   <span>Soul</span>
                 </Link>
                 <a 
-                  href="https://www.shop.looplib.com"
+                  href="https://shop.looplib.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
