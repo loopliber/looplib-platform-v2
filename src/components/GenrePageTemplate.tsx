@@ -70,6 +70,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [samples, setSamples] = useState<Sample[]>(initialSamples);
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(initialSamples.length > 0);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBpmRange, setSelectedBpmRange] = useState<string>('all');
@@ -90,30 +91,60 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const supabase = createClient();
   const Icon = config.icon;
 
-  // Initialize
+  // Initialize component with better error handling
   useEffect(() => {
-    // Only fetch if we don't have initial samples
-    if (initialSamples.length === 0) {
-      fetchGenreSamples();
-    }
-    fetchLicenses();
-    loadUserLikes();
-    checkUser();
-    
-    if (typeof window !== 'undefined') {
-      setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
-    }
+    let mounted = true;
+
+    const initialize = async () => {
+      try {
+        // Only fetch samples if we don't have initial samples
+        if (initialSamples.length === 0 && !initialLoadComplete) {
+          setLoading(true);
+          await fetchGenreSamples();
+        }
+        
+        // These can run in parallel
+        const promises = [
+          fetchLicenses(),
+          loadUserLikes(),
+          checkUser()
+        ];
+        
+        await Promise.all(promises);
+        
+        if (mounted && typeof window !== 'undefined') {
+          setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
+        }
+      } catch (error) {
+        console.error('Initialization error:', error);
+        if (mounted) {
+          toast.error('Failed to load page data');
+        }
+      } finally {
+        if (mounted) {
+          setInitialLoadComplete(true);
+          setLoading(false);
+        }
+      }
+    };
+
+    initialize();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    } catch (error) {
+      console.error('Error checking user:', error);
+    }
   };
 
   const fetchGenreSamples = async () => {
-    if (initialSamples.length > 0) return;
-    
-    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('samples')
@@ -128,9 +159,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
       setSamples(data || []);
     } catch (error) {
       console.error(`Error fetching ${config.genre} samples:`, error);
-      toast.error(`Failed to load ${config.genre} samples`);
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
@@ -350,6 +379,15 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const EssentialIcon = config.educationalContent.essentialElements.icon;
   const TipsIcon = config.educationalContent.productionTips.icon;
 
+  // Show loading state only on initial load
+  if (loading && !initialLoadComplete) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section - Minimal */}
@@ -458,11 +496,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
         <h2 className="text-xl font-semibold mb-4">Popular {config.genre} Samples This Week</h2>
 
         {/* Samples Grid */}
-        {loading && samples.length === 0 ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-          </div>
-        ) : displayedSamples.length === 0 ? (
+        {displayedSamples.length === 0 ? (
           <div className="text-center py-20">
             <Music className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
             <p className="text-neutral-400 text-lg">No samples found matching your filters</p>
