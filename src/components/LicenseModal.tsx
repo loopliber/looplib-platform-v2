@@ -46,7 +46,30 @@ export default function LicenseModal({
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setLicenses(data || []);
+      
+      // Temporary override for testing
+      const updatedLicenses = data?.map(license => {
+        if (license.name === 'Premium') {
+          return {
+            ...license,
+            max_streams: 1000000 // 1 million streams
+          };
+        }
+        if (license.name === 'Basic') {
+          return {
+            ...license,
+            features: [
+              'MP3 Download',
+              'Personal Use',
+              'SoundCloud/YouTube',
+              'Beatstars/Traktrain Monetization'
+            ]
+          };
+        }
+        return license;
+      }) || [];
+      
+      setLicenses(updatedLicenses);
     } catch (error) {
       console.error('Error fetching licenses:', error);
     }

@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle, Download, Mail, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Download, Mail, ArrowLeft, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SuccessPage() {
@@ -51,10 +51,15 @@ export default function SuccessPage() {
               <span>Browse More Samples</span>
             </Link>
             
-            <button className="w-full bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
-              <Download className="w-4 h-4" />
-              <span>Download Receipt</span>
-            </button>
+            <a
+              href="https://cdn.shopify.com/s/files/1/0816/1257/0973/files/Looplib_Sample_License_Agreement.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+            >
+              <FileText className="w-4 h-4" />
+              <span>View License Agreement</span>
+            </a>
           </div>
 
           <p className="text-xs text-neutral-500 mt-6">
