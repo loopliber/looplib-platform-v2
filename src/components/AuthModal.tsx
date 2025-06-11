@@ -39,7 +39,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           .from('profiles')
           .select('producer_name')
           .eq('producer_name', producerName.trim())
-          .maybeSingle(); // Use maybeSingle instead of single
+          .maybeSingle();
 
         if (checkError && checkError.code !== 'PGRST116') {
           console.error('Producer name check error:', checkError);
@@ -64,25 +64,45 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
         if (error) throw error;
 
-        // Create or update profile with producer name
+        // Create profile immediately after signup
         if (data.user) {
+          // Wait a bit to ensure user is created in auth.users
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           const { error: profileError } = await supabase
             .from('profiles')
-            .upsert({
+            .insert({
               id: data.user.id,
               email: email,
               producer_name: producerName.trim(),
-              role: 'producer'
+              role: 'producer',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             });
 
           if (profileError) {
             console.error('Profile creation error:', profileError);
-            // Don't fail the signup if profile creation fails
+            // Try upsert as fallback
+            const { error: upsertError } = await supabase
+              .from('profiles')
+              .upsert({
+                id: data.user.id,
+                email: email,
+                producer_name: producerName.trim(),
+                role: 'producer',
+                updated_at: new Date().toISOString()
+              });
+            
+            if (upsertError) {
+              console.error('Profile upsert error:', upsertError);
+            }
           }
         }
 
         toast.success('Account created! Please check your email to verify.');
         onSuccess(data.user);
+        onClose();
+        
       } else {
         // Login
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -92,11 +112,36 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
         if (error) throw error;
 
+        // Check if user has a profile, create one if not
+        if (data.user) {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('producer_name')
+            .eq('id', data.user.id)
+            .maybeSingle();
+
+          if (!profileData && !profileError) {
+            // Create profile for existing user
+            const defaultProducerName = data.user.user_metadata?.producer_name || 
+                                      email.split('@')[0];
+            
+            await supabase
+              .from('profiles')
+              .insert({
+                id: data.user.id,
+                email: data.user.email,
+                producer_name: defaultProducerName,
+                role: 'producer',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              });
+          }
+        }
+
         toast.success('Logged in successfully!');
         onSuccess(data.user);
+        onClose();
       }
-
-      onClose();
     } catch (error: any) {
       console.error('Auth error:', error);
       toast.error(error.message || 'Authentication failed');
@@ -110,14 +155,26 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
 
       if (error) throw error;
+      
+      // The profile will be created in the auth callback or by the database trigger
     } catch (error: any) {
       toast.error(error.message || 'Google login failed');
     }
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
+    setProducerName('');
   };
 
   return (
@@ -127,7 +184,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         <div className="relative h-32 bg-gradient-to-br from-orange-600 via-orange-600 to-pink-600">
           <div className="absolute inset-0 bg-black/20" />
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              resetForm();
+            }}
             className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
             <X className="w-5 h-5 text-white" />
@@ -258,6 +318,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               onClick={() => {
                 setMode(mode === 'login' ? 'signup' : 'login');
                 setProducerName(''); // Clear producer name when switching
+                setEmail(''); // Clear email
+                setPassword(''); // Clear password
               }}
               className="text-orange-400 hover:text-orange-300 transition-colors"
             >

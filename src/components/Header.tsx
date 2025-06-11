@@ -29,25 +29,9 @@ export default function Header() {
         if (mounted) {
           setUser(user);
           
-          // Only fetch producer name if user exists and we don't have it yet
-          if (user?.id && !producerName) {
-            try {
-              const { data: profileData } = await supabase
-                .from('profiles')
-                .select('producer_name')
-                .eq('id', user.id)
-                .maybeSingle();
-              
-              if (mounted) {
-                if (profileData?.producer_name) {
-                  setProducerName(profileData.producer_name);
-                } else if (user?.user_metadata?.producer_name) {
-                  setProducerName(user.user_metadata.producer_name);
-                }
-              }
-            } catch (error) {
-              console.error('Error fetching producer name:', error);
-            }
+          // Only fetch producer name if user exists
+          if (user?.id) {
+            await fetchOrCreateProfile(user);
           }
           
           setIsInitialized(true);
@@ -64,11 +48,14 @@ export default function Header() {
 
     // Set up auth state listener ONLY ONCE
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session: Session | null) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         if (mounted) {
           setUser(session?.user || null);
           if (!session?.user) {
             setProducerName('');
+          } else if (event === 'SIGNED_IN' && session?.user) {
+            // Fetch profile when user signs in
+            await fetchOrCreateProfile(session.user);
           }
         }
       }
@@ -80,10 +67,76 @@ export default function Header() {
     };
   }, [isInitialized]); // Only depend on isInitialized
 
+  const fetchOrCreateProfile = async (user: any) => {
+    if (!user?.id) return;
+
+    try {
+      // First try to fetch the profile
+      const { data: profileData, error: fetchError } = await supabase
+        .from('profiles')
+        .select('producer_name, role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error fetching profile:', fetchError);
+        return;
+      }
+
+      if (profileData?.producer_name) {
+        setProducerName(profileData.producer_name);
+      } else {
+        // No profile exists, create one
+        const producer_name = user.user_metadata?.producer_name || 
+                           user.email?.split('@')[0] || 
+                           'Producer';
+
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            producer_name: producer_name,
+            role: 'producer',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select('producer_name')
+          .single();
+
+        if (createError) {
+          // If insert fails, try upsert
+          const { data: upsertData, error: upsertError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: user.id,
+              email: user.email,
+              producer_name: producer_name,
+              role: 'producer',
+              updated_at: new Date().toISOString()
+            })
+            .select('producer_name')
+            .single();
+
+          if (upsertError) {
+            console.error('Error creating profile:', upsertError);
+          } else if (upsertData?.producer_name) {
+            setProducerName(upsertData.producer_name);
+          }
+        } else if (newProfile?.producer_name) {
+          setProducerName(newProfile.producer_name);
+        }
+      }
+    } catch (error) {
+      console.error('Error in fetchOrCreateProfile:', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       setProducerName('');
+      setUser(null);
       toast.success('Logged out successfully');
       setMobileMenuOpen(false);
     } catch (error) {
@@ -107,7 +160,7 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Desktop Navigation - Removed Collections */}
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               <Link 
                 href="/" 
@@ -195,7 +248,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Mobile Menu - Removed Collections */}
+          {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-neutral-800">
               <nav className="px-2 pt-2 pb-3 space-y-1">
@@ -282,10 +335,14 @@ export default function Header() {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        onSuccess={(user) => {
+        onSuccess={async (user) => {
           setUser(user);
           setShowAuthModal(false);
           toast.success('Welcome to LoopLib!');
+          // Fetch profile after successful auth
+          if (user) {
+            await fetchOrCreateProfile(user);
+          }
         }}
       />
     </>
