@@ -420,10 +420,10 @@ export default function SampleBrowser({
           <div className="relative z-10 flex items-center justify-center h-full">
             <div className="text-center px-4">
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                Industry Samples & Loops For Your Next Hit
+                Samples & Loops For Your Next Hit
               </h1>
               <p className="text-xl md:text-2xl text-white/90 mb-8">
-                Discover premium sounds for your next hit
+                Discover premium sounds & samples for free
               </p>
             </div>
           </div>
