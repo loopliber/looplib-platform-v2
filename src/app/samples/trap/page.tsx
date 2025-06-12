@@ -6,17 +6,17 @@ import { Zap, Target, Gauge } from 'lucide-react';
 const trapConfig: GenrePageConfig = {
   genre: 'Trap',
   genreSlug: 'trap',
-  title: 'Free Trap Samples & Loops',
-  subtitle: 'Professional trap melodies • 140-170 BPM • Instant download',
-  metaDescription: 'Download free trap melody samples and loops. Dark atmospheric melodies, haunting leads, and modern chord progressions for trap music production. Royalty-free with commercial licenses.',
+  title: 'Royalty Free Trap Samples & Loops',
+  subtitle: 'Hard-hitting trap melodies • 130-160 BPM • Instant download',
+  metaDescription: 'Download free trap melody samples and loops. Dark melodies, hard 808s, and modern trap sounds for hip-hop production. Royalty-free with commercial licenses.',
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },
+    { id: '130-140', label: '130-140 BPM', min: 130, max: 140 },
     { id: '140-150', label: '140-150 BPM', min: 140, max: 150 },
     { id: '150-160', label: '150-160 BPM', min: 150, max: 160 },
-    { id: '160-170', label: '160-170 BPM', min: 160, max: 170 },
   ],
-  commonTags: ['dark', 'trap', 'uptempo', 'drill', 'aggressive', 'bouncy'],
-  heroGradient: 'from-orange-900/20',
+  commonTags: ['trap', 'dark', 'uptempo', 'drill', 'aggressive', 'melodic'],
+  heroGradient: 'from-red-600/50 via-purple-800/40 to-red-950/50',
   icon: Zap,
   educationalContent: {
     essentialElements: {

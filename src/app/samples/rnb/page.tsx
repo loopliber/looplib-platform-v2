@@ -6,7 +6,7 @@ import { Sparkles, Headphones, Sliders } from 'lucide-react';
 const rnbConfig: GenrePageConfig = {
   genre: 'R&B',
   genreSlug: 'rnb',
-  title: 'Free R&B Samples & Loops',
+  title: 'Royalty Free R&B Samples & Loops',
   subtitle: 'Smooth R&B melodies • 60-100 BPM • Instant download',
   metaDescription: 'Download free R&B melody samples and loops. Smooth melodies, modern chords, and silky leads for R&B music production. Royalty-free with commercial licenses.',
   bpmRanges: [
@@ -16,7 +16,7 @@ const rnbConfig: GenrePageConfig = {
     { id: '80-100', label: '80-100 BPM', min: 80, max: 100 },
   ],
   commonTags: ['rnb', 'deep', 'soft', 'melodic', 'melancholy', 'smooth'],
-  heroGradient: 'from-purple-900/20',
+  heroGradient: 'from-purple-600/40 via-yellow-800/30 to-indigo-900/40',
   icon: Sparkles,
   educationalContent: {
     essentialElements: {
