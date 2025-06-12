@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/client';
 import { Sample, License } from '@/types';
 import { 
   Play, Pause, Download, Heart, Search, 
-  Music, X, Loader2, Filter, Shuffle
+  Music, ShoppingCart, X, Check, Loader2, Filter,
+  TrendingUp, Clock, Hash, User, LogOut, Shuffle,
+  LucideIcon
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
