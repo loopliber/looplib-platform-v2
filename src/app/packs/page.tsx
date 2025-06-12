@@ -55,7 +55,7 @@ export default function PacksPage() {
   const filteredPacks = packs.filter(pack => {
     const matchesSearch = pack.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          pack.artist?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGenre = selectedGenre === 'all' || pack.genre === selectedGenre;
+    const matchesGenre = selectedGenre === 'all' || (pack.genre && pack.genre === selectedGenre);
     return matchesSearch && matchesGenre;
   });
 
@@ -72,8 +72,8 @@ export default function PacksPage() {
     }
   });
 
-  // Get unique genres
-  const genres = ['all', ...new Set(packs.map(p => p.genre).filter(Boolean))];
+  // Get unique genres - filter out undefined/null values
+  const genres = ['all', ...new Set(packs.map(p => p.genre).filter((genre): genre is string => Boolean(genre)))];
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -114,7 +114,7 @@ export default function PacksPage() {
           >
             {genres.map(genre => (
               <option key={genre} value={genre}>
-                {genre === 'all' ? 'All Genres' : genre.charAt(0).toUpperCase() + genre.slice(1)}
+                {genre === 'all' ? 'All Genres' : (genre || 'Unknown').charAt(0).toUpperCase() + (genre || 'Unknown').slice(1)}
               </option>
             ))}
           </select>
