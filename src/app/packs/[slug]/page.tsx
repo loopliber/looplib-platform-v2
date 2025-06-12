@@ -63,10 +63,10 @@ export default function PackPage({ params }: { params: { slug: string } }) {
 
       if (samplesError) throw samplesError;
 
-      // Fix: Add proper type annotation and null checking
+      // Fix: Add proper type annotation for the filter parameter
       const orderedSamples = packSamples
         ?.map((ps: { position: number; samples: Sample | null }) => ps.samples)
-        .filter((sample): sample is Sample => sample !== null) || [];
+        .filter((sample: Sample | null): sample is Sample => sample !== null) || [];
 
       setSamples(orderedSamples);
     } catch (error) {
