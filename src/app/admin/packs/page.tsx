@@ -323,36 +323,3 @@ export default function CreatePackPage() {
     </div>
   );
 }
-          
-          {/* Submit */}
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => router.push('/admin/packs')}
-              className="px-6 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving || uploadingArt}
-              className="px-6 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 rounded-lg transition-colors flex items-center space-x-2"
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{uploadingArt ? 'Uploading Art...' : 'Creating Pack...'}</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  <span>Create Pack</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
