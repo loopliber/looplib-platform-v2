@@ -189,6 +189,12 @@ export default function Header() {
                 <Heart className="w-4 h-4" />
                 <span>Soul</span>
               </Link>
+              <Link 
+                href="/packs" 
+                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
+              >
+                Packs
+              </Link>
               <a 
                 href="https://shop.looplib.com"
                 target="_blank"

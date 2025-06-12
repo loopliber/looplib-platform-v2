@@ -92,3 +92,34 @@ export interface GenreCollection {
   gradient: string;
   accentColor: string;
 }
+
+// Add these new interfaces to your existing types/index.ts file
+
+export interface Pack {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  cover_art_url: string;
+  artist?: Artist;
+  artist_id?: string;
+  genre?: string;
+  release_date: string;
+  featured: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  sample_count?: number;
+  samples?: Sample[];
+}
+
+export interface PackSample {
+  pack_id: string;
+  sample_id: string;
+  position: number;
+}
+
+// Optional: Update your Sample interface to include pack reference
+// You can modify your existing Sample interface to add:
+// primary_pack_id?: string;
+// pack?: Pack;
