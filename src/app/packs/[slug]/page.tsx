@@ -139,13 +139,33 @@ export default function PackPage({ params }: { params: { slug: string } }) {
             {/* Cover Art */}
             <div className="w-full md:w-80 flex-shrink-0">
               <div className="relative aspect-square rounded-lg overflow-hidden shadow-2xl">
-                <Image
-                  src={pack.cover_art_url}
-                  alt={pack.name}
-                  fill
-                  className="object-cover"
-                  priority
-                />
+                {pack.cover_art_url ? (
+                  <>
+                    <Image
+                      src={pack.cover_art_url}
+                      alt={pack.name}
+                      fill
+                      className="object-cover"
+                      priority
+                      onError={(e) => {
+                        console.error('Cover art failed to load:', pack.cover_art_url);
+                        console.error('Error:', e);
+                      }}
+                      onLoad={() => {
+                        console.log('Cover art loaded successfully:', pack.cover_art_url);
+                      }}
+                    />
+                    {/* Debug info - remove after testing */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs p-2 truncate">
+                      {pack.cover_art_url}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-neutral-800 flex items-center justify-center">
+                    <Music className="w-16 h-16 text-neutral-600" />
+                    <div className="absolute bottom-2 text-white text-xs">No cover art URL</div>
+                  </div>
+                )}
               </div>
             </div>
             

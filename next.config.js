@@ -4,10 +4,18 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '*.supabase.co',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'shop.looplib.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pub-fe9d2a16549143799caef21a9fea0ccc.r2.dev',
       },
     ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
