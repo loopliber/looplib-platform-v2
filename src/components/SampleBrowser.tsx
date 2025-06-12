@@ -147,12 +147,21 @@ export default function SampleBrowser({
     if (error) throw error;
     
     // Transform data to include artwork_url at the top level
-    const samplesWithArtwork = data?.map((sample: any) => ({
-      ...sample,
-      artwork_url: sample.pack_artwork_url || null,
-      pack_name: sample.pack_name || null,
-      pack_slug: sample.pack_slug || null
-    })) || [];
+    const samplesWithArtwork = data?.map((sample: any) => {
+      console.log('Sample pack data:', {
+        name: sample.name,
+        pack_artwork_url: sample.pack_artwork_url,
+        pack_name: sample.pack_name,
+        pack_slug: sample.pack_slug
+      });
+      
+      return {
+        ...sample,
+        artwork_url: sample.pack_artwork_url || null,
+        pack_name: sample.pack_name || null,
+        pack_slug: sample.pack_slug || null
+      };
+    }) || [];
     
     setSamples(samplesWithArtwork);
   } catch (error) {
@@ -528,30 +537,78 @@ export default function SampleBrowser({
                     key={sample.id} 
                     className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
                   >
-                    {/* Header with BPM, Key and Like button */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
-                        <span className="text-sm text-neutral-500">•</span>
-                        <span className="text-sm text-neutral-400">{sample.key}</span>
+                    {/* Add artwork section */}
+                    <div className="flex gap-3 mb-3">
+                      {/* Album artwork */}
+                      <div className="flex-shrink-0">
+                        {sample.artwork_url ? (
+                          <img 
+                            src={sample.artwork_url} 
+                            alt={sample.pack_name || sample.name}
+                            className="w-16 h-16 rounded-lg object-cover bg-neutral-800"
+                            onError={(e) => {
+                              console.log('Image failed to load:', sample.artwork_url);
+                              const target = e.currentTarget;
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              target.style.display = 'none';
+                              if (fallback) {
+                                fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        {/* Fallback placeholder - always render it */}
+                        <div 
+                          className={`w-16 h-16 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center ${sample.artwork_url ? 'hidden' : 'flex'}`}
+                        >
+                          <Music className="w-6 h-6 text-neutral-500" />
+                        </div>
                       </div>
-                      <button
-                        onClick={() => toggleLike(sample.id)}
-                        className={`p-2 rounded-md transition-colors ${
-                          likedSamples.has(sample.id)
-                            ? 'bg-red-500/20 text-red-500' 
-                            : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                        }`}
-                      >
-                        <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
-                      </button>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        {/* Header with BPM, Key and Like button */}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
+                            <span className="text-sm text-neutral-500">•</span>
+                            <span className="text-sm text-neutral-400">{sample.key}</span>
+                            {sample.has_stems && (
+                              <>
+                                <span className="text-sm text-neutral-500">•</span>
+                                <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
+                                  STEMS
+                                </span>
+                              </>
+                            )}
+                            {sample.pack_name && (
+                              <>
+                                <span className="text-sm text-neutral-500">•</span>
+                                <span className="px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
+                                  {sample.pack_name}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => toggleLike(sample.id)}
+                            className={`p-2 rounded-md transition-colors ${
+                              likedSamples.has(sample.id)
+                                ? 'bg-red-500/20 text-red-500' 
+                                : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                            }`}
+                          >
+                            <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
+                          </button>
+                        </div>
+                        
+                        {/* Title and artist */}
+                        <h3 className="font-medium text-white text-base mb-1">{sample.name}</h3>
+                        <p className="text-sm text-neutral-400 mb-3">{sample.artist?.name || 'LoopLib'}</p>
+                      </div>
                     </div>
                     
-                    {/* Title and artist */}
-                    <h3 className="font-medium text-white text-base mb-1">{sample.name}</h3>
-                    <p className="text-sm text-neutral-400 mb-4">{sample.artist?.name || 'LoopLib'}</p>
-                    
-                    {/* Waveform */}
+                    {/* Waveform - moved outside the flex container */}
                     <div className="mb-4 h-16">
                       <WaveformPlayer
                         url={sample.file_url}

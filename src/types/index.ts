@@ -20,7 +20,12 @@ export interface Sample {
   tags: string[];
   downloads?: number;
   created_at?: string;
-  has_stems?: boolean; // Add this line
+  has_stems?: boolean;
+  // Add these for pack artwork
+  artwork_url?: string;
+  pack_name?: string;
+  pack_slug?: string;
+  pack_artwork_url?: string; // Raw field from view
 }
 
 export interface License {
