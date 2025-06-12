@@ -140,17 +140,8 @@ export default function SampleBrowser({
   setLoading(true);
   try {
     const { data, error } = await supabase
-      .from('samples')
-      .select(`
-        *,
-        artist:artists(*),
-        pack:primary_pack_id(
-          id,
-          name,
-          slug,
-          cover_art_url
-        )
-      `)
+      .from('v_samples_with_pack_info') // Use the view
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -158,9 +149,9 @@ export default function SampleBrowser({
     // Transform data to include artwork_url at the top level
     const samplesWithArtwork = data?.map((sample: any) => ({
       ...sample,
-      artwork_url: sample.pack?.cover_art_url || null,
-      pack_name: sample.pack?.name || null,
-      pack_slug: sample.pack?.slug || null
+      artwork_url: sample.pack_artwork_url || null,
+      pack_name: sample.pack_name || null,
+      pack_slug: sample.pack_slug || null
     })) || [];
     
     setSamples(samplesWithArtwork);
