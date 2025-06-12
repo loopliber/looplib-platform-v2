@@ -72,7 +72,13 @@ export default function DashboardContent({ user }: DashboardContentProps) {
           created_at,
           samples!inner (
             *,
-            artist:artists(*)
+            artist:artists(*),
+            pack:primary_pack_id(
+              id,
+              name,
+              slug,
+              cover_art_url
+            )
           )
         `)
         .eq('user_identifier', userIdentifier)
@@ -84,6 +90,9 @@ export default function DashboardContent({ user }: DashboardContentProps) {
       } else {
         const liked = likedData?.map((item: any) => ({
           ...item.samples,
+          artwork_url: item.samples.pack?.cover_art_url || null,
+          pack_name: item.samples.pack?.name || null,
+          pack_slug: item.samples.pack?.slug || null,
           liked_at: item.created_at
         })) || [];
         setLikedSamples(liked);

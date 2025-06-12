@@ -135,27 +135,42 @@ export default function SampleBrowser({
   };
 
   const fetchSamples = async () => {
-    if (initialSamples.length > 0) return;
-    
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('samples')
-        .select(`
-          *,
-          artist:artists(*)
-        `)
-        .order('created_at', { ascending: false });
+  if (initialSamples.length > 0) return;
+  
+  setLoading(true);
+  try {
+    const { data, error } = await supabase
+      .from('samples')
+      .select(`
+        *,
+        artist:artists(*),
+        pack:primary_pack_id(
+          id,
+          name,
+          slug,
+          cover_art_url
+        )
+      `)
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setSamples(data || []);
-    } catch (error) {
-      console.error('Error fetching samples:', error);
-      toast.error('Failed to load samples');
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (error) throw error;
+    
+    // Transform data to include artwork_url at the top level
+    const samplesWithArtwork = data?.map(sample => ({
+      ...sample,
+      artwork_url: sample.pack?.cover_art_url || null,
+      pack_name: sample.pack?.name || null,
+      pack_slug: sample.pack?.slug || null
+    })) || [];
+    
+    setSamples(samplesWithArtwork);
+  } catch (error) {
+    console.error('Error fetching samples:', error);
+    toast.error('Failed to load samples');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const fetchLicenses = async () => {
     try {

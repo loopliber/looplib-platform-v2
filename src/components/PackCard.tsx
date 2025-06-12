@@ -76,4 +76,4 @@ export default function PackCard({ pack }: PackCardProps) {
       </div>
     </Link>
   );
-}
+}   

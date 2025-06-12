@@ -87,6 +87,12 @@ export default function MyLibraryPage() {
             artists (
               id,
               name
+            ),
+            pack:primary_pack_id(
+              id,
+              name,
+              slug,
+              cover_art_url
             )
           )
         `)
@@ -118,6 +124,9 @@ export default function MyLibraryPage() {
         ?.map((item: any) => ({
           ...item.samples,
           artist: item.samples.artists, // Map the nested artist
+          artwork_url: item.samples.pack?.cover_art_url || null,
+          pack_name: item.samples.pack?.name || null,
+          pack_slug: item.samples.pack?.slug || null,
           downloaded_at: item.downloaded_at,
           download_count: 1
         })) || [];
