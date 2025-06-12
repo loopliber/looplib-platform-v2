@@ -156,7 +156,7 @@ export default function SampleBrowser({
     if (error) throw error;
     
     // Transform data to include artwork_url at the top level
-    const samplesWithArtwork = data?.map(sample => ({
+    const samplesWithArtwork = data?.map((sample: any) => ({
       ...sample,
       artwork_url: sample.pack?.cover_art_url || null,
       pack_name: sample.pack?.name || null,
