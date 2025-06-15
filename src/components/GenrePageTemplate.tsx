@@ -587,8 +587,8 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                           {/* Add pack badge */}
                           {sample.pack_name && (
                             <>
-                              <span className="text-xs sm:text-sm text-neutral-500">•</span>
-                              <span className="px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
+                              <span className="hidden sm:inline text-xs sm:text-sm text-neutral-500">•</span>
+                              <span className="hidden sm:inline px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
                                 {sample.pack_name}
                               </span>
                             </>

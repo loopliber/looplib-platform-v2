@@ -1,14 +1,13 @@
 // lib/supabase/client.ts
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-let supabaseInstance: ReturnType<typeof createSupabaseClient> | null = null;
+// Reset any stale instances when the module loads
+if (typeof window !== 'undefined' && window.location.search.includes('session_id')) {
+  // Clear any stale auth data when returning from Stripe
+  localStorage.removeItem('looplib-auth-token');
+}
 
 export function createClient() {
-  // Return existing instance if it exists
-  if (supabaseInstance) {
-    return supabaseInstance;
-  }
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -21,8 +20,8 @@ export function createClient() {
     throw new Error('Supabase environment variables are required');
   }
 
-  // Create and store the instance
-  supabaseInstance = createSupabaseClient(
+  // Always create a fresh instance - don't cache
+  const client = createSupabaseClient(
     supabaseUrl,
     supabaseAnonKey,
     {
@@ -32,9 +31,22 @@ export function createClient() {
         autoRefreshToken: true,
         storageKey: 'looplib-auth-token',
         storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        flowType: 'pkce',
+      },
+      // Add request retry logic
+      global: {
+        headers: {
+          'x-client-info': 'looplib-web',
+        },
+      },
+      // Disable real-time subscriptions to prevent memory leaks
+      realtime: {
+        params: {
+          eventsPerSecond: 0,
+        },
       },
     }
   );
 
-  return supabaseInstance;
+  return client;
 }
