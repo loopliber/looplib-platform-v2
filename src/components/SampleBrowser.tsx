@@ -17,6 +17,14 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import LicenseModal from '@/components/LicenseModal';
 import { getUserIdentifier } from '@/utils/user-identity';
+import { 
+  canDownload, 
+  recordDownload, 
+  getRemainingDownloads, 
+  hasUnlimitedDownloads,
+  hasDownloadedToday 
+} from '@/utils/download-limit';
+import DownloadLimitModal from './DownloadLimitModal';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -307,7 +315,29 @@ export default function SampleBrowser({
     setDownloadingId(sample.id);
     
     try {
-      // Check download limits for anonymous users
+      // Check if user has unlimited downloads (premium feature)
+      const hasUnlimited = user && hasUnlimitedDownloads(user);
+      
+      if (!hasUnlimited) {
+        // Check download limit
+        if (!canDownload()) {
+          setShowDownloadLimitModal(true);
+          setDownloadingId(null);
+          return;
+        }
+        
+        // Check if they already downloaded this sample today
+        if (hasDownloadedToday(sample.id)) {
+          toast.error('You already downloaded this sample today!', {
+            icon: '⏰',
+            duration: 3000
+          });
+          setDownloadingId(null);
+          return;
+        }
+      }
+
+      // Check anonymous download limits (1 download for non-users)
       if (!user && anonymousDownloads >= 1) {
         setShowAuthModal(true);
         setDownloadingId(null);
@@ -315,15 +345,7 @@ export default function SampleBrowser({
         return;
       }
       
-      // Update anonymous download counter
-      if (!user) {
-        const newCount = anonymousDownloads + 1;
-        setAnonymousDownloads(newCount);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('anonymous_downloads', newCount.toString());
-        }
-      }
-
+      // Rest of your existing download logic...
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
@@ -331,6 +353,12 @@ export default function SampleBrowser({
       
       await downloadFile(sample.file_url, downloadFilename);
       
+      // Record the download for limit tracking
+      if (!hasUnlimited) {
+        recordDownload(sample.id);
+      }
+      
+      // Track in your API
       const userEmail = user?.email || 'anonymous@looplib.com';
       await fetch('/api/download', {
         method: 'POST',
@@ -341,16 +369,18 @@ export default function SampleBrowser({
         })
       });
 
-      if (user) {
-        toast.success('Download complete! Check your downloads folder.');
+      // Show remaining downloads in toast
+      const remaining = getRemainingDownloads();
+      if (!hasUnlimited && remaining > 0) {
+        toast.success(`Download complete! ${remaining} downloads left today 🎵`, {
+          duration: 4000
+        });
+      } else if (!hasUnlimited && remaining === 0) {
+        toast.success('Download complete! That\'s all for today - see you tomorrow! 🌙', {
+          duration: 5000
+        });
       } else {
-        if (anonymousDownloads === 0) {
-          toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
-            duration: 5000
-          });
-        } else {
-          toast.success('Download complete! Check your downloads folder.');
-        }
+        toast.success('Download complete! Check your downloads folder.');
       }
       
     } catch (error) {
@@ -415,6 +445,23 @@ export default function SampleBrowser({
     setShuffleKey(prev => prev + 1);
     toast.success('🎲 Samples shuffled!', { duration: 1500 });
   }, []);
+
+  // Add this component to show remaining downloads:
+  const DownloadCounter = () => {
+    const remaining = getRemainingDownloads();
+    const hasUnlimited = user && hasUnlimitedDownloads(user);
+    
+    if (hasUnlimited) return null;
+    
+    return (
+      <div className="flex items-center space-x-2 px-3 py-1.5 bg-neutral-800 rounded-lg">
+        <Download className="w-4 h-4 text-orange-400" />
+        <span className="text-sm text-neutral-300">
+          {remaining}/10 downloads left today
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -804,6 +851,16 @@ export default function SampleBrowser({
         onSuccess={() => {
           checkUser();
           setShowAuthModal(false);
+        }}
+      />
+
+      {/* Download Limit Modal */}
+      <DownloadLimitModal
+        isOpen={showDownloadLimitModal}
+        onClose={() => setShowDownloadLimitModal(false)}
+        onSignUp={() => {
+          setShowDownloadLimitModal(false);
+          setShowAuthModal(true);
         }}
       />
     </div>

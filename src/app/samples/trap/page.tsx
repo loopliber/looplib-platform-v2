@@ -16,7 +16,7 @@ const trapConfig: GenrePageConfig = {
     { id: '150-160', label: '150-160 BPM', min: 150, max: 160 },
   ],
   commonTags: ['trap', 'dark', 'uptempo', 'drill', 'aggressive', 'melodic'],
-  heroGradient: 'from-red-600/50 via-purple-800/40 to-red-950/50',
+  heroGradient: 'bg-gradient-to-br from-red-900 via-red-800 to-rose-950',
   icon: Zap,
   educationalContent: {
     essentialElements: {
