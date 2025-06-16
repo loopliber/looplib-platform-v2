@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { User, LogOut, Menu, X, Zap, Sparkles, Heart, ShoppingBag } from 'lucide-react';
+import { User, LogOut, Menu, X, Zap, Sparkles, Heart, ShoppingBag, Folder } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AuthModal from './AuthModal';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
@@ -191,9 +191,10 @@ export default function Header() {
               </Link>
               <Link 
                 href="/packs" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
+                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
               >
-                Packs
+                <Folder className="w-4 h-4" />
+                <span>Packs</span>
               </Link>
               <a 
                 href="https://shop.looplib.com"
@@ -288,6 +289,14 @@ export default function Header() {
                 >
                   <Heart className="w-4 h-4" />
                   <span>Soul</span>
+                </Link>
+                <Link 
+                  href="/packs"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                >
+                  <Folder className="w-4 h-4" />
+                  <span>Packs</span>
                 </Link>
                 <a 
                   href="https://shop.looplib.com"
