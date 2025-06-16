@@ -79,6 +79,7 @@ export default function SampleBrowser({
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [showDownloadLimitModal, setShowDownloadLimitModal] = useState(false);
   
   // User state
   const [user, setUser] = useState<any>(null);
