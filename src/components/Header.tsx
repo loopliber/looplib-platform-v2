@@ -205,14 +205,6 @@ export default function Header() {
                 <ShoppingBag className="w-4 h-4" />
                 <span>Shop</span>
               </a>
-              {user && (
-                <Link 
-                  href="/dashboard" 
-                  className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-              )}
             </nav>
 
             {/* Desktop User Section */}
