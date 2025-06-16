@@ -6,7 +6,7 @@ interface DownloadRecord {
   timestamp: number;
 }
 
-const DAILY_DOWNLOAD_LIMIT = 10;
+const DAILY_DOWNLOAD_LIMIT = 4; // Changed from 10 to 4
 const DOWNLOAD_RESET_HOURS = 24;
 
 // Get downloads from localStorage

@@ -33,19 +33,19 @@ export default function DownloadLimitModal({ isOpen, onClose, onSignUp }: Downlo
 
           <h2 className="text-2xl font-bold mb-2">Daily Download Limit Reached</h2>
           <p className="text-neutral-400 mb-6">
-            You've used all {10 - remaining} of your daily downloads. 
+            You've used all {4 - remaining} of your daily downloads. 
             {timeUntilReset !== "Now" && ` Downloads reset in ${timeUntilReset}.`}
           </p>
 
           <div className="bg-neutral-800/50 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-neutral-400">Downloads used today</span>
-              <span className="text-sm font-medium">{10 - remaining}/10</span>
+              <span className="text-sm font-medium">{4 - remaining}/4</span>
             </div>
             <div className="w-full bg-neutral-700 rounded-full h-2">
               <div 
                 className="bg-orange-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((10 - remaining) / 10) * 100}%` }}
+                style={{ width: `${((4 - remaining) / 4) * 100}%` }}
               />
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function DownloadLimitModal({ isOpen, onClose, onSignUp }: Downlo
           </div>
 
           <p className="text-xs text-neutral-500 mt-4">
-            Create an account to get 10 downloads per day instead of the current limit.
+            Create an account to get 4 downloads per day instead of the current limit.
           </p>
         </div>
       </div>
