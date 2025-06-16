@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
-import Header from '@/components/Header'; // Add this import
+import Header from '@/components/Header';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,10 +28,38 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics - Only load in production with valid GA_ID */}
+        {GA_ID && process.env.NODE_ENV === 'production' && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+            />
+            <Script
+              id="gtag-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_ID}', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
+      </head>
       <body className={inter.className}>
-        <Header /> {/* Add this line - this is the key change */}
+        <Header />
         {children}
         <Toaster 
           position="bottom-right"
