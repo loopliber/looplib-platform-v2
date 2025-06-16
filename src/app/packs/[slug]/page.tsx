@@ -21,7 +21,6 @@ export default function PackPage({ params }: { params: { slug: string } }) {
   const [loading, setLoading] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [downloadingAll, setDownloadingAll] = useState(false);
   
   const supabase = createClient();
 
@@ -86,25 +85,6 @@ export default function PackPage({ params }: { params: { slug: string } }) {
       toast.error('Download failed');
     } finally {
       setDownloadingId(null);
-    }
-  };
-
-  const handleDownloadAll = async () => {
-    setDownloadingAll(true);
-    try {
-      // Download samples sequentially with delay
-      for (let i = 0; i < samples.length; i++) {
-        await downloadSample(samples[i], pack?.genre);
-        // Add delay between downloads
-        if (i < samples.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
-      toast.success(`Downloaded all ${samples.length} samples!`);
-    } catch (error) {
-      toast.error('Some downloads failed');
-    } finally {
-      setDownloadingAll(false);
     }
   };
 
@@ -196,25 +176,6 @@ export default function PackPage({ params }: { params: { slug: string } }) {
               {pack.description && (
                 <p className="text-neutral-300 mb-6">{pack.description}</p>
               )}
-              
-              {/* Download All Button */}
-              <button
-                onClick={handleDownloadAll}
-                disabled={downloadingAll}
-                className="px-6 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-500/50 rounded-lg font-medium flex items-center space-x-2 transition-colors"
-              >
-                {downloadingAll ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Downloading...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-5 h-5" />
-                    <span>Download All Samples</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
         </div>
