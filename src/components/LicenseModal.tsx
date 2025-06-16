@@ -79,7 +79,7 @@ Please provide a quote and next steps.
 
 Thank you!`;
 
-    const mailtoLink = `mailto:licensing@looplib.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:support@looplib.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(mailtoLink, '_blank');
     
     toast.success('Email client opened - we\'ll respond within 24 hours!');
@@ -221,8 +221,8 @@ Thank you!`;
             </p>
             <p>
               Questions? Contact{' '}
-              <a href="mailto:licensing@looplib.com" className="text-orange-400 hover:underline">
-                licensing@looplib.com
+              <a href="mailto:support@looplib.com" className="text-orange-400 hover:underline">
+                support@looplib.com
               </a>
             </p>
           </div>
