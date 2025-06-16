@@ -187,54 +187,107 @@ export default function PackPage({ params }: { params: { slug: string } }) {
         
         <div className="space-y-4">
           {samples.map((sample, index) => (
-            <div
-              key={sample.id}
-              className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 transition-all"
+            <div 
+              key={sample.id} 
+              className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
             >
-              <div className="flex items-center gap-4">
+              {/* Add artwork section like homepage */}
+              <div className="flex gap-3 mb-3">
                 {/* Track Number */}
-                <div className="w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="flex-shrink-0 w-8 h-8 bg-neutral-800 rounded-full flex items-center justify-center text-xs font-medium text-neutral-400">
                   {index + 1}
                 </div>
-                
-                {/* Sample Info */}
-                <div className="flex-1">
-                  <h3 className="font-medium text-white">{sample.name}</h3>
-                  <div className="flex items-center gap-3 text-sm text-neutral-400 mt-1">
-                    <span>{sample.bpm} BPM</span>
-                    <span>{sample.key}</span>
-                    {sample.has_stems && (
-                      <span className="px-2 py-0.5 bg-orange-500 text-white text-xs rounded">
-                        STEMS
-                      </span>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Waveform */}
-                <div className="flex-1 max-w-md">
-                  <WaveformPlayer
-                    url={sample.file_url}
-                    isPlaying={playingId === sample.id}
-                    onPlayPause={() => setPlayingId(playingId === sample.id ? null : sample.id)}
-                    height={40}
-                    waveColor="#525252"
-                    progressColor="#f97316"
-                  />
-                </div>
-                
-                {/* Download Button */}
-                <button
-                  onClick={() => handleDownloadSample(sample)}
-                  disabled={downloadingId === sample.id}
-                  className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {downloadingId === sample.id ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+
+                {/* Album artwork */}
+                <div className="flex-shrink-0">
+                  {pack.cover_art_url ? (
+                    <img 
+                      src={pack.cover_art_url} 
+                      alt={pack.name}
+                      className="w-16 h-16 rounded-lg object-cover bg-neutral-800"
+                      onError={(e) => {
+                        console.log('Image failed to load:', pack.cover_art_url);
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                        if (fallback && fallback.style) {
+                          fallback.style.display = 'flex';
+                        }
+                      }}
+                    />
                   ) : (
-                    <Download className="w-5 h-5" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center">
+                      <Music className="w-6 h-6 text-neutral-500" />
+                    </div>
                   )}
-                </button>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  {/* Header with BPM, Key and Like button */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-neutral-400">{sample.bpm} BPM</span>
+                      <span className="text-sm text-neutral-500">•</span>
+                      <span className="text-sm text-neutral-400">{sample.key}</span>
+                      {sample.has_stems && (
+                        <>
+                          <span className="text-sm text-neutral-500">•</span>
+                          <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
+                            STEMS
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {/* Add like functionality if needed */}}
+                      className="p-2 rounded-md transition-colors bg-neutral-800 text-neutral-400 hover:text-white"
+                    >
+                      <Heart className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  {/* Title and artist */}
+                  <h3 className="font-medium text-white text-base mb-1 truncate">{sample.name}</h3>
+                  <p className="text-sm text-neutral-400 mb-3 truncate">{sample.artist?.name || 'LoopLib'}</p>
+                </div>
+              </div>
+              
+              {/* Waveform - moved outside the flex container */}
+              <div className="mb-4 h-16">
+                <WaveformPlayer
+                  url={sample.file_url}
+                  isPlaying={playingId === sample.id}
+                  onPlayPause={() => setPlayingId(playingId === sample.id ? null : sample.id)}
+                  height={64}
+                  waveColor="#666666"
+                  progressColor="#f97316"
+                />
+              </div>
+              
+              {/* Tags and Actions */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                <div className="flex flex-wrap gap-1">
+                  {sample.tags?.slice(0, 3).map(tag => (
+                    <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleDownloadSample(sample)}
+                    disabled={downloadingId === sample.id}
+                    className="flex-1 sm:flex-none px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-600/50 rounded-md transition-colors flex items-center justify-center space-x-1 text-sm disabled:opacity-50 font-medium"
+                  >
+                    {downloadingId === sample.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
+                    <span>Free Download</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}
