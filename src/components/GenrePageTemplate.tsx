@@ -13,7 +13,6 @@ import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { getUserIdentifier } from '@/utils/user-identity';
 
 const WaveformPlayer = dynamic(() => import('@/components/WaveformPlayer'), { 
   ssr: false,
@@ -74,9 +73,6 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [displayedSampleCount, setDisplayedSampleCount] = useState(12);
-  const [anonymousDownloads, setAnonymousDownloads] = useState(0);
-  const [shuffleKey, setShuffleKey] = useState(0);
 
   // Remove user state and related logic
   // const [user, setUser] = useState<any>(null);
@@ -113,7 +109,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
           ]);
           
           if (mounted && typeof window !== 'undefined') {
-            setAnonymousDownloads(parseInt(localStorage.getItem('anonymous_downloads') || '0'));
+            // Removed anonymousDownloads logic
           }
         } catch (error) {
           console.error('Initialization error:', error);
@@ -329,10 +325,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const handleLicensePurchase = async (license: License) => {
     if (!selectedSample) return;
     
-    // Since we're removing payments, just show a message or redirect to external store
-    toast.success(`License info for ${license.name} - Visit our shop for licensing!`);
-    
-    // Optional: redirect to external shop
+    toast.success(`Visit our shop for ${license.name} licensing!`);
     window.open('https://shop.looplib.com', '_blank');
   };
 

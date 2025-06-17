@@ -13,14 +13,6 @@ import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { getUserIdentifier } from '@/utils/user-identity';
-import { 
-  canDownload, 
-  recordDownload, 
-  getRemainingDownloads, 
-  hasUnlimitedDownloads,
-  hasDownloadedToday 
-} from '@/utils/download-limit';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -185,23 +177,8 @@ export default function SampleBrowser({
   };
 
   const loadUserLikes = async () => {
-    const userIdentifier = getUserIdentifier();
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_likes')
-        .select('sample_id')
-        .eq('user_identifier', userIdentifier);
-
-      if (error) throw error;
-      
-      const likedIds = new Set<string>(
-        data?.map((like: { sample_id: string }) => like.sample_id) || []
-      );
-      setLikedSamples(likedIds);
-    } catch (error) {
-      console.error('Error loading likes:', error);
-    }
+    // Simplified without user identity tracking
+    setLikedSamples(new Set());
   };
 
   // Memoized filtered and sorted samples
@@ -263,41 +240,18 @@ export default function SampleBrowser({
   }, []);
 
   const toggleLike = async (sampleId: string) => {
-    try {
-      const userIdentifier = getUserIdentifier();
-      const isLiked = likedSamples.has(sampleId);
-
-      if (isLiked) {
-        const { error } = await supabase
-          .from('user_likes')
-          .delete()
-          .eq('user_identifier', userIdentifier)
-          .eq('sample_id', sampleId);
-        
-        if (error) throw error;
-        
-        setLikedSamples(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(sampleId);
-          return newSet;
-        });
-        toast.success('Removed from liked samples');
-      } else {
-        const { error } = await supabase
-          .from('user_likes')
-          .insert({
-            user_identifier: userIdentifier,
-            sample_id: sampleId
-          });
-        
-        if (error) throw error;
-        
-        setLikedSamples(prev => new Set(prev).add(sampleId));
-        toast.success('Added to liked samples');
-      }
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      toast.error('Failed to update like');
+    const isLiked = likedSamples.has(sampleId);
+    
+    if (isLiked) {
+      setLikedSamples(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(sampleId);
+        return newSet;
+      });
+      toast.success('Removed from liked samples');
+    } else {
+      setLikedSamples(prev => new Set(prev).add(sampleId));
+      toast.success('Added to liked samples');
     }
   };
 
@@ -351,23 +305,6 @@ export default function SampleBrowser({
     setShuffleKey(prev => prev + 1);
     toast.success('🎲 Samples shuffled!', { duration: 1500 });
   }, []);
-
-  // Add this component to show remaining downloads:
-  const DownloadCounter = () => {
-    const remaining = getRemainingDownloads();
-    const hasUnlimited = user && hasUnlimitedDownloads(user);
-    
-    if (hasUnlimited) return null;
-    
-    return (
-      <div className="flex items-center space-x-2 px-3 py-1.5 bg-neutral-800 rounded-lg">
-        <Download className="w-4 h-4 text-orange-400" />
-        <span className="text-sm text-neutral-300">
-          {remaining}/10 downloads left today
-        </span>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-black text-white">
