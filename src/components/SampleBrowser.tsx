@@ -632,7 +632,7 @@ export default function SampleBrowser({
                         <button
                           onClick={() => {
                             setSelectedSample(sample);
-                            setShowLicenseModal(true);
+                            console.log('License clicked for:', sample.name); // or just remove the onClick entirely
                           }}
                           className="flex-1 sm:flex-none px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-sm"
                         >
