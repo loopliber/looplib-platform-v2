@@ -219,22 +219,12 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const sortedSamples = useMemo(() => {
     let result = [...filteredSamples];
     
-    if (sortBy === 'newest') {
-      result.sort((a, b) => {
-        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return dateB - dateA;
-      });
-    } else if (sortBy === 'oldest') {
-      result.sort((a, b) => {
-        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return dateA - dateB;
-      });
-    } else if (sortBy === 'bpm-low') {
+    if (sortBy === 'popular') {
+      // Sort by some popularity metric (likes, downloads, etc.)
+      result.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    } else if (sortBy === 'bpm') {
+      // Sort by BPM
       result.sort((a, b) => (a.bpm || 0) - (b.bpm || 0));
-    } else if (sortBy === 'bpm-high') {
-      result.sort((a, b) => (b.bpm || 0) - (a.bpm || 0));
     }
 
     return shuffleArray(result);
