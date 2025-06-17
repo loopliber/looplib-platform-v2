@@ -28,20 +28,18 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Get GA ID from environment variables
+  // Keep existing GA_ID logic
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
     <html lang="en">
       <head>
-        {/* Your new Google Analytics - add this section */}
-        <Script
-          strategy="afterInteractive"
+        {/* Fixed Google Analytics - replace the existing Script components with regular script tags */}
+        <script
+          async
           src="https://www.googletagmanager.com/gtag/js?id=GT-M69HVS83"
         />
-        <Script
-          id="gtag-init-new"
-          strategy="afterInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -52,7 +50,7 @@ export default function RootLayout({
           }}
         />
 
-        {/* Keep existing Google Analytics - Only load in production with valid GA_ID */}
+        {/* Keep your existing conditional Google Analytics setup */}
         {GA_ID && process.env.NODE_ENV === 'production' && (
           <>
             <Script
@@ -77,6 +75,7 @@ export default function RootLayout({
           </>
         )}
       </head>
+      {/* Keep everything else exactly the same */}
       <body className={inter.className}>
         <Header />
         {children}
@@ -84,9 +83,9 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#171717',
-              color: '#fff',
-              border: '1px solid #262626',
+              background: '#1f2937',
+              color: '#f9fafb',
+              border: '1px solid #374151',
             },
           }}
         />
