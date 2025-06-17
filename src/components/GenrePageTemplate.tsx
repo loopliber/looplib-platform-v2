@@ -183,25 +183,14 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   };
 
   const loadUserLikes = async () => {
-    if (isFetchingLikes) return;
     setIsFetchingLikes(true);
     
-    const userIdentifier = getUserIdentifier();
-    
     try {
-      const { data, error } = await supabase
-        .from('user_likes')
-        .select('sample_id')
-        .eq('user_identifier', userIdentifier);
-
-      if (error) throw error;
-      
-      const likedIds = new Set<string>(
-        data?.map((like: { sample_id: string }) => like.sample_id) || []
-      );
-      setLikedSamples(likedIds);
+      // Simplified without user identity tracking - just set empty likes
+      setLikedSamples(new Set());
     } catch (error) {
       console.error('Error loading likes:', error);
+      setLikedSamples(new Set());
     } finally {
       setIsFetchingLikes(false);
     }
@@ -261,41 +250,18 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   };
 
   const toggleLike = async (sampleId: string) => {
-    const userIdentifier = getUserIdentifier();
     const isLiked = likedSamples.has(sampleId);
-
-    try {
-      if (isLiked) {
-        const { error } = await supabase
-          .from('user_likes')
-          .delete()
-          .eq('user_identifier', userIdentifier)
-          .eq('sample_id', sampleId);
-        
-        if (error) throw error;
-        
-        setLikedSamples(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(sampleId);
-          return newSet;
-        });
-        toast.success('Removed from liked samples');
-      } else {
-        const { error } = await supabase
-          .from('user_likes')
-          .upsert({
-            user_identifier: userIdentifier,
-            sample_id: sampleId
-          });
-        
-        if (error) throw error;
-        
-        setLikedSamples(prev => new Set(prev).add(sampleId));
-        toast.success('Added to liked samples');
-      }
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      toast.error('Failed to update like');
+    
+    if (isLiked) {
+      setLikedSamples(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(sampleId);
+        return newSet;
+      });
+      toast.success('Removed from liked samples');
+    } else {
+      setLikedSamples(prev => new Set(prev).add(sampleId));
+      toast.success('Added to liked samples');
     }
   };
 
