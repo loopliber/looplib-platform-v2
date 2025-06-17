@@ -367,7 +367,7 @@ export default function SampleBrowser({
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <a
-                  href="https://www.shop.looplib.com"
+                  href="https://shop.looplib.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full text-sm font-medium transition-colors"
