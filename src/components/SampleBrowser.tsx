@@ -73,6 +73,7 @@ export default function SampleBrowser({
   // UI state
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   
   // User state
   const [user, setUser] = useState<any>(null);
