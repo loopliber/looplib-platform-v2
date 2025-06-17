@@ -221,7 +221,8 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     let result = [...filteredSamples];
     
     if (sortBy === 'popular') {
-      result.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      // Sort by name alphabetically since likes property doesn't exist
+      result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'newest') {
       result.sort((a, b) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
