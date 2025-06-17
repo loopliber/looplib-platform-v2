@@ -6,7 +6,7 @@ interface DownloadRecord {
   timestamp: number;
 }
 
-const DAILY_DOWNLOAD_LIMIT = 4; // Changed from 10 to 4
+const DAILY_DOWNLOAD_LIMIT = 4;
 const DOWNLOAD_RESET_HOURS = 24;
 
 // Get downloads from localStorage
@@ -93,56 +93,5 @@ export const getTimeUntilReset = (): string => {
     return `${hours}h ${minutes}m`;
   } else {
     return `${minutes}m`;
-  }
-};
-
-// In src/components/SampleBrowser.tsx, find handleFreeDownload function and replace the limit check:
-
-// Around line 330, replace the download limit check with:
-const handleFreeDownload = async (sample: Sample) => {
-  setDownloadingId(sample.id);
-  
-  try {
-    // Remove all download limit checks - unlimited for everyone
-    
-    const extension = sample.file_url.split('.').pop() || 'mp3';
-    const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
-    const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-    const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
-
-    await downloadFile(sample.file_url, downloadFilename);
-
-    toast.success('Download complete!');
-    
-  } catch (error) {
-    console.error('Download error:', error);
-    toast.error('Failed to download sample');
-  } finally {
-    setDownloadingId(null);
-  }
-};
-
-// In src/components/GenrePageTemplate.tsx, find handleFreeDownload and do the same:
-
-const handleFreeDownload = async (sample: Sample) => {
-  setDownloadingId(sample.id);
-
-  try {
-    // Remove all download limit checks - unlimited for everyone
-    
-    const extension = sample.file_url.split('.').pop() || 'mp3';
-    const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
-    const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-    const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted}_${config.genreSlug} @LOOPLIB.${extension}`;
-
-    await downloadFile(sample.file_url, downloadFilename);
-
-    toast.success('Download complete!');
-    
-  } catch (error) {
-    console.error('Download error:', error);
-    toast.error('Failed to download sample');
-  } finally {
-    setDownloadingId(null);
   }
 };
