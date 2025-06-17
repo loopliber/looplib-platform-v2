@@ -617,7 +617,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                       <button
                         onClick={() => {
                           setSelectedSample(sample);
-                          setShowLicenseModal(true);
+                          console.log('License clicked for:', sample.name); // or just remove the onClick entirely
                         }}
                         className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
                       >
