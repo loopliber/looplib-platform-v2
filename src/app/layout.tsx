@@ -28,12 +28,31 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Get GA ID from environment variables
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
     <html lang="en">
       <head>
-        {/* Google Analytics - Only load in production with valid GA_ID */}
+        {/* Your new Google Analytics - add this section */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=GT-M69HVS83"
+        />
+        <Script
+          id="gtag-init-new"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'GT-M69HVS83');
+            `,
+          }}
+        />
+
+        {/* Keep existing Google Analytics - Only load in production with valid GA_ID */}
         {GA_ID && process.env.NODE_ENV === 'production' && (
           <>
             <Script
