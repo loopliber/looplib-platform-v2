@@ -8,6 +8,7 @@ export interface Artist {
 }
 
 export interface Sample {
+  likes: number;
   id: string;
   name: string;
   artist?: {

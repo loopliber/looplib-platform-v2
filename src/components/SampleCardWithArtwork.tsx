@@ -215,11 +215,11 @@ export default function SampleCardWithArtwork({
                 )}
               </button>
               <button
-                onClick={onLicense}
-                className="px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md text-xs transition-colors"
-              >
-                License
-              </button>
+              onClick={onLicense}
+              className="flex-1 px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded text-xs transition-colors"
+            >
+              Terms
+            </button>
             </div>
           </div>
         </div>

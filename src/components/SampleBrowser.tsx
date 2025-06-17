@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import TermsModal from './TermsModal';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
