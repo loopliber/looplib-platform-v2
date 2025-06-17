@@ -11,8 +11,6 @@ import {
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
-import AuthModal from '@/components/AuthModal';
-import LicenseModal from '@/components/LicenseModal';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -77,12 +75,10 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'bpm'>('popular');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
-  const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [purchasingLicense, setPurchasingLicense] = useState<string | null>(null);
   const [displayedSampleCount, setDisplayedSampleCount] = useState(12);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
   const [shuffleKey, setShuffleKey] = useState(0);
   const [user, setUser] = useState<any>(null);
@@ -683,23 +679,6 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
           </div>
         </section>
       </div>
-
-      {/* License Modal */}
-      <LicenseModal
-        isOpen={showLicenseModal}
-        onClose={() => setShowLicenseModal(false)}
-        sample={selectedSample}
-        onPurchase={handleLicensePurchase}
-      />
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={() => {
-          checkUser();
-        }}
-      />
     </div>
   );
 }

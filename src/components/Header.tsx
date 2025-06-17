@@ -5,12 +5,9 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { User, LogOut, Menu, X, Zap, Sparkles, Heart, ShoppingBag, Folder } from 'lucide-react';
 import toast from 'react-hot-toast';
-import AuthModal from './AuthModal';
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [producerName, setProducerName] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
@@ -337,21 +334,6 @@ export default function Header() {
           )}
         </div>
       </header>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={async (user) => {
-          setUser(user);
-          setShowAuthModal(false);
-          toast.success('Welcome to LoopLib!');
-          // Fetch profile after successful auth
-          if (user) {
-            await fetchOrCreateProfile(user);
-          }
-        }}
-      />
     </>
   );
 }

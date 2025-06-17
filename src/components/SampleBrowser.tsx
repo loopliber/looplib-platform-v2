@@ -11,11 +11,9 @@ import {
 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
-import AuthModal from './AuthModal';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import LicenseModal from '@/components/LicenseModal';
 import { getUserIdentifier } from '@/utils/user-identity';
 import { 
   canDownload, 
@@ -24,7 +22,6 @@ import {
   hasUnlimitedDownloads,
   hasDownloadedToday 
 } from '@/utils/download-limit';
-import DownloadLimitModal from './DownloadLimitModal';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
@@ -76,10 +73,6 @@ export default function SampleBrowser({
   // UI state
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
-  const [showLicenseModal, setShowLicenseModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [showDownloadLimitModal, setShowDownloadLimitModal] = useState(false);
   
   // User state
   const [user, setUser] = useState<any>(null);
@@ -780,33 +773,6 @@ export default function SampleBrowser({
           </div>
         </>
       )}
-
-      {/* Modals */}
-      <LicenseModal
-        isOpen={showLicenseModal}
-        onClose={() => setShowLicenseModal(false)}
-        sample={selectedSample}
-        onPurchase={handleLicensePurchase}
-      />
-
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={() => {
-          checkUser();
-          setShowAuthModal(false);
-        }}
-      />
-
-      {/* Download Limit Modal */}
-      <DownloadLimitModal
-        isOpen={showDownloadLimitModal}
-        onClose={() => setShowDownloadLimitModal(false)}
-        onSignUp={() => {
-          setShowDownloadLimitModal(false);
-          setShowAuthModal(true);
-        }}
-      />
     </div>
   );
 }
