@@ -61,6 +61,12 @@ interface GenrePageTemplateProps {
 }
 
 export default function GenrePageTemplate({ config, initialSamples = [] }: GenrePageTemplateProps) {
+  // Move constants to the top, before state variables
+  const SAMPLES_PER_PAGE = 12;
+  const supabase = createClient();
+  const Icon = config.icon;
+
+  // Now declare state variables
   const [samples, setSamples] = useState<Sample[]>(initialSamples);
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(false);
@@ -76,16 +82,9 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [displayedSampleCount, setDisplayedSampleCount] = useState(SAMPLES_PER_PAGE);
   const [shuffleKey, setShuffleKey] = useState(0);
 
-  // Remove user state and related logic
-  // const [user, setUser] = useState<any>(null);
-
   // Add these state variables to track ongoing requests
   const [isFetchingLikes, setIsFetchingLikes] = useState(false);
   const [isFetchingLicenses, setIsFetchingLicenses] = useState(false);
-
-  const SAMPLES_PER_PAGE = 12;
-  const supabase = createClient();
-  const Icon = config.icon;
 
   // Initialize component with better error handling
   useEffect(() => {
