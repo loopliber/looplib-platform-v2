@@ -220,9 +220,17 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     let result = [...filteredSamples];
     
     if (sortBy === 'newest') {
-      result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      result.sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      });
     } else if (sortBy === 'oldest') {
-      result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      result.sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateA - dateB;
+      });
     } else if (sortBy === 'bpm-low') {
       result.sort((a, b) => (a.bpm || 0) - (b.bpm || 0));
     } else if (sortBy === 'bpm-high') {
@@ -230,7 +238,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     }
 
     return shuffleArray(result);
-  }, [filteredSamples, sortBy]); // Remove 'shuffleKey' from here
+  }, [filteredSamples, sortBy]);
 
   const displayedSamples = sortedSamples.slice(0, displayedSampleCount);
 
