@@ -219,23 +219,18 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const sortedSamples = useMemo(() => {
     let result = [...filteredSamples];
     
-    switch(sortBy) {
-      case 'popular':
-        result.sort((a, b) => (b.downloads ?? 0) - (a.downloads ?? 0));
-        break;
-      case 'newest':
-        result.sort(
-          (a, b) =>
-            new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
-        );
-        break;
-      case 'bpm':
-        result.sort((a, b) => a.bpm - b.bpm);
-        break;
+    if (sortBy === 'newest') {
+      result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    } else if (sortBy === 'oldest') {
+      result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    } else if (sortBy === 'bpm-low') {
+      result.sort((a, b) => (a.bpm || 0) - (b.bpm || 0));
+    } else if (sortBy === 'bpm-high') {
+      result.sort((a, b) => (b.bpm || 0) - (a.bpm || 0));
     }
-    
+
     return shuffleArray(result);
-  }, [filteredSamples, sortBy, shuffleKey]);
+  }, [filteredSamples, sortBy]); // Remove 'shuffleKey' from here
 
   const displayedSamples = sortedSamples.slice(0, displayedSampleCount);
 
