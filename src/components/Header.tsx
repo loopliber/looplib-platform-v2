@@ -1,166 +1,132 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 import Link from 'next/link';
-import { LogOut, Menu, X, Zap, Sparkles, Heart, ShoppingBag, Folder } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { Menu, X, Zap, Sparkles, Heart, ShoppingBag } from 'lucide-react';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const supabase = createClient();
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success('Logged out successfully');
-      setMobileMenuOpen(false);
-    } catch (error) {
-      toast.error('Error logging out');
-    }
-  };
 
   return (
-    <>
-      <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <img 
-                  src="https://cdn.shopify.com/s/files/1/0816/1257/0973/files/aed347ef-bf6d-4634-9fcc-c94fd42726f3.png?v=1749219551"
-                  alt="LoopLib"
-                  className="h-6 sm:h-8 w-auto"
-                />
-              </Link>
-            </div>
+    <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center">
+              <img 
+                src="https://cdn.shopify.com/s/files/1/0816/1257/0973/files/aed347ef-bf6d-4634-9fcc-c94fd42726f3.png?v=1749219551"
+                alt="LoopLib"
+                className="h-6 sm:h-8 w-auto"
+              />
+            </Link>
+          </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link 
+              href="/"
+              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
+            >
+              Home
+            </Link>
+            <Link 
+              href="/samples/trap"
+              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+            >
+              <Zap className="w-4 h-4" />
+              <span>Trap</span>
+            </Link>
+            <Link 
+              href="/samples/rnb"
+              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>R&B</span>
+            </Link>
+            <Link 
+              href="/samples/soul"
+              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+            >
+              <Heart className="w-4 h-4" />
+              <span>Soul</span>
+            </Link>
+            <a
+              href="https://shop.looplib.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Shop</span>
+            </a>
+          </nav>
+
+          {/* Desktop Right Side - Just branding */}
+          <div className="hidden md:flex items-center space-x-4">
+            <span className="text-sm text-neutral-400">
+              100% Free Samples
+            </span>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-neutral-400 hover:text-white"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-neutral-800">
+            <nav className="px-2 pt-2 pb-3 space-y-1">
               <Link 
-                href="/" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
                 Home
               </Link>
               <Link 
-                href="/samples/trap" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+                href="/samples/trap"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
                 <Zap className="w-4 h-4" />
                 <span>Trap</span>
               </Link>
               <Link 
-                href="/samples/rnb" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+                href="/samples/rnb"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>R&B</span>
               </Link>
               <Link 
-                href="/samples/soul" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+                href="/samples/soul"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
                 <Heart className="w-4 h-4" />
                 <span>Soul</span>
-              </Link>
-              <Link 
-                href="/packs" 
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
-              >
-                <Folder className="w-4 h-4" />
-                <span>Packs</span>
               </Link>
               <a 
                 href="https://shop.looplib.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Shop</span>
               </a>
             </nav>
-
-            {/* Desktop User Section */}
-            <div className="hidden md:flex items-center space-x-4">
-              <button
-                onClick={handleLogout}
-                className="text-neutral-400 hover:text-white transition-colors flex items-center space-x-1"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-neutral-400 hover:text-white"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-neutral-800">
-              <nav className="px-2 pt-2 pb-3 space-y-1">
-                <Link 
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  Home
-                </Link>
-                <Link 
-                  href="/samples/trap"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  <Zap className="w-4 h-4" />
-                  <span>Trap</span>
-                </Link>
-                <Link 
-                  href="/samples/rnb"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>R&B</span>
-                </Link>
-                <Link 
-                  href="/samples/soul"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Soul</span>
-                </Link>
-                <Link 
-                  href="/packs"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  <Folder className="w-4 h-4" />
-                  <span>Packs</span>
-                </Link>
-                <a 
-                  href="https://shop.looplib.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Shop</span>
-                </a>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
-    </>
+        )}
+      </div>
+    </header>
   );
 }
