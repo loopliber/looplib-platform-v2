@@ -73,6 +73,8 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [displayedSampleCount, setDisplayedSampleCount] = useState(SAMPLES_PER_PAGE);
+  const [shuffleKey, setShuffleKey] = useState(0);
 
   // Remove user state and related logic
   // const [user, setUser] = useState<any>(null);
@@ -220,10 +222,14 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     let result = [...filteredSamples];
     
     if (sortBy === 'popular') {
-      // Sort by some popularity metric (likes, downloads, etc.)
       result.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    } else if (sortBy === 'newest') {
+      result.sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      });
     } else if (sortBy === 'bpm') {
-      // Sort by BPM
       result.sort((a, b) => (a.bpm || 0) - (b.bpm || 0));
     }
 
