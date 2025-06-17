@@ -329,21 +329,8 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
     setDownloadingId(sample.id);
 
     try {
-      // Check download limits for anonymous users
-      if (!user && anonymousDownloads >= 1) {
-        setShowAuthModal(true);
-        setDownloadingId(null);
-        toast.error('Please create an account to continue downloading');
-        return;
-      }
+      // Remove all download limit checks - unlimited for everyone
       
-      // Update anonymous download counter
-      if (!user) {
-        const newCount = anonymousDownloads + 1;
-        setAnonymousDownloads(newCount);
-        localStorage.setItem('anonymous_downloads', newCount.toString());
-      }
-
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
@@ -351,25 +338,8 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
       await downloadFile(sample.file_url, downloadFilename);
 
-      const userEmail = user?.email || 'anonymous@looplib.com';
-      await fetch('/api/download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sampleId: sample.id, email: userEmail }),
-      });
-
-      if (user) {
-        toast.success('Download complete! Check your downloads folder.');
-      } else {
-        if (anonymousDownloads === 0) {
-          toast.success('First download complete! Create an account for unlimited downloads! 🎵', {
-            duration: 5000
-          });
-        } else {
-          toast.success('Download complete! Check your downloads folder.');
-        }
-      }
-
+      toast.success('Download complete!');
+      
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Failed to download sample');

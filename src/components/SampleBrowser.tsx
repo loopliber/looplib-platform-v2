@@ -316,73 +316,16 @@ export default function SampleBrowser({
     setDownloadingId(sample.id);
     
     try {
-      // Check if user has unlimited downloads (premium feature)
-      const hasUnlimited = user && hasUnlimitedDownloads(user);
+      // Remove all download limit checks - unlimited for everyone
       
-      if (!hasUnlimited) {
-        // Check download limit
-        if (!canDownload()) {
-          setShowDownloadLimitModal(true);
-          setDownloadingId(null);
-          return;
-        }
-        
-        // Check if they already downloaded this sample today
-        if (hasDownloadedToday(sample.id)) {
-          toast.error('You already downloaded this sample today!', {
-            icon: '⏰',
-            duration: 3000
-          });
-          setDownloadingId(null);
-          return;
-        }
-      }
-
-      // Check anonymous download limits (1 download for non-users)
-      if (!user && anonymousDownloads >= 1) {
-        setShowAuthModal(true);
-        setDownloadingId(null);
-        toast.error('Please create an account to continue downloading');
-        return;
-      }
-      
-      // Rest of your existing download logic...
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
       const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
-      
-      await downloadFile(sample.file_url, downloadFilename);
-      
-      // Record the download for limit tracking
-      if (!hasUnlimited) {
-        recordDownload(sample.id);
-      }
-      
-      // Track in your API
-      const userEmail = user?.email || 'anonymous@looplib.com';
-      await fetch('/api/download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          sampleId: sample.id,
-          email: userEmail
-        })
-      });
 
-      // Show remaining downloads in toast
-      const remaining = getRemainingDownloads();
-      if (!hasUnlimited && remaining > 0) {
-        toast.success(`Download complete! ${remaining} downloads left today 🎵`, {
-          duration: 4000
-        });
-      } else if (!hasUnlimited && remaining === 0) {
-        toast.success('Download complete! That\'s all for today - see you tomorrow! 🌙', {
-          duration: 5000
-        });
-      } else {
-        toast.success('Download complete! Check your downloads folder.');
-      }
+      await downloadFile(sample.file_url, downloadFilename);
+
+      toast.success('Download complete!');
       
     } catch (error) {
       console.error('Download error:', error);
