@@ -90,6 +90,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
   // Add state for terms modal around line 90:
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [hasSeenTerms, setHasSeenTerms] = useState(false);
 
   // Initialize component with better error handling
   useEffect(() => {
@@ -270,18 +271,26 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   };
 
   const handleFreeDownload = async (sample: Sample) => {
-    setDownloadingId(sample.id);
+    // Check if user has seen terms on first download
+    if (!hasSeenTerms) {
+      const seenTerms = localStorage.getItem('hasSeenTerms');
+      if (!seenTerms) {
+        setSelectedSample(sample);
+        setShowTermsModal(true);
+        return; // Don't proceed with download yet
+      }
+      setHasSeenTerms(true);
+    }
 
+    setDownloadingId(sample.id);
+    
     try {
-      // Remove all download limit checks - unlimited for everyone
-      
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted}_${config.genreSlug} @LOOPLIB.${extension}`;
+      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
 
       await downloadFile(sample.file_url, downloadFilename);
-
       toast.success('Download complete!');
       
     } catch (error) {
@@ -538,7 +547,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                       <button
                         onClick={() => {
                           setSelectedSample(sample);
-                          setShowTermsModal(true); // Show terms modal instead of console.log
+                          setShowTermsModal(true);
                         }}
                         className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
                       >
@@ -606,6 +615,15 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
         isOpen={showTermsModal}
         onClose={() => setShowTermsModal(false)}
         sampleName={selectedSample?.name || ''}
+        onAccept={() => {
+          localStorage.setItem('hasSeenTerms', 'true');
+          setHasSeenTerms(true);
+          setShowTermsModal(false);
+          
+          if (selectedSample) {
+            handleFreeDownload(selectedSample);
+          }
+        }}
       />
     </div>
   );

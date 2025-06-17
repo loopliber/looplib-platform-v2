@@ -8,9 +8,10 @@ interface TermsModalProps {
   isOpen: boolean;
   onClose: () => void;
   sampleName: string;
+  onAccept?: () => void;
 }
 
-export default function TermsModal({ isOpen, onClose, sampleName }: TermsModalProps) {
+export default function TermsModal({ isOpen, onClose, sampleName, onAccept }: TermsModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -110,7 +111,7 @@ export default function TermsModal({ isOpen, onClose, sampleName }: TermsModalPr
               Close
             </button>
             <button
-              onClick={onClose}
+              onClick={onAccept || onClose}
               className="flex-1 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-sm font-medium"
             >
               I Understand

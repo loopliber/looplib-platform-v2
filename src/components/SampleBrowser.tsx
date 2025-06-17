@@ -65,6 +65,7 @@ export default function SampleBrowser({
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [hasSeenTerms, setHasSeenTerms] = useState(false);
   
   // User state
   const [user, setUser] = useState<any>(null);
@@ -258,18 +259,26 @@ export default function SampleBrowser({
   };
 
   const handleFreeDownload = async (sample: Sample) => {
+    // Check if user has seen terms on first download
+    if (!hasSeenTerms) {
+      const seenTerms = localStorage.getItem('hasSeenTerms');
+      if (!seenTerms) {
+        setSelectedSample(sample);
+        setShowTermsModal(true);
+        return; // Don't proceed with download yet
+      }
+      setHasSeenTerms(true);
+    }
+
     setDownloadingId(sample.id);
     
     try {
-      // Remove all download limit checks - unlimited for everyone
-      
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
       const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
 
       await downloadFile(sample.file_url, downloadFilename);
-
       toast.success('Download complete!');
       
     } catch (error) {
@@ -687,6 +696,15 @@ export default function SampleBrowser({
         isOpen={showTermsModal}
         onClose={() => setShowTermsModal(false)}
         sampleName={selectedSample?.name || ''}
+        onAccept={() => {
+          localStorage.setItem('hasSeenTerms', 'true');
+          setHasSeenTerms(true);
+          setShowTermsModal(false);
+          
+          if (selectedSample) {
+            handleFreeDownload(selectedSample);
+          }
+        }}
       />
     </div>
   );
