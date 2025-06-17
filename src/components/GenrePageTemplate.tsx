@@ -88,6 +88,9 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [isFetchingLikes, setIsFetchingLikes] = useState(false);
   const [isFetchingLicenses, setIsFetchingLicenses] = useState(false);
 
+  // Add state for terms modal around line 90:
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
   // Initialize component with better error handling
   useEffect(() => {
     let mounted = true;
@@ -535,7 +538,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                       <button
                         onClick={() => {
                           setSelectedSample(sample);
-                          console.log('License clicked for:', sample.name); // or just remove the onClick entirely
+                          setShowTermsModal(true); // Show terms modal instead of console.log
                         }}
                         className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
                       >
@@ -597,6 +600,13 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
           </div>
         </section>
       </div>
+
+      {/* Terms Modal - Add this component for terms and conditions */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        sampleName={selectedSample?.name || ''}
+      />
     </div>
   );
 }

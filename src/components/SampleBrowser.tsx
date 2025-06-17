@@ -64,6 +64,7 @@ export default function SampleBrowser({
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   
   // User state
   const [user, setUser] = useState<any>(null);
@@ -538,7 +539,7 @@ export default function SampleBrowser({
                         <button
                           onClick={() => {
                             setSelectedSample(sample);
-                            console.log('License clicked for:', sample.name); // or just remove the onClick entirely
+                            setShowTermsModal(true);
                           }}
                           className="flex-1 sm:flex-none px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-sm"
                         >
@@ -680,6 +681,13 @@ export default function SampleBrowser({
           </div>
         </>
       )}
+
+      {/* Terms Modal - add this section */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        sampleName={selectedSample?.name || ''}
+      />
     </div>
   );
 }
