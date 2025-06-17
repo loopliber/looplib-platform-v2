@@ -9,7 +9,6 @@ import {
   Play, Pause, Download, Heart, Search, 
   Music, X, Loader2, Filter, Shuffle, Zap, Sparkles
 } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
@@ -30,8 +29,6 @@ const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), {
     <div className="w-full h-10 bg-neutral-800 rounded animate-pulse" />
   )
 });
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -129,9 +126,7 @@ export default function SampleBrowser({
 
   const checkUser = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      setUser(user);
+      // Removed auth user checking
     } catch (error) {
       console.error('Error checking user:', error);
     }
@@ -335,34 +330,7 @@ export default function SampleBrowser({
     setPurchasingLicense(license.id);
     
     try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sampleId: selectedSample.id,
-          licenseId: license.id,
-          sampleName: selectedSample.name,
-          licenseName: license.name,
-          amount: license.price
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const { sessionId } = await response.json();
-      
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Stripe failed to load');
-      }
-
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-      
-      if (error) {
-        throw error;
-      }
+      // Removed Stripe checkout code
     } catch (error) {
       console.error('Purchase error:', error);
       toast.error('Failed to process payment');

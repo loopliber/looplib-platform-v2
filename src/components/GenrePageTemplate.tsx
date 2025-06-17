@@ -9,7 +9,6 @@ import {
   TrendingUp, Clock, Hash, User, LogOut, Shuffle,
   LucideIcon
 } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
 import toast from 'react-hot-toast';
 import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
@@ -22,8 +21,6 @@ const WaveformPlayer = dynamic(() => import('@/components/WaveformPlayer'), {
     <div className="w-full h-12 bg-neutral-800 rounded animate-pulse" />
   )
 });
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -77,14 +74,14 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [likedSamples, setLikedSamples] = useState<Set<string>>(new Set());
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [purchasingLicense, setPurchasingLicense] = useState<string | null>(null);
   const [displayedSampleCount, setDisplayedSampleCount] = useState(12);
   const [anonymousDownloads, setAnonymousDownloads] = useState(0);
   const [shuffleKey, setShuffleKey] = useState(0);
-  const [user, setUser] = useState<any>(null);
+
+  // Remove user state and related logic
+  // const [user, setUser] = useState<any>(null);
 
   // Add these state variables to track ongoing requests
-  const [isCheckingUser, setIsCheckingUser] = useState(false);
   const [isFetchingLikes, setIsFetchingLikes] = useState(false);
   const [isFetchingLicenses, setIsFetchingLicenses] = useState(false);
 
@@ -112,8 +109,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
           // Fetch other data in parallel ONLY ONCE
           await Promise.allSettled([
             fetchLicenses(),
-            loadUserLikes(),
-            checkUser()
+            loadUserLikes()
           ]);
           
           if (mounted && typeof window !== 'undefined') {
@@ -145,20 +141,6 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
       mounted = false;
     };
   }, []); // Empty dependency array - run only once
-
-  const checkUser = async () => {
-    if (isCheckingUser) return;
-    setIsCheckingUser(true);
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    } catch (error) {
-      console.error('Error checking user:', error);
-    } finally {
-      setIsCheckingUser(false);
-    }
-  };
 
   const fetchGenreSamples = async () => {
   try {
@@ -347,35 +329,11 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
   const handleLicensePurchase = async (license: License) => {
     if (!selectedSample) return;
     
-    setPurchasingLicense(license.id);
+    // Since we're removing payments, just show a message or redirect to external store
+    toast.success(`License info for ${license.name} - Visit our shop for licensing!`);
     
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sampleId: selectedSample.id,
-          licenseId: license.id,
-          sampleName: selectedSample.name,
-          licenseName: license.name,
-          amount: license.price
-        })
-      });
-
-      const { sessionId } = await response.json();
-      
-      const stripe = await stripePromise;
-      const { error } = await stripe!.redirectToCheckout({ sessionId });
-      
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Purchase error:', error);
-      toast.error('Failed to process payment');
-    } finally {
-      setPurchasingLicense(null);
-    }
+    // Optional: redirect to external shop
+    window.open('https://shop.looplib.com', '_blank');
   };
 
   const EssentialIcon = config.educationalContent.essentialElements.icon;
