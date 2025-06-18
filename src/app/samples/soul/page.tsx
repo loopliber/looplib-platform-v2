@@ -9,6 +9,7 @@ const soulConfig: GenrePageConfig = {
   title: 'Royalty Free Soul Samples & Loops',
   subtitle: 'Soulful melodies and grooves • 70-120 BPM • Instant download',
   metaDescription: 'Download free soul melody samples and loops. Classic soul sounds, warm organs, and vintage vibes for soul music production. Royalty-free with commercial licenses.',
+  heroImage: 'https://cdn.shopify.com/s/files/1/0816/1257/0973/files/trap-hero.jpg', // Add hero image
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },
     { id: '70-80', label: '70-80 BPM', min: 70, max: 80 },

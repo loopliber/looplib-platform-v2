@@ -15,7 +15,6 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import TermsModal from '@/components/TermsModal';
 
-
 const WaveformPlayer = dynamic(() => import('@/components/WaveformPlayer'), { 
   ssr: false,
   loading: () => (
@@ -38,6 +37,7 @@ export interface GenrePageConfig {
   title: string;
   subtitle: string;
   metaDescription: string;
+  heroImage?: string; // Add hero image option
   bpmRanges: Array<{ id: string; label: string; min: number; max: number }>;
   commonTags: string[];
   heroGradient: string;
@@ -322,22 +322,57 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Hero Section - Minimal */}
-      <section className={`bg-gradient-to-b ${config.heroGradient} to-black border-b border-neutral-800`}>
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{config.title}</h1>
-              <p className="text-neutral-400">{config.subtitle}</p>
+      {/* Enhanced Hero Section with Image */}
+      <section className="relative overflow-hidden">
+        {config.heroImage ? (
+          <>
+            {/* Hero Image Background */}
+            <div className="absolute inset-0 h-[500px]">
+              <img 
+                src={config.heroImage} 
+                alt={`${config.genre} Hero`}
+                className="w-full h-full object-cover"
+              />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black" />
             </div>
-            <div className="hidden md:flex items-center space-x-4">
+            
+            {/* Hero Content */}
+            <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 sm:py-32">
+              <div className="text-center max-w-3xl mx-auto">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 text-white drop-shadow-lg">
+                  {config.title}
+                </h1>
+                <p className="text-lg sm:text-xl text-white/90 mb-8 drop-shadow-md">
+                  {config.subtitle}
+                </p>
+                
+                {/* Stats */}
+                <div className="flex justify-center items-center space-x-8 text-white">
+                  <div>
+                    <p className="text-3xl font-bold text-orange-400">{samples.length}</p>
+                    <p className="text-sm">Free Samples</p>
+                  </div>
+                  <div className="w-px h-12 bg-white/30" />
+                  <div>
+                    <p className="text-3xl font-bold text-orange-400">100%</p>
+                    <p className="text-sm">Royalty Free</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* Fallback to gradient if no image */
+          <div className={`bg-gradient-to-b ${config.heroGradient} to-black`}>
+            <div className="max-w-7xl mx-auto px-6 py-12 sm:py-16">
               <div className="text-center">
-                <p className="text-2xl font-bold text-orange-400">100%</p>
-                <p className="text-xs text-neutral-400">Royalty Free</p>
+                <h1 className="text-4xl sm:text-5xl font-bold mb-4">{config.title}</h1>
+                <p className="text-lg text-neutral-300">{config.subtitle}</p>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Main Content */}
