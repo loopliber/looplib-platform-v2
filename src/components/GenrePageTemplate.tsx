@@ -350,7 +350,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                 {/* Stats */}
                 <div className="flex justify-center items-center space-x-8 text-white">
                   <div>
-                    <p className="text-3xl font-bold text-orange-400">{samples.length}</p>
+                    <p className="text-3xl font-bold text-orange-400">100+</p>
                     <p className="text-sm">Free Samples</p>
                   </div>
                   <div className="w-px h-12 bg-white/30" />
