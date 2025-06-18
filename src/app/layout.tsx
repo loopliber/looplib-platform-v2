@@ -1,8 +1,10 @@
+// src/app/layout.tsx
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import Header from '@/components/Header';
+import AnnouncementBar from '@/components/AnnouncementBar';
 import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -77,6 +79,7 @@ export default function RootLayout({
       </head>
       {/* Keep everything else exactly the same */}
       <body className={inter.className}>
+        <AnnouncementBar />
         <Header />
         {children}
         <Toaster 
