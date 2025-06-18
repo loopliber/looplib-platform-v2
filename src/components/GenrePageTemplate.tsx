@@ -601,7 +601,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
                   onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
                   className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
                 >
-                  Load More {config.genre} Samples ({sortedSamples.length - displayedSampleCount} remaining)
+                  Load More {config.genre} Samples)
                 </button>
               </div>
             )}
