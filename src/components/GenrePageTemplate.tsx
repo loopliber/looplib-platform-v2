@@ -437,7 +437,7 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
               {displayedSamples.map((sample) => (
-                <div key={sample.id} className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-3 sm:p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all">
+                <div key={sample.id} className="group bg-neutral-800/80 border border-neutral-700 rounded-lg p-3 sm:p-4 hover:bg-neutral-800 hover:border-neutral-600 transition-all">
                   {/* Add artwork section */}
                   <div className="flex gap-3 mb-3">
                     {/* Album artwork */}

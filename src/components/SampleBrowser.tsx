@@ -441,7 +441,7 @@ export default function SampleBrowser({
                 {displayedSamples.map((sample) => (
                   <div 
                     key={sample.id} 
-                    className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
+                    className="group bg-neutral-800/80 border border-neutral-700 rounded-lg p-4 hover:bg-neutral-800 hover:border-neutral-600 transition-all"
                   >
                     {/* Add artwork section */}
                     <div className="flex gap-3 mb-3">
