@@ -323,12 +323,17 @@ export default function SampleBrowser({
       <main className="w-full">
         {/* Hero Banner */}
         <div className="relative h-96 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: 'url(https://images.unsplash.com/photo-1626126525134-fbbc07afb32c?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)'
-            }}
-          />
+          {/* Video Background */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="https://cdn.shopify.com/videos/c/o/v/545e2bf85e4a44409cd0a27ff0c91fa6.mov" type="video/mp4" />
+          </video>
+          
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/50" />
           
