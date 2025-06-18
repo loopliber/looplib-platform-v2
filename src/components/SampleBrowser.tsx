@@ -587,22 +587,22 @@ export default function SampleBrowser({
               <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Music className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-yellow-400 mb-2">100% royalty free</h3>
-              <p className="text-sm text-neutral-400">Use your sounds anywhere, cleared for all projects</p>
+              <h3 className="text-lg font-bold text-yellow-400 mb-2">Collaborate Easy</h3>
+              <p className="text-sm text-neutral-400">Producer friendly terms</p>
             </div>
             <div>
               <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Download className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-yellow-400 mb-2">Yours forever</h3>
-              <p className="text-sm text-neutral-400">Every sound you download is yours to keep forever</p>
+              <p className="text-sm text-neutral-400">Every sound you download is yours to keep</p>
             </div>
             <div>
               <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <X className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-yellow-400 mb-2">Cancel anytime</h3>
-              <p className="text-sm text-neutral-400">No commitments here. Change your mind? No problem</p>
+              <h3 className="text-lg font-bold text-yellow-400 mb-2">Instant Download</h3>
+              <p className="text-sm text-neutral-400">No signups, no fuss</p>
             </div>
           </div>
         </div>
