@@ -338,28 +338,20 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
             </div>
             
             {/* Hero Content */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 sm:py-32">
-              <div className="text-center max-w-3xl mx-auto">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 text-white drop-shadow-lg">
+            <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
+              <div className="flex items-center justify-center mb-6">
+                <Icon className="w-12 h-12 text-orange-400 mr-4" />
+                <h1 className="text-4xl md:text-6xl font-bold text-white">
                   {config.title}
                 </h1>
-                <p className="text-lg sm:text-xl text-white/90 mb-8 drop-shadow-md">
-                  {config.subtitle}
-                </p>
-                
-                {/* Stats */}
-                <div className="flex justify-center items-center space-x-8 text-white">
-                  <div>
-                    <p className="text-3xl font-bold text-orange-400">{samples.length}</p>
-                    <p className="text-sm">Free Samples</p>
-                  </div>
-                  <div className="w-px h-12 bg-white/30" />
-                  <div>
-                    <p className="text-3xl font-bold text-orange-400">100%</p>
-                    <p className="text-sm">Royalty Free</p>
-                  </div>
+                <div className="ml-6 text-right">
+                  <div className="text-3xl md:text-4xl font-bold text-orange-400">100%</div>
+                  <div className="text-sm text-orange-300">Royalty Free</div>
                 </div>
               </div>
+              <p className="text-xl md:text-2xl text-neutral-300 mb-8">
+                {config.subtitle}
+              </p>
             </div>
           </>
         ) : (

@@ -9,6 +9,7 @@ const rnbConfig: GenrePageConfig = {
   title: 'Royalty Free R&B Samples & Loops',
   subtitle: 'Smooth R&B melodies • 60-100 BPM • Instant download',
   metaDescription: 'Download free R&B melody samples and loops. Smooth melodies, modern chords, and silky leads for R&B music production. Royalty-free with commercial licenses.',
+  heroImage: 'https://cdn.shopify.com/s/files/1/0816/1257/0973/files/hero-keys.jpg', // Add hero image (you'll want to use an R&B-specific image)
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },
     { id: '60-70', label: '60-70 BPM', min: 60, max: 70 },
@@ -47,6 +48,5 @@ const rnbConfig: GenrePageConfig = {
 };
 
 export default function RnBSamplesPage() {
-  // Remove ALL the fetching logic - let the template handle it
   return <GenrePageTemplate config={rnbConfig} initialSamples={[]} />;
 }
