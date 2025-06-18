@@ -9,6 +9,7 @@ const trapConfig: GenrePageConfig = {
   title: 'Royalty Free Trap Samples & Loops',
   subtitle: 'Hard-hitting trap melodies • 130-160 BPM • Instant download',
   metaDescription: 'Download free trap melody samples and loops. Dark melodies, hard 808s, and modern trap sounds for hip-hop production. Royalty-free with commercial licenses.',
+  heroImage: 'https://cdn.shopify.com/s/files/1/0816/1257/0973/files/hero-synth.jpg', // Add hero image (you'll want to use a trap-specific image)
   bpmRanges: [
     { id: 'all', label: 'All BPMs', min: 0, max: 999 },
     { id: '130-140', label: '130-140 BPM', min: 130, max: 140 },
