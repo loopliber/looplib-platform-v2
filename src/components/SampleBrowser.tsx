@@ -340,7 +340,7 @@ export default function SampleBrowser({
           {/* Hero Content */}
           <div className="relative z-10 flex items-center justify-center h-full">
             <div className="text-center px-4">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
                 Royalty Free Samples & Loops For Future Hits
               </h1>
               <p className="text-xl md:text-2xl text-white/90 mb-8">
