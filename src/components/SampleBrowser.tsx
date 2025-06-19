@@ -331,7 +331,7 @@ export default function SampleBrowser({
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src="https://cdn.shopify.com/videos/c/o/v/545e2bf85e4a44409cd0a27ff0c91fa6.mov" type="video/mp4" />
+            <source src="https://cdn.shopify.com/videos/c/o/v/1164a484c72e494997a983b04279c474.mov" type="video/mp4" />
           </video>
           
           {/* Dark overlay for better text readability */}
