@@ -70,8 +70,8 @@ export default function HitmakerAdCard() {
             {/* CTA section */}
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs text-neutral-500 line-through">$99</span>
-                <span className="text-lg font-bold text-white ml-2">$19</span>
+                <span className="text-xs text-neutral-500 line-through">$199</span>
+                <span className="text-lg font-bold text-white ml-2">$49.99</span>
                 <span className="text-xs text-green-400 ml-2">78% OFF</span>
               </div>
               
