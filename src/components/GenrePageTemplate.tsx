@@ -14,7 +14,6 @@ import { downloadFile } from '@/lib/download-utils';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import TermsModal from '@/components/TermsModal';
-import HitmakerAdCard from './HitmakerAdCard';
 
 const WaveformPlayer = dynamic(() => import('@/components/WaveformPlayer'), { 
   ssr: false,
@@ -472,204 +471,195 @@ export default function GenrePageTemplate({ config, initialSamples = [] }: Genre
         ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-              {displayedSamples.map((sample, index) => (
-                <React.Fragment key={sample.id}>
-                  {/* Insert ad card after 10th sample (index 9) spanning both columns */}
-                  {index === 9 && (
-                    <div className="lg:col-span-2">
-                      <HitmakerAdCard />
-                    </div>
-                  )}
-                  
-                  <div className="group bg-neutral-800/80 border border-neutral-700 rounded-lg p-3 sm:p-4 hover:bg-neutral-800 hover:border-neutral-600 transition-all">
-                    {/* Add artwork section */}
-                    <div className="flex gap-3 mb-3">
-                      {/* Album artwork */}
-                      <div className="flex-shrink-0">
-                        {sample.artwork_url ? (
-                          <img 
-                            src={sample.artwork_url} 
-                            alt={sample.pack_name || sample.name}
-                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover bg-neutral-800"
-                            onError={(e) => {
-                              console.log('Image failed to load:', sample.artwork_url);
-                              e.currentTarget.style.display = 'none';
-                              const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
-                              if (fallback && fallback.style) {
-                                fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center">
-                            <Music className="w-4 h-4 sm:w-6 sm:h-6 text-neutral-500" />
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        {/* Mobile-optimized layout */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
-                            <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
-                            <span className="text-xs sm:text-sm text-neutral-500">•</span>
-                            <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
-                            {/* Add STEMS badge here */}
-                            {sample.has_stems && (
-                              <>
-                                <span className="text-xs sm:text-sm text-neutral-500">•</span>
-                                <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
-                                  STEMS
-                                </span>
-                              </>
-                            )}
-                            {/* Add pack badge */}
-                            {sample.pack_name && (
-                              <>
-                                <span className="hidden sm:inline text-xs sm:text-sm text-neutral-500">•</span>
-                                <span className="hidden sm:inline px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
-                                  {sample.pack_name}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => toggleLike(sample.id)}
-                            className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
-                              likedSamples.has(sample.id)
-                                ? 'bg-red-500/20 text-red-500' 
-                                : 'bg-neutral-800 text-neutral-400 hover:text-white'
-                            }`}
-                          >
-                            <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
-                          </button>
-                        </div>
-                        
-                        {/* Title and artist */}
-                        <h3 className="font-medium text-white text-sm sm:text-base mb-1 truncate">{sample.name}</h3>
-                        <p className="text-xs sm:text-sm text-neutral-400 mb-3 truncate">{sample.artist?.name || 'LoopLib'}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Waveform - moved outside the flex container */}
-                    <div className="mb-4 h-12 sm:h-16">
-                      <WaveformPlayer
-                        url={sample.file_url}
-                        isPlaying={playingId === sample.id}
-                        onPlayPause={() => togglePlay(sample.id)}
-                        height={48}
-                        waveColor="#666666"
-                        progressColor="#f97316"
-                      />
-                    </div>
-                    
-                    {/* Action buttons - rest stays the same */}
-                    <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {sample.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleFreeDownload(sample)}
-                          disabled={downloadingId === sample.id}
-                          className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
-                        >
-                          {downloadingId === sample.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Download className="w-4 h-4" />
-                          )}
-                          <span>Free Download</span>
-                        </button>
-                        
-                        <button
-                          onClick={() => {
-                            setSelectedSample(sample);
-                            setShowTermsModal(true);
+              {displayedSamples.map((sample) => (
+                <div key={sample.id} className="group bg-neutral-800/80 border border-neutral-700 rounded-lg p-3 sm:p-4 hover:bg-neutral-800 hover:border-neutral-600 transition-all">
+                  {/* Add artwork section */}
+                  <div className="flex gap-3 mb-3">
+                    {/* Album artwork */}
+                    <div className="flex-shrink-0">
+                      {sample.artwork_url ? (
+                        <img 
+                          src={sample.artwork_url} 
+                          alt={sample.pack_name || sample.name}
+                          className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover bg-neutral-800"
+                          onError={(e) => {
+                            console.log('Image failed to load:', sample.artwork_url);
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                            if (fallback && fallback.style) {
+                              fallback.style.display = 'flex';
+                            }
                           }}
-                          className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center">
+                          <Music className="w-4 h-4 sm:w-6 sm:h-6 text-neutral-500" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Mobile-optimized layout */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                        <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                          <span className="text-xs sm:text-sm text-neutral-400">{sample.bpm} BPM</span>
+                          <span className="text-xs sm:text-sm text-neutral-500">•</span>
+                          <span className="text-xs sm:text-sm text-neutral-400">{sample.key}</span>
+                          {/* Add STEMS badge here */}
+                          {sample.has_stems && (
+                            <>
+                              <span className="text-xs sm:text-sm text-neutral-500">•</span>
+                              <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
+                                STEMS
+                              </span>
+                            </>
+                          )}
+                          {/* Add pack badge */}
+                          {sample.pack_name && (
+                            <>
+                              <span className="hidden sm:inline text-xs sm:text-sm text-neutral-500">•</span>
+                              <span className="hidden sm:inline px-2 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
+                                {sample.pack_name}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => toggleLike(sample.id)}
+                          className={`self-end sm:self-auto p-2 rounded-md transition-colors ${
+                            likedSamples.has(sample.id)
+                              ? 'bg-red-500/20 text-red-500' 
+                              : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                          }`}
                         >
-                          License
+                          <Heart className={`w-4 h-4 ${likedSamples.has(sample.id) ? 'fill-current' : ''}`} />
                         </button>
                       </div>
+                      
+                      {/* Title and artist */}
+                      <h3 className="font-medium text-white text-sm sm:text-base mb-1 truncate">{sample.name}</h3>
+                      <p className="text-xs sm:text-sm text-neutral-400 mb-3 truncate">{sample.artist?.name || 'LoopLib'}</p>
                     </div>
                   </div>
-                </React.Fragment>
-              ))}
-
-              {/* Load More */}
-              {displayedSampleCount < sortedSamples.length && (
-                <div className="flex justify-center mb-12">
-                  <button
-                    onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
-                    className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-                  >
-                    Load More {config.genre} Samples
-                  </button>
+                  
+                  {/* Waveform - moved outside the flex container */}
+                  <div className="mb-4 h-12 sm:h-16">
+                    <WaveformPlayer
+                      url={sample.file_url}
+                      isPlaying={playingId === sample.id}
+                      onPlayPause={() => togglePlay(sample.id)}
+                      height={48}
+                      waveColor="#666666"
+                      progressColor="#f97316"
+                    />
+                  </div>
+                  
+                  {/* Action buttons - rest stays the same */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                    <div className="flex flex-wrap gap-1">
+                      {sample.tags.slice(0, 2).map(tag => (
+                        <span key={tag} className="px-2 py-1 bg-neutral-800 text-xs rounded text-neutral-400">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleFreeDownload(sample)}
+                        disabled={downloadingId === sample.id}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-neutral-800 text-white hover:bg-neutral-700 rounded-md transition-colors flex items-center justify-center space-x-1 text-xs sm:text-sm disabled:opacity-50"
+                      >
+                        {downloadingId === sample.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        <span>Free Download</span>
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          setSelectedSample(sample);
+                          setShowTermsModal(true);
+                        }}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-orange-500 text-white hover:bg-orange-600 rounded-md transition-colors text-xs sm:text-sm"
+                      >
+                        License
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
 
-            {/* SEO Content Section */}
-            <section className="mt-16 pb-16 prose prose-invert max-w-none">
-              <h2 className="text-xl font-semibold mb-4">How to Use {config.genre} Samples in Your Productions</h2>
-              <div className="grid md:grid-cols-2 gap-8 mb-12">
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
-                  <h3 className="text-lg font-medium mb-3 flex items-center">
-                    <EssentialIcon className="w-5 h-5 mr-2 text-orange-400" />
-                    {config.educationalContent.essentialElements.title}
-                  </h3>
-                  <ul className="space-y-2 text-neutral-300">
-                    {config.educationalContent.essentialElements.items.map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
-                  <h3 className="text-lg font-medium mb-3 flex items-center">
-                    <TipsIcon className="w-5 h-5 mr-2 text-orange-400" />
-                    {config.educationalContent.productionTips.title}
-                  </h3>
-                  <ul className="space-y-2 text-neutral-300">
-                    {config.educationalContent.productionTips.items.map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+            {/* Load More */}
+            {displayedSampleCount < sortedSamples.length && (
+              <div className="flex justify-center mb-12">
+                <button
+                  onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
+                  className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                >
+                  Load More {config.genre} Samples
+                </button>
               </div>
-
-              <div className="text-neutral-300 space-y-4 max-w-4xl">
-                {config.educationalContent.description.map((paragraph, idx) => (
-                  <p key={idx}>{paragraph}</p>
-                ))}
-              </div>
-            </section>
+            )}
           </>
         )}
 
-        {/* Terms Modal - Add this component for terms and conditions */}
-        <TermsModal
-          isOpen={showTermsModal}
-          onClose={() => setShowTermsModal(false)}
-          sampleName={selectedSample?.name || ''}
-          onAccept={() => {
-            localStorage.setItem('hasSeenTerms', 'true');
-            setHasSeenTerms(true);
-            setShowTermsModal(false);
+        {/* SEO Content Section */}
+        <section className="mt-16 pb-16 prose prose-invert max-w-none">
+          <h2 className="text-xl font-semibold mb-4">How to Use {config.genre} Samples in Your Productions</h2>
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
+              <h3 className="text-lg font-medium mb-3 flex items-center">
+                <EssentialIcon className="w-5 h-5 mr-2 text-orange-400" />
+                {config.educationalContent.essentialElements.title}
+              </h3>
+              <ul className="space-y-2 text-neutral-300">
+                {config.educationalContent.essentialElements.items.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
             
-            if (selectedSample) {
-              handleFreeDownload(selectedSample);
-            }
-          }}
-        />
+            <div className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-6">
+              <h3 className="text-lg font-medium mb-3 flex items-center">
+                <TipsIcon className="w-5 h-5 mr-2 text-orange-400" />
+                {config.educationalContent.productionTips.title}
+              </h3>
+              <ul className="space-y-2 text-neutral-300">
+                {config.educationalContent.productionTips.items.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="text-neutral-300 space-y-4 max-w-4xl">
+            {config.educationalContent.description.map((paragraph, idx) => (
+              <p key={idx}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
       </div>
+
+      {/* Terms Modal - Add this component for terms and conditions */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+        sampleName={selectedSample?.name || ''}
+        onAccept={() => {
+          localStorage.setItem('hasSeenTerms', 'true');
+          setHasSeenTerms(true);
+          setShowTermsModal(false);
+          
+          if (selectedSample) {
+            handleFreeDownload(selectedSample);
+          }
+        }}
+      />
     </div>
   );
 }
