@@ -454,7 +454,7 @@ export default function HitmakerLandingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-400 mr-3 mt-0.5" />
-                        <span>100% royalty-free for commercial use</span>
+                        <span>Royalty-free for selling beats online</span>
                       </li>
                     </ul>
                   </div>
@@ -515,7 +515,7 @@ export default function HitmakerLandingPage() {
                         <h4 className="text-xl font-bold mb-2">Lifetime Updates</h4>
                         <p className="text-neutral-400">
                           Get all future additions to the bundle for free. 
-                          We add new content every month!
+                          If we update the pack you're egilible for free downloads of new samples.
                         </p>
                       </div>
                     </div>
@@ -527,10 +527,10 @@ export default function HitmakerLandingPage() {
                         <Users className="w-6 h-6 text-blue-400" />
                       </div>
                       <div>
-                        <h4 className="text-xl font-bold mb-2">Producer Community Access</h4>
+                        <h4 className="text-xl font-bold mb-2">Industry Leading Sounds</h4>
                         <p className="text-neutral-400">
-                          Join our exclusive Discord with 5,000+ producers. 
-                          Get feedback, collaborate, and grow together.
+                          Use the same sounds used by top producers. 
+                          Our samples & drums have been used in several Billboard Records.
                         </p>
                       </div>
                     </div>
