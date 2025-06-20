@@ -19,38 +19,135 @@ const WaveformPlayer = dynamic(() => import('@/components/WaveformPlayer'), {
   )
 });
 
-// Sample preview data
-const samplePreviews = [
+// Bundle showcase data
+const bundlesIncluded = [
   {
-    id: 1,
-    name: "Soulful Keys",
-    category: "Vintage Essentials",
-    url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/1749492774404_8e17396e-668e-431c-9141-3d344f13bbd9.mp3",
-    bpm: "85 BPM",
-    key: "C Major"
+    id: 'vintage',
+    name: 'Vintage Bundle',
+    coverArt: 'https://shop.looplib.com/cdn/shop/files/vintagebundle.soul-loops.jpg',
+    description: 'Soulful samples with authentic analog warmth',
+    features: ['75+ Soul Samples', 'Vintage Keys & Organs', 'Analog Processed'],
+    samples: [
+      {
+        id: 1,
+        name: "Am I Wrong",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/amiwrong-158-bmin--looplib-64k-1749494631773-3haaup.mp3",
+        bpm: "158 BPM",
+        key: "B Minor"
+      },
+      {
+        id: 2,
+        name: "Blur",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/blur-156-g-min--looplib-64k-1749494633002-hw4hmh.mp3",
+        bpm: "156 BPM",
+        key: "G Minor"
+      },
+      {
+        id: 3,
+        name: "Dedicated",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/dedicated-77--looplib-64k-1749494635609-5f8po.mp3",
+        bpm: "77 BPM",
+        key: "C Major"
+      }
+    ]
   },
   {
-    id: 2,
-    name: "Modern Trap Lead",
-    category: "Trap Essentials",
-    url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/trap/1749492774404_8e17396e-668e-431c-9141-3d344f13bbd9.mp3",
-    bpm: "140 BPM",
-    key: "F# Minor"
+    id: 'trap',
+    name: 'Trap Essentials',
+    coverArt: 'https://shop.looplib.com/cdn/shop/files/TRAP-ESSENTIALS-Cover_Art_4.jpg',
+    description: 'Hard-hitting trap sounds for modern production',
+    features: ['75+ Trap Samples', 'Dark Melodies', 'Heavy 808s'],
+    samples: [
+      {
+        id: 1,
+        name: "Blaze",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/trap/blaze-160-gmin--looplib-64k-1749494901677-6y8dbp.mp3",
+        bpm: "160 BPM",
+        key: "G Minor"
+      },
+      {
+        id: 2,
+        name: "Dawgs",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/trap/dawgs-152--looplib-64k-1749494904230-kac95m.mp3",
+        bpm: "152 BPM",
+        key: "F# Minor"
+      },
+      {
+        id: 3,
+        name: "Berlin",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/trap/berlin-87-c-min--looplib-64k-1749494901675-dvt0j.mp3",
+        bpm: "87 BPM",
+        key: "C Minor"
+      }
+    ]
   },
   {
-    id: 3,
-    name: "R&B Chord Stack",
-    category: "Modern R&B",
-    url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/1749492774404_8e17396e-668e-431c-9141-3d344f13bbd9.mp3",
-    bpm: "75 BPM",
-    key: "E♭ Major"
+    id: 'rnb',
+    name: 'Modern R&B',
+    coverArt: 'https://shop.looplib.com/cdn/shop/files/BlueandOrangeDrumandBassMusicPlaylistCover_1.jpg',
+    description: 'Smooth R&B vibes with contemporary edge',
+    features: ['75+ R&B Samples', 'Silky Chords', 'Modern Sound'],
+    samples: [
+      {
+        id: 1,
+        name: "Placeholder 1",
+        url: "placeholder-url-1",
+        bpm: "90 BPM",
+        key: "E Major"
+      },
+      {
+        id: 2,
+        name: "Placeholder 2",
+        url: "placeholder-url-2",
+        bpm: "75 BPM",
+        key: "A Minor"
+      },
+      {
+        id: 3,
+        name: "Placeholder 3",
+        url: "placeholder-url-3",
+        bpm: "85 BPM",
+        key: "D Major"
+      }
+    ]
+  },
+  {
+    id: 'boombap',
+    name: 'Boom Bap Essentials',
+    coverArt: 'https://shop.looplib.com/cdn/shop/files/boombap-drum-kit.jpg',
+    description: 'Classic hip-hop sounds with authentic flavor',
+    features: ['75+ Boom Bap Samples', 'Dusty Drums', 'Jazz Samples'],
+    samples: [
+      {
+        id: 1,
+        name: "Placeholder 1",
+        url: "placeholder-url-1",
+        bpm: "90 BPM",
+        key: "F Major"
+      },
+      {
+        id: 2,
+        name: "Placeholder 2",
+        url: "placeholder-url-2",
+        bpm: "85 BPM",
+        key: "C Minor"
+      },
+      {
+        id: 3,
+        name: "Placeholder 3",
+        url: "placeholder-url-3",
+        bpm: "95 BPM",
+        key: "G Major"
+      }
+    ]
   }
 ];
 
 export default function HitmakerLandingPage() {
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 18, minutes: 2, seconds: 21 });
-  const [playingId, setPlayingId] = useState<number | null>(null);
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'samples' | 'bonus'>('overview');
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'details' | 'bonus'>('overview');
+  const [selectedBundle, setSelectedBundle] = useState<string>('vintage');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Countdown timer
@@ -119,7 +216,7 @@ export default function HitmakerLandingPage() {
           <div className="text-center mb-6">
             <span className="inline-flex items-center px-4 py-1 bg-red-500/20 border border-red-500 rounded-full text-red-400 text-sm font-medium animate-pulse">
               <Zap className="w-4 h-4 mr-2" />
-              LIMITED TIME OFFER - 78% OFF
+              LIMITED TIME OFFER - 75% OFF
             </span>
           </div>
           
@@ -156,7 +253,7 @@ export default function HitmakerLandingPage() {
               <span className="mr-2">Get Instant Access</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               <span className="absolute -top-4 -right-4 px-3 py-1 bg-yellow-400 text-black text-xs font-bold rounded-full animate-bounce">
-                SAVE $200
+                SAVE $150
               </span>
             </button>
             <p className="mt-4 text-sm text-neutral-400">
@@ -223,10 +320,10 @@ export default function HitmakerLandingPage() {
           {/* Tab Navigation */}
           <div className="flex justify-center mb-8">
             <div className="bg-neutral-900 rounded-full p-1 inline-flex">
-              {(['overview', 'samples', 'bonus'] as const).map((tab) => (
+              {(['overview', 'details', 'bonus'] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setSelectedTab(tab)}
+                  onClick={() => setSelectedTab(tab as any)}
                   className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                     selectedTab === tab 
                       ? 'bg-orange-500 text-white' 
@@ -251,7 +348,7 @@ export default function HitmakerLandingPage() {
                     className="w-full rounded-lg shadow-2xl"
                   />
                   <div className="absolute -top-4 -right-4 w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center transform rotate-12">
-                    <span className="text-black font-bold text-lg -rotate-12">-78%</span>
+                    <span className="text-black font-bold text-lg -rotate-12">-75%</span>
                   </div>
                 </div>
               </div>
@@ -337,39 +434,57 @@ export default function HitmakerLandingPage() {
                 </div>
               )}
               
-              {selectedTab === 'samples' && (
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold mb-6">Preview Sample Quality</h3>
-                  {samplePreviews.map((sample) => (
-                    <div 
-                      key={sample.id}
-                      className="bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 transition-all"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-white">{sample.name}</h4>
-                          <p className="text-sm text-neutral-400">
-                            {sample.category} • {sample.bpm} • {sample.key}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="px-3 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full">
-                            WITH STEMS
-                          </span>
-                        </div>
-                      </div>
-                      <div className="h-16">
-                        <WaveformPlayer
-                          url={sample.url}
-                          isPlaying={playingId === sample.id}
-                          onPlayPause={() => setPlayingId(playingId === sample.id ? null : sample.id)}
-                          height={64}
-                          waveColor="#525252"
-                          progressColor="#f97316"
-                        />
-                      </div>
+              {selectedTab === 'details' && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-bold mb-6">What You'll Get</h3>
+                  
+                  <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-500/30 rounded-xl p-6">
+                    <h4 className="text-xl font-bold mb-4">300+ Professional Samples</h4>
+                    <ul className="space-y-3 text-neutral-300">
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-400 mr-3 mt-0.5" />
+                        <span>Every sample includes full stems for complete creative control</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-400 mr-3 mt-0.5" />
+                        <span>Mixed and mastered by industry professionals</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-400 mr-3 mt-0.5" />
+                        <span>Compatible with all major DAWs (FL Studio, Ableton, Logic, etc.)</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-400 mr-3 mt-0.5" />
+                        <span>100% royalty-free for commercial use</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6">
+                      <h4 className="font-bold mb-3 flex items-center">
+                        <Music className="w-5 h-5 text-orange-400 mr-2" />
+                        File Formats
+                      </h4>
+                      <ul className="space-y-2 text-sm text-neutral-400">
+                        <li>• High-quality WAV files (24-bit)</li>
+                        <li>• BPM and key labeled</li>
+                        <li>• Organized folder structure</li>
+                      </ul>
                     </div>
-                  ))}
+                    
+                    <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6">
+                      <h4 className="font-bold mb-3 flex items-center">
+                        <Download className="w-5 h-5 text-green-400 mr-2" />
+                        Instant Access
+                      </h4>
+                      <ul className="space-y-2 text-sm text-neutral-400">
+                        <li>• Download immediately after purchase</li>
+                        <li>• Lifetime access to files</li>
+                        <li>• Free future updates</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               )}
               
@@ -424,6 +539,196 @@ export default function HitmakerLandingPage() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bundles Showcase Section */}
+      <section className="py-20 bg-gradient-to-b from-neutral-950 to-black relative">
+        {/* Animated background effect */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-red-500/5 rounded-full blur-3xl animate-pulse" />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center px-4 py-2 bg-green-500/20 border border-green-500 rounded-full text-green-400 text-sm font-medium mb-4">
+              <Sparkles className="w-4 h-4 mr-2" />
+              GET ALL 4 BUNDLES FOR THE PRICE OF 1
+            </span>
+            <h2 className="text-4xl font-bold mb-4">4 Complete Bundles Included</h2>
+            <p className="text-xl text-neutral-400 max-w-3xl mx-auto">
+              Get all four of our best-selling bundles for one incredible price. 
+              Each bundle includes 75+ samples with stems.
+            </p>
+          </div>
+          
+          {/* Bundle Grid */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            {bundlesIncluded.map((bundle, index) => (
+              <div 
+                key={bundle.id}
+                className="group bg-neutral-900/50 border border-neutral-800 rounded-2xl overflow-hidden hover:border-orange-500/50 transition-all transform hover:scale-[1.02] hover:shadow-2xl"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="flex flex-col md:flex-row">
+                  {/* Cover Art */}
+                  <div className="md:w-1/3 relative">
+                    <img 
+                      src={bundle.coverArt}
+                      alt={bundle.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r" />
+                  </div>
+                  
+                  {/* Bundle Info */}
+                  <div className="flex-1 p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-2xl font-bold text-white mb-2">{bundle.name}</h3>
+                        <p className="text-neutral-400">{bundle.description}</p>
+                      </div>
+                      <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">
+                        INCLUDED
+                      </span>
+                    </div>
+                    
+                    {/* Original Price */}
+                    <div className="text-right mb-3">
+                      <span className="text-sm text-neutral-500">Individual Price</span>
+                      <p className="text-xl font-bold text-neutral-400 line-through">$49.99</p>
+                    </div>
+                    
+                    {/* Features */}
+                    <div className="flex flex-wrap gap-3 mb-4">
+                      {bundle.features.map((feature, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-neutral-800 text-neutral-300 text-sm rounded-full">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    {/* View Samples Button */}
+                    <button
+                      onClick={() => setSelectedBundle(bundle.id)}
+                      className={`text-sm font-medium ${
+                        selectedBundle === bundle.id 
+                          ? 'text-orange-400' 
+                          : 'text-neutral-400 hover:text-white'
+                      } transition-colors`}
+                    >
+                      {selectedBundle === bundle.id ? '▼' : '▶'} Preview Samples
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Sample Previews (Expandable) */}
+                {selectedBundle === bundle.id && (
+                  <div className="border-t border-neutral-800 p-6 space-y-3">
+                    {bundle.samples.map((sample) => (
+                      <div 
+                        key={sample.id}
+                        className="bg-black/50 border border-neutral-700 rounded-lg p-3"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <h4 className="font-medium text-white text-sm">{sample.name}</h4>
+                            <p className="text-xs text-neutral-400">
+                              {sample.bpm} • {sample.key}
+                            </p>
+                          </div>
+                          <span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 text-xs rounded-full">
+                            WITH STEMS
+                          </span>
+                        </div>
+                        {sample.url !== 'placeholder-url-1' && sample.url !== 'placeholder-url-2' && sample.url !== 'placeholder-url-3' ? (
+                          <div className="h-12">
+                            <WaveformPlayer
+                              url={sample.url}
+                              isPlaying={playingId === `${bundle.id}-${sample.id}`}
+                              onPlayPause={() => setPlayingId(
+                                playingId === `${bundle.id}-${sample.id}` 
+                                  ? null 
+                                  : `${bundle.id}-${sample.id}`
+                              )}
+                              height={48}
+                              waveColor="#525252"
+                              progressColor="#f97316"
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-12 bg-neutral-800 rounded flex items-center justify-center text-xs text-neutral-500">
+                            Sample preview coming soon
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          {/* Total Value Breakdown */}
+          <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-500/30 rounded-2xl p-8 text-center relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-red-500/10 rounded-full blur-3xl" />
+            
+            <div className="relative z-10">
+              <h3 className="text-2xl font-bold mb-6">Total Value Breakdown</h3>
+              <div className="grid md:grid-cols-4 gap-4 mb-6">
+                {bundlesIncluded.map((bundle) => (
+                  <div key={bundle.id} className="bg-black/30 rounded-lg p-4">
+                    <img 
+                      src={bundle.coverArt}
+                      alt={bundle.name}
+                      className="w-16 h-16 rounded-lg mx-auto mb-2 object-cover"
+                    />
+                    <p className="text-neutral-400 text-sm mb-1">{bundle.name}</p>
+                    <p className="text-xl font-bold text-white">$49.99</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-neutral-700 pt-6">
+                <div className="flex items-center justify-center gap-8">
+                  <div>
+                    <p className="text-neutral-400 mb-2">Total Value</p>
+                    <p className="text-4xl font-bold text-white line-through">$199.96</p>
+                  </div>
+                  <div className="text-4xl">→</div>
+                  <div>
+                    <p className="text-neutral-400 mb-2">Your Price</p>
+                    <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400">
+                      $49.99
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
+                  <Check className="w-4 h-4 mr-2" />
+                  You Save $150 (75% OFF)
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* CTA after bundles */}
+          <div className="mt-12 text-center">
+            <button
+              onClick={handleCTA}
+              className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white text-lg font-bold rounded-full transition-all transform hover:scale-105 shadow-2xl"
+            >
+              <span className="mr-2">Get All 4 Bundles Now</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <span className="absolute -top-4 -right-4 px-3 py-1 bg-yellow-400 text-black text-xs font-bold rounded-full animate-bounce">
+                75% OFF
+              </span>
+            </button>
+            <p className="mt-4 text-sm text-neutral-400">
+              ⏰ Limited time offer • 💳 Secure checkout • ⚡ Instant download
+            </p>
           </div>
         </div>
       </section>
@@ -485,11 +790,11 @@ export default function HitmakerLandingPage() {
               <p className="text-xl text-neutral-300 mb-8">Get everything for one low price</p>
               
               <div className="mb-8">
-                <span className="text-2xl text-neutral-500 line-through">$249.99</span>
+                <span className="text-2xl text-neutral-500 line-through">$199.96</span>
                 <div className="text-6xl font-bold text-white my-2">$49.99</div>
                 <span className="inline-flex items-center px-4 py-2 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
                   <Check className="w-4 h-4 mr-2" />
-                  You Save $200 (78% OFF)
+                  You Save $150 (75% OFF)
                 </span>
               </div>
               
@@ -568,7 +873,7 @@ export default function HitmakerLandingPage() {
             <span className="mr-2">Get The Bundle Now</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             <span className="absolute -top-4 -right-4 px-3 py-1 bg-yellow-400 text-black text-xs font-bold rounded-full animate-bounce">
-              78% OFF
+              75% OFF
             </span>
           </button>
           

@@ -2,12 +2,12 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Hitmaker Bundle - 300+ Samples, MIDI & Presets | 78% OFF | LoopLib',
-  description: '🔥 Get 300+ samples with stems, 800 MIDI progressions, analog drums & mixer presets. Save $200 today. Used by 10,000+ producers. Instant download.',
+  title: 'Hitmaker Bundle - 300+ Samples, MIDI & Presets | 75% OFF | LoopLib',
+  description: '🔥 Get 300+ samples with stems, 800 MIDI progressions, analog drums & mixer presets. Save $150 today. Used by 10,000+ producers. Instant download.',
   keywords: 'hitmaker bundle, music production bundle, sample pack with stems, midi chord progressions, fl studio presets, ableton presets, trap samples, r&b samples, soul samples, boom bap samples, royalty free samples, producer bundle',
   openGraph: {
-    title: 'Hitmaker Bundle - Everything You Need To Make Hits | 78% OFF',
-    description: 'Get 300+ professional samples with stems, 800 MIDI progressions, analog drums & DAW presets. Limited time offer - Save $200!',
+    title: 'Hitmaker Bundle - Everything You Need To Make Hits | 75% OFF',
+    description: 'Get 300+ professional samples with stems, 800 MIDI progressions, analog drums & DAW presets. Limited time offer - Save $150!',
     type: 'website',
     url: 'https://looplib.com/hitmaker',
     images: [
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hitmaker Bundle - 78% OFF Limited Time',
-    description: '300+ samples with stems, 800 MIDI progressions, analog drums & mixer presets. Save $200 today!',
+    title: 'Hitmaker Bundle - 75% OFF Limited Time',
+    description: '300+ samples with stems, 800 MIDI progressions, analog drums & mixer presets. Save $150 today!',
     images: ['https://cdn.shopify.com/s/files/1/0816/1257/0973/files/hitmaker-bundle-popup.webp'],
   },
   alternates: {
