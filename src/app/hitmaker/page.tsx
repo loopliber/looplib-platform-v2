@@ -90,22 +90,22 @@ const bundlesIncluded = [
     samples: [
       {
         id: 1,
-        name: "Placeholder 1",
-        url: "placeholder-url-1",
+        name: "Climax",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/climax-160-f-m--looplib-64k-1749494161366-9l6oke.mp3",
         bpm: "90 BPM",
         key: "E Major"
       },
       {
         id: 2,
-        name: "Placeholder 2",
-        url: "placeholder-url-2",
+        name: "2 Late",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/angelic-152--looplib-64k-1749494159097-r5azll.mp3",
         bpm: "75 BPM",
         key: "A Minor"
       },
       {
         id: 3,
-        name: "Placeholder 3",
-        url: "placeholder-url-3",
+        name: "Angelic",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/2late-150--looplib-64k-1749494157575-csh59.mp3",
         bpm: "85 BPM",
         key: "D Major"
       }
@@ -120,22 +120,22 @@ const bundlesIncluded = [
     samples: [
       {
         id: 1,
-        name: "Placeholder 1",
-        url: "placeholder-url-1",
+        name: "Imagine",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/imagine-150-gmin--looplib-64k-1749494646268-ucbsql.mp3",
         bpm: "90 BPM",
         key: "F Major"
       },
       {
         id: 2,
-        name: "Placeholder 2",
-        url: "placeholder-url-2",
+        name: "Good Feelings",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/good-83-cmin--looplib-64k-1749494644109-z6tx6f.mp3",
         bpm: "85 BPM",
         key: "C Minor"
       },
       {
         id: 3,
-        name: "Placeholder 3",
-        url: "placeholder-url-3",
+        name: "Holy",
+        url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/holy-153--looplib-64k-1749494646265-9hbxqe.mp3",
         bpm: "95 BPM",
         key: "G Major"
       }
