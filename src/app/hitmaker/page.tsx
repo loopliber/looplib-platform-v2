@@ -340,7 +340,7 @@ export default function HitmakerLandingPage() {
             {/* Left Column - Product Images */}
             <div className="relative">
               <div className="sticky top-24">
-                <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20 p-8">
+                <div className="hidden md:block relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20 p-8">
                   <img 
                     src="https://cdn.shopify.com/s/files/1/0816/1257/0973/files/hitmaker-bundle-popup.webp"
                     alt="Hitmaker Bundle"
@@ -466,7 +466,7 @@ export default function HitmakerLandingPage() {
                         File Formats
                       </h4>
                       <ul className="space-y-2 text-sm text-neutral-400">
-                        <li>• High-quality WAV files (24-bit)</li>
+                        <li>• 2.8GB Folder</li>
                         <li>• BPM and key labeled</li>
                         <li>• Organized folder structure</li>
                       </ul>
@@ -719,26 +719,26 @@ export default function HitmakerLandingPage() {
       {/* Testimonials */}
       <section className="py-20 bg-neutral-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-4xl font-bold text-center mb-12">Trusted By 10,000+ Producers</h2>
+          <h2 className="text-4xl font-bold text-center mb-12">Trusted By Thousands Producers</h2>
           
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                name: "Mike Dean",
-                role: "Platinum Producer",
-                content: "This bundle has everything you need. The stems are fire and the MIDI progressions save me hours of work.",
+                name: "Money Beatss",
+                role: "Producer",
+                content: "This bundle has everything you need. The loops are fire and the MIDI progressions are clean.",
                 rating: 5
               },
               {
-                name: "Sarah Chen",
+                name: "Adam Lind",
                 role: "Beat Maker",
-                content: "Finally, a bundle that delivers on its promises. The analog drums hit different, and the mixer presets are pro-level.",
+                content: "Finally, a kit that delivers on its promises. The drums hit different, and the mixer presets a good addition :).",
                 rating: 5
               },
               {
                 name: "Jordan Taylor",
                 role: "Music Producer",
-                content: "Been producing for 10 years and this is hands down the best value bundle I've purchased. Quality is insane!",
+                content: "Been producing for 10 years and this is hands down the best value bundle I've purchased. Quality is sick!",
                 rating: 5
               }
             ].map((testimonial, idx) => (
