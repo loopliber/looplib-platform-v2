@@ -26,7 +26,7 @@ export default function AnnouncementBar() {
   return (
     <div className="relative bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
       <Link 
-        href="https://shop.looplib.com/products/hitmaker"
+        href="https://www.looplib.com/hitmaker"
         target="_blank"
         rel="noopener noreferrer"
         className="block w-full py-3 px-4 text-center hover:bg-black/10 transition-colors"

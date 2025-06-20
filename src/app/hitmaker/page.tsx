@@ -92,21 +92,21 @@ const bundlesIncluded = [
         id: 1,
         name: "Climax",
         url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/climax-160-f-m--looplib-64k-1749494161366-9l6oke.mp3",
-        bpm: "90 BPM",
-        key: "E Major"
+        bpm: "160 BPM",
+        key: "F Minor"
       },
       {
         id: 2,
-        name: "2 Late",
+        name: "Angelic",
         url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/angelic-152--looplib-64k-1749494159097-r5azll.mp3",
-        bpm: "75 BPM",
-        key: "A Minor"
+        bpm: "152 BPM",
+        key: "E Major"
       },
       {
         id: 3,
-        name: "Angelic",
+        name: "2 Late",
         url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/rnb/2late-150--looplib-64k-1749494157575-csh59.mp3",
-        bpm: "85 BPM",
+        bpm: "150 BPM",
         key: "D Major"
       }
     ]
@@ -122,22 +122,22 @@ const bundlesIncluded = [
         id: 1,
         name: "Imagine",
         url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/imagine-150-gmin--looplib-64k-1749494646268-ucbsql.mp3",
-        bpm: "90 BPM",
-        key: "F Major"
+        bpm: "150 BPM",
+        key: "G Minor"
       },
       {
         id: 2,
         name: "Good Feelings",
         url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/good-83-cmin--looplib-64k-1749494644109-z6tx6f.mp3",
-        bpm: "85 BPM",
+        bpm: "83 BPM",
         key: "C Minor"
       },
       {
         id: 3,
         name: "Holy",
         url: "https://pub-2a46ae07b1bf4d6c9c90d2138d740df6.r2.dev/samples/soul/holy-153--looplib-64k-1749494646265-9hbxqe.mp3",
-        bpm: "95 BPM",
-        key: "G Major"
+        bpm: "153 BPM",
+        key: "A♭ Major"
       }
     ]
   }
@@ -147,7 +147,6 @@ export default function HitmakerLandingPage() {
   const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 18, minutes: 2, seconds: 21 });
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'details' | 'bonus'>('overview');
-  const [selectedBundle, setSelectedBundle] = useState<string>('vintage');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Countdown timer
@@ -188,7 +187,7 @@ export default function HitmakerLandingPage() {
         'currency': 'USD'
       });
     }
-    window.location.href = 'https://shop.looplib.com/checkouts/';
+    window.location.href = 'https://shop.looplib.com/cart/55478506291549:1?channel=buy_button';
   };
 
   return (
@@ -572,65 +571,55 @@ export default function HitmakerLandingPage() {
                 className="group bg-neutral-900/50 border border-neutral-800 rounded-2xl overflow-hidden hover:border-orange-500/50 transition-all transform hover:scale-[1.02] hover:shadow-2xl"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex flex-col md:flex-row">
-                  {/* Cover Art */}
-                  <div className="md:w-1/3 relative">
-                    <img 
-                      src={bundle.coverArt}
-                      alt={bundle.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r" />
+                <div className="flex flex-col">
+                  {/* Header with Cover Art */}
+                  <div className="flex flex-col md:flex-row">
+                    {/* Cover Art */}
+                    <div className="md:w-1/3 relative h-48 md:h-auto">
+                      <img 
+                        src={bundle.coverArt}
+                        alt={bundle.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r" />
+                    </div>
+                    
+                    {/* Bundle Info */}
+                    <div className="flex-1 p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white mb-2">{bundle.name}</h3>
+                          <p className="text-neutral-400">{bundle.description}</p>
+                        </div>
+                        <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full whitespace-nowrap">
+                          INCLUDED
+                        </span>
+                      </div>
+                      
+                      {/* Original Price */}
+                      <div className="text-right mb-3">
+                        <span className="text-sm text-neutral-500">Individual Price</span>
+                        <p className="text-xl font-bold text-neutral-400 line-through">$49.99</p>
+                      </div>
+                      
+                      {/* Features */}
+                      <div className="flex flex-wrap gap-3">
+                        {bundle.features.map((feature, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-neutral-800 text-neutral-300 text-sm rounded-full">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   
-                  {/* Bundle Info */}
-                  <div className="flex-1 p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">{bundle.name}</h3>
-                        <p className="text-neutral-400">{bundle.description}</p>
-                      </div>
-                      <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">
-                        INCLUDED
-                      </span>
-                    </div>
-                    
-                    {/* Original Price */}
-                    <div className="text-right mb-3">
-                      <span className="text-sm text-neutral-500">Individual Price</span>
-                      <p className="text-xl font-bold text-neutral-400 line-through">$49.99</p>
-                    </div>
-                    
-                    {/* Features */}
-                    <div className="flex flex-wrap gap-3 mb-4">
-                      {bundle.features.map((feature, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-neutral-800 text-neutral-300 text-sm rounded-full">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    {/* View Samples Button */}
-                    <button
-                      onClick={() => setSelectedBundle(bundle.id)}
-                      className={`text-sm font-medium ${
-                        selectedBundle === bundle.id 
-                          ? 'text-orange-400' 
-                          : 'text-neutral-400 hover:text-white'
-                      } transition-colors`}
-                    >
-                      {selectedBundle === bundle.id ? '▼' : '▶'} Preview Samples
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Sample Previews (Expandable) */}
-                {selectedBundle === bundle.id && (
-                  <div className="border-t border-neutral-800 p-6 space-y-3">
+                  {/* Sample Previews - Always Visible */}
+                  <div className="border-t border-neutral-800 p-6 space-y-3 bg-black/30">
+                    <h4 className="text-sm font-semibold text-neutral-400 mb-3">Preview Samples:</h4>
                     {bundle.samples.map((sample) => (
                       <div 
                         key={sample.id}
-                        className="bg-black/50 border border-neutral-700 rounded-lg p-3"
+                        className="bg-black/50 border border-neutral-700 rounded-lg p-3 hover:border-neutral-600 transition-colors"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div>
@@ -643,30 +632,24 @@ export default function HitmakerLandingPage() {
                             WITH STEMS
                           </span>
                         </div>
-                        {sample.url !== 'placeholder-url-1' && sample.url !== 'placeholder-url-2' && sample.url !== 'placeholder-url-3' ? (
-                          <div className="h-12">
-                            <WaveformPlayer
-                              url={sample.url}
-                              isPlaying={playingId === `${bundle.id}-${sample.id}`}
-                              onPlayPause={() => setPlayingId(
-                                playingId === `${bundle.id}-${sample.id}` 
-                                  ? null 
-                                  : `${bundle.id}-${sample.id}`
-                              )}
-                              height={48}
-                              waveColor="#525252"
-                              progressColor="#f97316"
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-12 bg-neutral-800 rounded flex items-center justify-center text-xs text-neutral-500">
-                            Sample preview coming soon
-                          </div>
-                        )}
+                        <div className="h-12">
+                          <WaveformPlayer
+                            url={sample.url}
+                            isPlaying={playingId === `${bundle.id}-${sample.id}`}
+                            onPlayPause={() => setPlayingId(
+                              playingId === `${bundle.id}-${sample.id}` 
+                                ? null 
+                                : `${bundle.id}-${sample.id}`
+                            )}
+                            height={48}
+                            waveColor="#525252"
+                            progressColor="#f97316"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>

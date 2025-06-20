@@ -7,7 +7,7 @@ import { ShoppingBag, Sparkles, Package, ArrowRight } from 'lucide-react';
 export default function HitmakerAdCard() {
   return (
     <a
-      href="https://shop.looplib.com/products/hitmaker"
+      href="https://www.looplib.com/hitmaker"
       target="_blank"
       rel="noopener noreferrer"
       className="group block"
