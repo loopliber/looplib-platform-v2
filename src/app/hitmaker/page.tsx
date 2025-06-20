@@ -817,7 +817,7 @@ export default function HitmakerLandingPage() {
             {[
               {
                 q: "Is this really royalty-free?",
-                a: "Yes! All samples are 100% royalty-free. You can use them in commercial releases without any additional fees."
+                a: "Yes! All samples are 100% royalty-free. You're free to use them in commercial releases with up to 1 million streams. For major label releases or usage beyond that, clearance is required."
               },
               {
                 q: "What DAWs are supported?",
@@ -828,8 +828,8 @@ export default function HitmakerLandingPage() {
                 a: "You'll receive an email with download links immediately after purchase. Files are hosted on our fast CDN."
               },
               {
-                q: "Is there a money-back guarantee?",
-                a: "Yes! We offer a 30-day money-back guarantee if you're not completely satisfied."
+                q: "Who made these samples?",
+                a: "These samples were created by Billboard-charting producers who’ve worked with Grammy-nominated artists and major albums from names like EST Gee, Lil Keed, and more. You're getting industry-level quality straight from the source."
               }
             ].map((faq, idx) => (
               <div key={idx} className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6">
