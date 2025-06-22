@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, Zap, Sparkles, Heart, ShoppingBag } from 'lucide-react';
+import { Menu, X, Zap, Sparkles, Heart, ShoppingBag, Package } from 'lucide-react';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -26,9 +26,10 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               href="/packs"
-              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium"
+              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
             >
-              Packs
+              <Package className="w-4 h-4" />
+              <span>Packs</span>
             </Link>
             <Link 
               href="/samples/trap"
@@ -85,9 +86,10 @@ export default function Header() {
               <Link 
                 href="/packs"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
+                className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
-                Packs
+                <Package className="w-4 h-4" />
+                <span>Packs</span>
               </Link>
               <Link 
                 href="/samples/trap"

@@ -22,6 +22,10 @@ export default function PackPage({ params }: { params: { slug: string } }) {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   
+  // Pagination state
+  const [displayedSampleCount, setDisplayedSampleCount] = useState(10);
+  const SAMPLES_PER_PAGE = 10;
+  
   const supabase = createClient();
 
   useEffect(() => {
@@ -87,6 +91,9 @@ export default function PackPage({ params }: { params: { slug: string } }) {
       setDownloadingId(null);
     }
   };
+
+  // Get displayed samples
+  const displayedSamples = samples.slice(0, displayedSampleCount);
 
   if (loading) {
     return (
@@ -178,10 +185,15 @@ export default function PackPage({ params }: { params: { slug: string } }) {
 
       {/* Samples List */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl font-bold mb-6">Samples in this Pack</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Samples in this Pack</h2>
+          <span className="text-neutral-400">
+            Showing {displayedSamples.length} of {samples.length} samples
+          </span>
+        </div>
         
         <div className="space-y-4">
-          {samples.map((sample, index) => (
+          {displayedSamples.map((sample, index) => (
             <div 
               key={sample.id} 
               className="group bg-neutral-900/50 border border-neutral-800 rounded-lg p-4 hover:bg-neutral-900/70 hover:border-neutral-700 transition-all"
@@ -287,6 +299,18 @@ export default function PackPage({ params }: { params: { slug: string } }) {
             </div>
           ))}
         </div>
+
+        {/* Load More Button */}
+        {displayedSampleCount < samples.length && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => setDisplayedSampleCount(prev => prev + SAMPLES_PER_PAGE)}
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors font-medium"
+            >
+              Load More Samples ({samples.length - displayedSampleCount} remaining)
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );
