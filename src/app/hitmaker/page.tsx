@@ -342,7 +342,7 @@ export default function HitmakerLandingPage() {
               <div className="sticky top-24">
                 <div className="hidden md:block relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-500/20 to-red-500/20 p-8">
                   <img 
-                    src="https://cdn.shopify.com/s/files/1/0816/1257/0973/files/hitmaker-bundle-popup.webp"
+                    src="https://shop.looplib.com/cdn/shop/files/loops_9c4b4eff-5f3e-4dfb-8931-372256810e86.gif"
                     alt="Hitmaker Bundle"
                     className="w-full rounded-lg shadow-2xl"
                   />

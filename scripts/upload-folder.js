@@ -152,7 +152,7 @@ async function getOrCreateArtist(artistName) {
 }
 
 // Process single file
-async function processFile(filePath, genre, artistName) {
+async function processFile(filePath, genre, artistName, folderName) {
   const filename = path.basename(filePath);
   
   try {
@@ -163,7 +163,7 @@ async function processFile(filePath, genre, artistName) {
     // Extract metadata from filename
     const metadata = extractMetadataFromFilename(filename, genre);
     
-    // Generate unique R2 key
+    // Generate unique R2 key with organized folder structure
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(7);
     const extension = path.extname(filename);
@@ -172,9 +172,11 @@ async function processFile(filePath, genre, artistName) {
       .replace(/[^a-z0-9]/g, '-')
       .substring(0, 50);
     
-    const r2Key = `samples/${genre}/${cleanName}-${timestamp}-${randomId}${extension}`;
+    // Create organized folder structure: genre/artist/pack-name/filename
+    const r2Key = `${genre}/${artistName.toLowerCase().replace(/[^a-z0-9]/g, '-')}/${folderName}/${cleanName}-${timestamp}-${randomId}${extension}`;
     
-    console.log(`  📤 Uploading: ${metadata.name} (${metadata.bpm} BPM, ${metadata.key})`);
+    console.log(`  📤 Uploading to: ${genre}/${artistName}/${folderName}/`);
+    console.log(`     ${metadata.name} (${metadata.bpm} BPM, ${metadata.key})`);
     
     // Upload to R2
     const fileUrl = await uploadToR2(r2Key, fileBuffer, 'audio/mpeg');
@@ -190,13 +192,10 @@ async function processFile(filePath, genre, artistName) {
         artist_id: artistId,
         file_url: fileUrl,
         file_name: filename,
-        file_size: fileStats.size,
         bpm: metadata.bpm,
         key: metadata.key,
         genre: genre,
-        tags: metadata.tags,
-        has_stems: false,
-        downloads: 0
+        tags: metadata.tags
       });
 
     if (error) throw error;
@@ -212,7 +211,7 @@ async function processFile(filePath, genre, artistName) {
   }
 }
 
-// Main function
+// Main function - updated
 async function main() {
   console.log('\n🎵 LoopLib Folder Upload Tool\n');
   
@@ -232,6 +231,12 @@ async function main() {
       console.log('❌ Error: Folder not found');
       process.exit(1);
     }
+    
+    // Ask for pack/folder name in bucket
+    const originalFolderName = path.basename(cleanPath);
+    const suggestedName = originalFolderName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const packName = await question(`📦 Enter pack/folder name for R2 bucket (suggested: "${suggestedName}"): `);
+    const finalPackName = packName.trim() || suggestedName;
     
     // Ask for genre
     console.log('\n🎹 Select genre:');
@@ -269,10 +274,11 @@ async function main() {
     }
     
     progress.total = audioFiles.length;
-    console.log(`✅ Found ${audioFiles.length} audio files\n`);
+    console.log(`✅ Found ${audioFiles.length} audio files`);
+    console.log(`📁 Will be organized in: ${genre}/${artist}/${finalPackName}/\n`);
     
     // Confirm upload
-    const confirm = await question(`Ready to upload ${audioFiles.length} ${genre} samples by ${artist}? (y/n): `);
+    const confirm = await question(`Ready to upload ${audioFiles.length} ${genre} samples by ${artist} to "${finalPackName}" folder? (y/n): `);
     if (confirm.toLowerCase() !== 'y') {
       console.log('Upload cancelled');
       process.exit(0);
@@ -289,7 +295,7 @@ async function main() {
       
       const batchPromises = batch.map(file => {
         const filePath = path.join(cleanPath, file);
-        return processFile(filePath, genre, artist);
+        return processFile(filePath, genre, artist, finalPackName);
       });
       
       const results = await Promise.all(batchPromises);
@@ -305,8 +311,8 @@ async function main() {
       });
       
       // Progress update
-      const percentage = Math.round((progress.completed / progress.total) * 100);
-      console.log(`\n📊 Progress: ${progress.completed}/${progress.total} (${percentage}%)\n`);
+      const percentage = Math.round(((progress.completed + progress.failed) / progress.total) * 100);
+      console.log(`\n📊 Progress: ${progress.completed + progress.failed}/${progress.total} (${percentage}%)\n`);
       
       // Small delay between batches
       if (i + BATCH_SIZE < audioFiles.length) {
@@ -319,6 +325,7 @@ async function main() {
     console.log('\n✨ Upload Complete!');
     console.log(`✅ Successful: ${progress.completed}`);
     console.log(`❌ Failed: ${progress.failed}`);
+    console.log(`📁 Folder: ${genre}/${artist}/${finalPackName}/`);
     console.log(`⏱️  Time: ${elapsed} seconds`);
     
     // Save failed uploads
