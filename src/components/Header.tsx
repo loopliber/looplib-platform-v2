@@ -15,9 +15,9 @@ export default function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <img 
-                src="https://shop.looplib.com/cdn/shop/files/Namnlos_design_1.png"
-                alt="LoopLib"
-                className="h-6 sm:h-8 w-auto"
+                src="https://shop.looplib.com/cdn/shop/files/logo-white.png" 
+                alt="LoopLib" 
+                className="h-8 w-auto"
               />
             </Link>
           </div>
