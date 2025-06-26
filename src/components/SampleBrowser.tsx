@@ -15,6 +15,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import TermsModal from './TermsModal';
 import HitmakerAdCard from './HitmakerAdCard';
+import HitmakerPopup from '@/components/HitmakerPopup';
 
 // Dynamically import WaveformPlayer to avoid SSR issues
 const WaveformPlayer = dynamic(() => import('./WaveformPlayer'), { 
