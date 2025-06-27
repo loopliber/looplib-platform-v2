@@ -91,6 +91,8 @@ export default function SampleBrowser({
     { id: 'soul', name: 'Soul', icon: <Heart className="w-4 h-4" /> },
   ];
 
+  
+
   // Initialize component
   useEffect(() => {
     const initializeComponent = async () => {
