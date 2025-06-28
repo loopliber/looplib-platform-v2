@@ -369,13 +369,12 @@ export default function ArtistStylePage({ params }: { params: { style: string } 
           </div>
         </section>
 
-        {/* Sample Browser Component - DISABLE HERO BANNER */}
+        {/* Sample Browser Component */}
         <SampleBrowser 
           initialGenre={artist.genre as any}
           pageTitle=""
           pageSubtitle=""
           accentColor={artist.accentColor}
-          showHeroBanner={false}
         />
 
         {/* SEO Content Sections */}
