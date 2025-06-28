@@ -85,20 +85,3 @@ ${allPages
     },
   });
 }
-
-// Optional: Export a function to get all URLs (useful for other parts of your app)
-export function getAllSitemapUrls() {
-  const baseUrl = 'https://looplib.com';
-  
-  const artistSlugs = [
-    'travis-scott', 'drake', 'metro-boomin', 'the-weeknd', 
-    'future', 'kanye-west', 'juice-wrld', 'gunna', 
-    'lil-baby', 'playboi-carti', 'partynextdoor', 'bryson-tiller',
-    '6lack', 'young-thug', '21-savage', 'lil-uzi-vert'
-  ];
-
-  return {
-    artists: artistSlugs.map(slug => `${baseUrl}/type/${slug}`),
-    total: artistSlugs.length
-  };
-}
