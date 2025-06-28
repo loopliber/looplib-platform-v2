@@ -1,21 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X, Zap, Sparkles, Heart, ShoppingBag, Package } from 'lucide-react';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-  
-  // Hide header on /type pages
-  const isTypePage = pathname?.startsWith('/type');
-  
-  // Don't render anything if it's a type page
-  if (isTypePage) {
-    return null;
-  }
 
   return (
     <header className="bg-black/90 backdrop-blur-sm border-b border-neutral-800 sticky top-0 z-40">
