@@ -1,0 +1,29 @@
+# public/robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://looplib.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Allow search engines to index everything
+Allow: /type/*
+Allow: /samples/*
+Allow: /blog/*
+Allow: /packs/*
+
+# Disallow admin or API routes (if any)
+Disallow: /api/
+Disallow: /admin/
+
+# Specific crawler rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

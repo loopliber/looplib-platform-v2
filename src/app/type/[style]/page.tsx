@@ -107,6 +107,125 @@ const artistConfigs: Record<string, any> = {
       'Crisp hi-hat patterns',
       'Spacious mix with ambient elements'
     ]
+  },
+  'partynextdoor': {
+    name: 'PartyNextDoor',
+    genre: 'rnb',
+    description: 'Dark, moody R&B with atmospheric production and melodic vocals',
+    keywords: 'partynextdoor type beat, pnd samples, toronto rnb, ovo sound',
+    accentColor: 'purple',
+    bpmRange: '80-130 BPM',
+    popularKeys: ['F Minor', 'A♭ Major', 'E♭ Minor'],
+    similarArtists: ['Drake', 'The Weeknd', 'Bryson Tiller', 'Roy Woods'],
+    popularSongs: ['Come and See Me', 'Recognize', 'Not Nice', 'Believe It'],
+    productionStyle: [
+      'Dark, moody chord progressions',
+      'Atmospheric synth layers',
+      'Trap-influenced drums with R&B groove',
+      'Melodic bass lines'
+    ]
+  },
+  'bryson-tiller': {
+    name: 'Bryson Tiller',
+    genre: 'rnb',
+    description: 'Trap-soul fusion with emotional melodies and smooth vocals',
+    keywords: 'bryson tiller type beat, bryson tiller samples, trapsoul, kentucky rnb',
+    accentColor: 'purple',
+    bpmRange: '70-120 BPM',
+    popularKeys: ['G Minor', 'B♭ Minor', 'D Minor'],
+    similarArtists: ['Drake', 'PartyNextDoor', '6lack', 'Tory Lanez'],
+    popularSongs: ['Don\'t', 'Exchange', 'Sorry Not Sorry', 'Run Me Dry'],
+    productionStyle: [
+      'Trap drums with R&B melodies',
+      'Emotional piano progressions',
+      'Heavy use of reverb and delay',
+      'Smooth bass lines with 808s'
+    ]
+  },
+  '6lack': {
+    name: '6lack',
+    genre: 'rnb',
+    description: 'Dark alternative R&B with introspective lyrics and minimalist production',
+    keywords: '6lack type beat, 6lack samples, dark rnb, atlanta rnb',
+    accentColor: 'purple',
+    bpmRange: '70-110 BPM',
+    popularKeys: ['A Minor', 'C Minor', 'F Minor'],
+    similarArtists: ['Bryson Tiller', 'PartyNextDoor', 'Drake', 'Roy Woods'],
+    popularSongs: ['PRBLMS', 'Ex Calling', 'OTW', 'Balenciaga Challenge'],
+    productionStyle: [
+      'Minimalist, dark production',
+      'Sparse drum patterns',
+      'Atmospheric pads and textures',
+      'Deep sub bass'
+    ]
+  },
+  'young-thug': {
+    name: 'Young Thug',
+    genre: 'trap',
+    description: 'Experimental trap with unique vocal styles and eclectic production',
+    keywords: 'young thug type beat, thugger samples, atlanta trap, slime season',
+    accentColor: 'green',
+    bpmRange: '120-160 BPM',
+    popularKeys: ['F Minor', 'G Minor', 'E♭ Minor'],
+    similarArtists: ['Gunna', 'Lil Baby', 'Future', 'Lil Keed'],
+    popularSongs: ['Best Friend', 'Hot', 'The London', 'Go Crazy'],
+    productionStyle: [
+      'Experimental melody choices',
+      'Unique sound selection',
+      'Complex hi-hat patterns',
+      'Heavy 808 presence'
+    ]
+  },
+  'lil-baby': {
+    name: 'Lil Baby',
+    genre: 'trap',
+    description: 'Hard-hitting trap with piano melodies and street-inspired themes',
+    keywords: 'lil baby type beat, lil baby samples, atlanta trap, piano trap',
+    accentColor: 'green',
+    bpmRange: '120-150 BPM',
+    popularKeys: ['C Minor', 'F Minor', 'G Minor'],
+    similarArtists: ['Gunna', 'Young Thug', 'Lil Durk', '42 Dugg'],
+    popularSongs: ['Drip Too Hard', 'Yes Indeed', 'The Bigger Picture', 'Woah'],
+    productionStyle: [
+      'Melodic piano loops',
+      'Hard-hitting 808s',
+      'Simple but effective melodies',
+      'Street-oriented sound selection'
+    ]
+  },
+  '21-savage': {
+    name: '21 Savage',
+    genre: 'trap',
+    description: 'Dark, minimalist trap with menacing production and hard-hitting 808s',
+    keywords: '21 savage type beat, 21 savage samples, atlanta trap, dark trap',
+    accentColor: 'red',
+    bpmRange: '120-140 BPM',
+    popularKeys: ['C Minor', 'D Minor', 'F Minor'],
+    similarArtists: ['Metro Boomin', 'Future', 'Offset', 'Lil Baby'],
+    popularSongs: ['Bank Account', 'A Lot', 'Runnin', 'Mr. Right Now'],
+    productionStyle: [
+      'Dark, minimalist melodies',
+      'Heavy, distorted 808s',
+      'Simple hi-hat patterns',
+      'Ominous atmosphere'
+    ]
+  },
+  'lil-uzi-vert': {
+    name: 'Lil Uzi Vert',
+    genre: 'trap',
+    description: 'Melodic trap with futuristic production and energetic vibes',
+    keywords: 'lil uzi vert type beat, uzi samples, melodic trap, rage beats',
+    accentColor: 'pink',
+    bpmRange: '130-170 BPM',
+    popularKeys: ['F♯ Minor', 'G Minor', 'A Minor'],
+    similarArtists: ['Playboi Carti', 'Juice WRLD', 'Trippie Redd', 'Future'],
+    popularSongs: ['XO Tour Llif3', 'Just Wanna Rock', 'Money Longer', 'Sauce It Up'],
+    productionStyle: [
+      'Futuristic synth sounds',
+      'Melodic, uplifting progressions',
+      'Fast-paced hi-hats',
+      'Energetic 808 patterns'
+    ]
   }
 };
 
@@ -330,16 +449,34 @@ export default function ArtistStylePage({ params }: { params: { style: string } 
               If you like {artist.name}'s style, explore these similar artists:
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {artist.similarArtists.map((similarArtist: string) => (
-                <a
-                  key={similarArtist}
-                  href={`/type/${similarArtist.toLowerCase().replace(' ', '-').replace('\'', '')}`}
-                  className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-center transition-all hover:scale-105 hover:border-orange-500/50"
-                >
-                  <h4 className="font-medium">{similarArtist}</h4>
-                  <p className="text-xs text-neutral-400 mt-1">Type Beats →</p>
-                </a>
-              ))}
+              {artist.similarArtists.map((similarArtist: string) => {
+                // Only show links to artists that exist
+                const slug = similarArtist.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '');
+                const exists = !!artistConfigs[slug];
+                
+                if (exists) {
+                  return (
+                    <a
+                      key={similarArtist}
+                      href={`/type/${slug}`}
+                      className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-lg p-4 text-center transition-all hover:scale-105 hover:border-orange-500/50"
+                    >
+                      <h4 className="font-medium">{similarArtist}</h4>
+                      <p className="text-xs text-neutral-400 mt-1">Free Samples →</p>
+                    </a>
+                  );
+                } else {
+                  return (
+                    <div
+                      key={similarArtist}
+                      className="bg-neutral-900/50 border border-neutral-700/50 rounded-lg p-4 text-center opacity-50"
+                    >
+                      <h4 className="font-medium">{similarArtist}</h4>
+                      <p className="text-xs text-neutral-500 mt-1">Coming Soon</p>
+                    </div>
+                  );
+                }
+              })}
             </div>
           </section>
 
