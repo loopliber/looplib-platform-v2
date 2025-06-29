@@ -183,7 +183,7 @@ export default function HitmakerLandingPage() {
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'conversion', {
         'send_to': 'GT-M69HVS83/hitmaker-bundle-cta',
-        'value': 49.99,
+        'value': 25.99,
         'currency': 'USD'
       });
     }
@@ -252,7 +252,7 @@ export default function HitmakerLandingPage() {
               <span className="mr-2">Get Instant Access</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               <span className="absolute -top-4 -right-4 px-3 py-1 bg-yellow-400 text-black text-xs font-bold rounded-full animate-bounce">
-                SAVE $150
+                SAVE $175
               </span>
             </button>
             <p className="mt-4 text-sm text-neutral-400">
@@ -599,7 +599,7 @@ export default function HitmakerLandingPage() {
                       {/* Original Price */}
                       <div className="text-right mb-3">
                         <span className="text-sm text-neutral-500">Individual Price</span>
-                        <p className="text-xl font-bold text-neutral-400 line-through">$49.99</p>
+                        <p className="text-xl font-bold text-neutral-400 line-through">$25.99</p>
                       </div>
                       
                       {/* Features */}
@@ -671,7 +671,7 @@ export default function HitmakerLandingPage() {
                       className="w-16 h-16 rounded-lg mx-auto mb-2 object-cover"
                     />
                     <p className="text-neutral-400 text-sm mb-1">{bundle.name}</p>
-                    <p className="text-xl font-bold text-white">$49.99</p>
+                    <p className="text-xl font-bold text-white">$25.99</p>
                   </div>
                 ))}
               </div>
@@ -679,19 +679,19 @@ export default function HitmakerLandingPage() {
                 <div className="flex items-center justify-center gap-8">
                   <div>
                     <p className="text-neutral-400 mb-2">Total Value</p>
-                    <p className="text-4xl font-bold text-white line-through">$199.96</p>
+                    <p className="text-4xl font-bold text-white line-through">$103.96</p>
                   </div>
                   <div className="text-4xl">→</div>
                   <div>
                     <p className="text-neutral-400 mb-2">Your Price</p>
                     <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-400">
-                      $49.99
+                      $25.99
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 inline-flex items-center px-4 py-2 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
                   <Check className="w-4 h-4 mr-2" />
-                  You Save $150 (75% OFF)
+                  You Save $77.97 (75% OFF)
                 </div>
               </div>
             </div>
@@ -773,11 +773,11 @@ export default function HitmakerLandingPage() {
               <p className="text-xl text-neutral-300 mb-8">Get everything for one low price</p>
               
               <div className="mb-8">
-                <span className="text-2xl text-neutral-500 line-through">$199.96</span>
-                <div className="text-6xl font-bold text-white my-2">$49.99</div>
+                <span className="text-2xl text-neutral-500 line-through">$103.96</span>
+                <div className="text-6xl font-bold text-white my-2">$25.99</div>
                 <span className="inline-flex items-center px-4 py-2 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
                   <Check className="w-4 h-4 mr-2" />
-                  You Save $150 (75% OFF)
+                  You Save $77.97 (75% OFF)
                 </span>
               </div>
               
@@ -872,7 +872,7 @@ export default function HitmakerLandingPage() {
           onClick={handleCTA}
           className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-lg"
         >
-          Get Bundle - $49.99
+          Get Bundle - $25.99
         </button>
       </div>
     </div>
