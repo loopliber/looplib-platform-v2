@@ -369,12 +369,14 @@ export default function ArtistStylePage({ params }: { params: { style: string } 
           </div>
         </section>
 
-        {/* Sample Browser Component */}
+        {/* Sample Browser Component - Hide Hero and Search */}
         <SampleBrowser 
           initialGenre={artist.genre as any}
           pageTitle=""
           pageSubtitle=""
           accentColor={artist.accentColor}
+          hideHero={true}
+          hideSearch={true}
         />
 
         {/* SEO Content Sections */}
