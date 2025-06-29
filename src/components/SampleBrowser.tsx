@@ -35,12 +35,14 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
-interface SampleBrowserProps {
+export interface SampleBrowserProps {
   initialGenre?: Genre;
   pageTitle?: string;
   pageSubtitle?: string;
   accentColor?: string;
   initialSamples?: Sample[];
+  hideHero?: boolean;
+  hideSearch?: boolean;
 }
 
 export default function SampleBrowser({ 
@@ -48,7 +50,9 @@ export default function SampleBrowser({
   pageTitle,
   pageSubtitle,
   accentColor = 'orange',
-  initialSamples = []
+  initialSamples = [],
+  hideHero = false,
+  hideSearch = false
 }: SampleBrowserProps) {
   // Core state
   const [samples, setSamples] = useState<Sample[]>(initialSamples);
@@ -325,34 +329,36 @@ export default function SampleBrowser({
     <div className="min-h-screen bg-black text-white">
       {/* Main Content - Full Width */}
       <main className="w-full">
-        {/* Hero Banner */}
-        <div className="relative h-96 overflow-hidden">
-          {/* Video Background */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src="https://cdn.shopify.com/videos/c/o/v/1164a484c72e494997a983b04279c474.mov" type="video/mp4" />
-          </video>
-          
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/50" />
-          
-          {/* Hero Content */}
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center px-4">
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                Royalty Free Samples & Loops For Future Hits
-              </h1>
-              <p className="text-xl md:text-2xl text-white/90 mb-8">
-                Discover premium sounds & samples for free
-              </p>
+        {/* Conditionally render Hero Banner */}
+        {!hideHero && (
+          <div className="relative h-96 overflow-hidden">
+            {/* Video Background */}
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src="https://cdn.shopify.com/videos/c/o/v/1164a484c72e494997a983b04279c474.mov" type="video/mp4" />
+            </video>
+            
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/50" />
+            
+            {/* Hero Content */}
+            <div className="relative z-10 flex items-center justify-center h-full">
+              <div className="text-center px-4">
+                <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                  Royalty Free Samples & Loops For Future Hits
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 mb-8">
+                  Discover premium sounds & samples for free
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Mobile Filter Button */}
         <div className="md:hidden px-4 py-3 border-b border-neutral-800">
@@ -370,35 +376,37 @@ export default function SampleBrowser({
           </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="sticky top-0 z-20 bg-black border-b border-neutral-800 p-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search any sound.."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-32 py-3 bg-neutral-900 border border-neutral-700 rounded-full 
-                  focus:outline-none focus:border-blue-500 transition-colors text-white"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
-                <a
-                  href="https://shop.looplib.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full text-sm font-medium transition-colors"
-                >
-                  Shop
-                </a>
-                <button className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-colors">
-                  Search
-                </button>
+        {/* Conditionally render Search Bar */}
+        {!hideSearch && (
+          <div className="sticky top-0 z-20 bg-black border-b border-neutral-800 p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search any sound.."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-32 py-3 bg-neutral-900 border border-neutral-700 rounded-full 
+                    focus:outline-none focus:border-blue-500 transition-colors text-white"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                  <a
+                    href="https://shop.looplib.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-full text-sm font-medium transition-colors"
+                  >
+                    Shop
+                  </a>
+                  <button className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-sm font-medium transition-colors">
+                    Search
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Browse by Genre */}
         <div className="p-4 md:p-6 border-b border-neutral-800">
@@ -590,32 +598,34 @@ export default function SampleBrowser({
           </div>
         </div>
 
-        {/* Footer Benefits */}
-        <div className="bg-black border-t border-neutral-800 p-8 md:p-12">
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Music className="w-6 h-6" />
+        {/* Footer Benefits - Only show on home page (when hero is visible) */}
+        {!hideHero && (
+          <div className="bg-black border-t border-neutral-800 p-8 md:p-12">
+            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Music className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-yellow-400 mb-2">Collaborate Easy</h3>
+                <p className="text-sm text-neutral-400">Producer friendly terms</p>
               </div>
-              <h3 className="text-lg font-bold text-yellow-400 mb-2">Collaborate Easy</h3>
-              <p className="text-sm text-neutral-400">Producer friendly terms</p>
-            </div>
-            <div>
-              <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Download className="w-6 h-6" />
+              <div>
+                <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Download className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-yellow-400 mb-2">Yours forever</h3>
+                <p className="text-sm text-neutral-400">Every sound you download is yours to keep</p>
               </div>
-              <h3 className="text-lg font-bold text-yellow-400 mb-2">Yours forever</h3>
-              <p className="text-sm text-neutral-400">Every sound you download is yours to keep</p>
-            </div>
-            <div>
-              <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <X className="w-6 h-6" />
+              <div>
+                <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <X className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-yellow-400 mb-2">Instant Download</h3>
+                <p className="text-sm text-neutral-400">No signups, no fuss</p>
               </div>
-              <h3 className="text-lg font-bold text-yellow-400 mb-2">Instant Download</h3>
-              <p className="text-sm text-neutral-400">No signups, no fuss</p>
             </div>
           </div>
-        </div>
+        )}
       </main>
       
       {/* Mobile Filter Overlay */}
@@ -706,7 +716,7 @@ export default function SampleBrowser({
         </>
       )}
 
-      {/* Terms Modal - add this section */}
+      {/* Terms Modal */}
       <TermsModal
         isOpen={showTermsModal}
         onClose={() => setShowTermsModal(false)}
