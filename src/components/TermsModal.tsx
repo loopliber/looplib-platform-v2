@@ -56,7 +56,7 @@ export default function TermsModal({ isOpen, onClose, sampleName, onAccept }: Te
                 <div className="flex-1">
                   <h3 className="font-semibold text-white mb-2">Collaboration Required</h3>
                   <p className="text-sm text-neutral-300 mb-3">
-                    To use this sample, you must add <span className="text-orange-400 font-medium">@looplib</span> as a collaborator on:
+                    To use this sample, you must add <span className="text-orange-400 font-medium">@ajcookin</span> as a collaborator on:
                   </p>
                   <ul className="space-y-1 text-sm text-neutral-400">
                     <li className="flex items-center space-x-2">
@@ -87,7 +87,7 @@ export default function TermsModal({ isOpen, onClose, sampleName, onAccept }: Te
                     <span className="text-lg font-bold text-white">50%</span>
                   </div>
                   <div className="flex items-center justify-between bg-neutral-900 rounded-lg p-3 mt-2">
-                    <span className="text-sm text-neutral-300">LoopLib</span>
+                    <span className="text-sm text-neutral-300">ajcookin</span>
                     <span className="text-lg font-bold text-white">50%</span>
                   </div>
                 </div>
