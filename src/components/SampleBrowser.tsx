@@ -284,7 +284,7 @@ export default function SampleBrowser({
       const extension = sample.file_url.split('.').pop() || 'mp3';
       const keyFormatted = sample.key ? sample.key.toLowerCase().replace(/\s+/g, '') : 'cmaj';
       const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
-      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @LOOPLIB.${extension}`;
+      const downloadFilename = `${nameFormatted}_${sample.bpm}_${keyFormatted} @ajcookin.${extension}`;
 
       await downloadFile(sample.file_url, downloadFilename);
       toast.success('Download complete!');
