@@ -59,7 +59,7 @@ export const formatFilename = (sample: any, genre?: string): string => {
   const nameFormatted = sample.name.toLowerCase().replace(/\s+/g, '');
   const genreFormatted = genre || sample.genre || 'sample';
   
-  return `${nameFormatted}_${sample.bpm}_${keyFormatted}_${genreFormatted} @LOOPLIB.${extension}`;
+  return `${nameFormatted}_${sample.bpm}_${keyFormatted}_${genreFormatted} @ajcookin.${extension}`;
 };
 
 export const downloadSample = async (sample: any, genre?: string): Promise<void> => {
