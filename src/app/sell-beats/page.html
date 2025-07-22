@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Sell Beats While You Sleep - FLGang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Login Screen */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-box h2 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .login-box button:hover {
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            color: #ff4444;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .value-props {
+            margin-top: 30px;
+            text-align: left;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .value-props h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .value-props ul {
+            list-style: none;
+            font-size: 14px;
+        }
+
+        .value-props li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .value-props li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #ff6b6b;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            display: block;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .nav-menu a:hover {
+            color: #ff6b6b;
+        }
+
+        .hero {
+            margin-top: 80px;
+            padding: 100px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.05) 10px,
+                rgba(255, 255, 255, 0.05) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .content-section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .step {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.2);
+        }
+
+        .step h2 {
+            color: #ff6b6b;
+            font-size: 32px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .step h3 {
+            color: #ff8787;
+            font-size: 24px;
+            margin: 30px 0 15px;
+        }
+
+        .step h4 {
+            color: #ffaaaa;
+            font-size: 20px;
+            margin: 20px 0 10px;
+        }
+
+        .step p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 82, 82, 0.1) 100%);
+            border-left: 4px solid #ff6b6b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(10px);
+        }
+
+        .tool-card h4 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .tool-card a {
+            color: #ff8787;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .tool-card a:hover {
+            text-decoration: underline;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .day-card {
+            background: rgba(255, 107, 107, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .day-card h5 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .tips-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .tips-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .tips-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #ff6b6b;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .warning-box {
+            background: rgba(255, 200, 0, 0.1);
+            border-left: 4px solid #ffc800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .warning-box h4 {
+            color: #ffc800;
+        }
+
+        .success-box {
+            background: rgba(0, 255, 100, 0.1);
+            border-left: 4px solid #00ff64;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .success-box h4 {
+            color: #00ff64;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(255, 82, 82, 0.05) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .case-study h4 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-card .number {
+            font-size: 36px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .metric-card .label {
+            font-size: 14px;
+            color: #ffffff;
+            margin-top: 5px;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: white;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+            
+            .step {
+                padding: 25px;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+        }
+
+        .emoji {
+            font-size: 28px;
+            vertical-align: middle;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b 0%, #ff5252 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            z-index: 9999;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            color: #00ff64;
+            font-size: 14px;
+        }
+
+        .template-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 107, 107, 0.3);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .template-box::before {
+            content: 'TEMPLATE';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #0a0a0a;
+            padding: 0 10px;
+            color: #ff6b6b;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .price-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .price-table th,
+        .price-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price-table th {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+        }
+
+        .price-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checklist {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .checklist h4 {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+        }
+
+        .checklist label {
+            display: block;
+            padding: 10px 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checklist input[type="checkbox"]:checked + span {
+            color: #00ff64;
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h2>🎵 FLGANG PRESENTS</h2>
+            <p style="font-size: 24px; margin: 20px 0;">How to Sell Beats While You Sleep</p>
+            <p style="color: #888; margin-bottom: 20px;">The $10,000/Month Producer Blueprint</p>
+            
+            <div class="value-props">
+                <h3>What's Inside ($49 Value):</h3>
+                <ul>
+                    <li>12 comprehensive steps to automated income</li>
+                    <li>Real case studies from 6-figure producers</li>
+                    <li>Exclusive templates & pricing strategies</li>
+                    <li>Advanced YouTube & TikTok algorithms explained</li>
+                    <li>Complete email marketing system</li>
+                    <li>Lifetime updates & new strategies</li>
+                </ul>
+            </div>
+            
+            <input type="password" id="passwordInput" placeholder="Enter password">
+            <button onclick="checkPassword()">Access Premium Content</button>
+            <p class="error-message" id="errorMessage">Incorrect password. Try again!</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="https://cdn.shopify.com/s/files/1/0968/5119/8301/files/Namnlos_design_5.png" alt="FLGang Logo" />
+                </div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#intro">Introduction</a></li>
+                        <li><a href="#step1">Foundation</a></li>
+                        <li><a href="#step2">Quality</a></li>
+                        <li><a href="#step3">Research</a></li>
+                        <li><a href="#step4">YouTube</a></li>
+                        <li><a href="#step5">Platforms</a></li>
+                        <li><a href="#step6">Social</a></li>
+                        <li><a href="#step7">Email</a></li>
+                        <li><a href="#step8">Pricing</a></li>
+                        <li><a href="#step9">Routine</a></li>
+                        <li><a href="#step10">Scaling</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>How to Sell Beats While You Sleep</h1>
+                <p>The Complete System to Build a $10,000/Month Beat Selling Business</p>
+                <div class="metric-grid" style="margin-top: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <div class="metric-card">
+                        <div class="number">2.5M+</div>
+                        <div class="label">Beats Sold</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="number">$49</div>
+                        <div class="label">Investment</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="number">30 Days</div>
+                        <div class="label">To Results</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Sections -->
+        <div class="content-section">
+            <!-- Introduction -->
+            <div class="step" id="intro">
+                <h2><span class="emoji">🎯</span> Introduction: Why Most Producers Fail (And How You Won't)</h2>
+                
+                <p>Let me guess. You're talented. You make fire beats. But you're not making the money you deserve. Sound familiar?</p>
+                
+                <p>Here's the truth: 95% of producers fail not because they lack talent, but because they lack a SYSTEM. They upload randomly, hope for the best, and wonder why they're stuck at $200/month while others are banking $10K+.</p>
+
+                <div class="case-study">
+                    <h4>🔥 Case Study: From $0 to $8,400/Month in 6 Months</h4>
+                    <p>Producer "KBeatz" was working a 9-5, making beats at night. No following, no connections, just passion. After implementing this exact system:</p>
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="number">847</div>
+                            <div class="label">Beats Sold</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="number">$8,400</div>
+                            <div class="label">Monthly Revenue</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="number">2hrs</div>
+                            <div class="label">Daily Work</div>
+                        </div>
+                    </div>
+                    <p><strong>The difference?</strong> He stopped treating beat selling like a hobby and started treating it like a business.</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>What You'll Master in This Guide:</h4>
+                    <ul class="tips-list">
+                        <li>The "4-Pillar System" that generates sales 24/7</li>
+                        <li>How to find profitable niches before they explode</li>
+                        <li>The exact upload schedule that triggers YouTube's algorithm</li>
+                        <li>Multi-platform strategies that 10x your exposure</li>
+                        <li>Pricing psychology that makes artists buy instantly</li>
+                        <li>Email sequences that convert lurkers into buyers</li>
+                        <li>The "Sunday System" that automates your entire week</li>
+                        <li>Scaling strategies to hit $10K/month and beyond</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Warning:</h4>
+                    <p>This guide requires work. If you're looking for overnight success or magic buttons, close this now. But if you're ready to build a real business that pays you while you sleep, keep reading.</p>
+                </div>
+            </div>
+
+            <!-- Step 1: Foundation -->
+            <div class="step" id="step1">
+                <h2><span class="emoji">🏗️</span> Step 1: Building Your Million-Dollar Foundation</h2>
+                
+                <p>Before we talk beats, let's talk business. Because that's what you're building – a BUSINESS. And every successful business starts with the right foundation.</p>
+
+                <h3>The 4-Pillar System</h3>
+                <p>This system is what separates hobbyists from professionals:</p>
+
+                <div class="tool-card">
+                    <h4>Pillar 1: Production Excellence</h4>
+                    <p>You need a consistent sound that's instantly recognizable. Not just good beats – a SIGNATURE. When someone hears your beat, they should know it's yours within 10 seconds.</p>
+                </div>
+
+                <div class="tool-card">
+                    <h4>Pillar 2: Strategic Distribution</h4>
+                    <p>One platform = one income stream. Multiple platforms = multiple income streams. We're going to be EVERYWHERE your customers are.</p>
+                </div>
+
+                <div class="tool-card">
+                    <h4>Pillar 3: Automated Marketing</h4>
+                    <p>Your beats should sell themselves while you sleep, eat, and create. We'll build systems that work 24/7/365.</p>
+                </div>
+
+                <div class="tool-card">
+                    <h4>Pillar 4: Customer Journey Optimization</h4>
+                    <p>From first listen to purchase, every step should be smooth, professional, and designed to convert.</p>
+                </div>
+
+                <h3>Setting Up Your Professional Identity</h3>
+                
+                <div class="checklist">
+                    <h4>Week 1 Setup Checklist:</h4>
+                    <label><input type="checkbox"><span>Choose a memorable producer name (searchable, unique, easy to spell)</span></label>
+                    <label><input type="checkbox"><span>Create consistent branding (logo, colors, fonts)</span></label>
+                    <label><input type="checkbox"><span>Set up professional email (yourname@yourdomain.com)</span></label>
+                    <label><input type="checkbox"><span>Register domain name for future website</span></label>
+                    <label><input type="checkbox"><span>Create accounts on ALL platforms (we'll cover these)</span></label>
+                    <label><input type="checkbox"><span>Set up payment systems (PayPal, Stripe, etc.)</span></label>
+                    <label><input type="checkbox"><span>Create social media accounts with consistent handles</span></label>
+                </div>
+
+                <h3>The Psychology of Success</h3>
+                <p>Here's what nobody tells you: Beat selling is 20% music, 30% marketing, and 50% mindset. You need to think like a CEO, not just a producer.</p>
+
+                <div class="highlight-box">
+                    <h4>Daily Affirmations for Producers:</h4>
+                    <p>Start each day with these mindset shifts:</p>
+                    <ul>
+                        <li>"I'm not just making beats, I'm providing value"</li>
+                        <li>"Every beat I upload is an asset that works for me"</li>
+                        <li>"I deserve to be paid well for my creativity"</li>
+                        <li>"My success is inevitable with consistent action"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 2: Quality Standards -->
+            <div class="step" id="step2">
+                <h2><span class="emoji">🎹</span> Step 2: The Quality Code - Engineering Beats That Sell Themselves</h2>
+                
+                <p>Let's destroy a myth right now: Complex beats don't sell better. In fact, they often sell WORSE. The biggest placements, the most sales, the viral hits – they're almost always SIMPLE.</p>
+
+                <h3>The Anatomy of a $1,000 Beat</h3>
+                
+                <div class="case-study">
+                    <h4>🎵 Real Example: "Night Crawler" Type Beat</h4>
+                    <p>This beat sold 127 times at $30 (basic license). Total revenue: $3,810. Here's the breakdown:</p>
+                    <ul class="tips-list">
+                        <li><strong>Drums:</strong> Basic 2-step pattern, kick on 1 and 3, snare on 2 and 4</li>
+                        <li><strong>Hi-hats:</strong> Simple 4-bar loop with occasional rolls</li>
+                        <li><strong>Melody:</strong> 4-chord progression, minor key, played by one VST</li>
+                        <li><strong>Bass:</strong> Follows the root notes, nothing fancy</li>
+                        <li><strong>Total tracks:</strong> 8 (yes, only 8!)</li>
+                    </ul>
+                </div>
+
+                <h3>The KISS Method (Keep It Simple, Sellable)</h3>
+                
+                <div class="tool-card">
+                    <h4>Why Simple Beats Dominate:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Versatility:</strong> Artists can take them in any direction</li>
+                        <li><strong>Mixability:</strong> Space for vocals without clashing</li>
+                        <li><strong>Memorability:</strong> Catchy loops stick in heads</li>
+                        <li><strong>Accessibility:</strong> Works for beginners and pros</li>
+                        <li><strong>Commercial Appeal:</strong> Radio-ready from the start</li>
+                    </ul>
+                </div>
+
+                <h3>The Hit Formula Breakdown</h3>
+                
+                <h4>Drum Programming Secrets</h4>
+                <div class="code-block">
+                    <code>
+Perfect Trap Pattern:
+Kick:  X - - - X - - - X - - - X - - -
+Snare: - - - - X - - - - - - - X - - -
+HiHat: X X X X X X X X X X X X X X X X
+                    </code>
+                </div>
+                
+                <p>This pattern has generated millions in beat sales. Why? It's the perfect balance of bounce and space.</p>
+
+                <h4>Melody Creation Framework</h4>
+                <div class="highlight-box">
+                    <h4>The 4-Bar Magic:</h4>
+                    <p>Your main melody should be 4 bars MAX. Here's why:</p>
+                    <ul>
+                        <li>Easy to rap over repeatedly</li>
+                        <li>Doesn't get boring or repetitive</li>
+                        <li>Leaves room for vocal melodies</li>
+                        <li>Faster to create = more output</li>
+                    </ul>
+                </div>
+
+                <h3>Mix & Master Standards</h3>
+                
+                <div class="tool-card">
+                    <h4>The Pro Mix Checklist:</h4>
+                    <p>Every beat should meet these standards before upload:</p>
+                    <ul class="tips-list">
+                        <li><strong>Headroom:</strong> -6db peak to leave room for vocals</li>
+                        <li><strong>Low End:</strong> Clean 808s that hit hard but don't mud</li>
+                        <li><strong>Clarity:</strong> Each element sits in its own frequency range</li>
+                        <li><strong>Loudness:</strong> Competitive but not squashed (-14 LUFS)</li>
+                        <li><strong>Stereo Image:</strong> Wide but mono-compatible</li>
+                        <li><strong>Reference:</strong> A/B test against commercial releases</li>
+                    </ul>
+                </div>
+
+                <h3>Quality Control System</h3>
+                
+                <div class="template-box">
+                    <h4>Pre-Upload Checklist:</h4>
+                    <ol>
+                        <li>Listen on 3 different systems (monitors, headphones, phone)</li>
+                        <li>Check mono compatibility</li>
+                        <li>Ensure no clipping or distortion</li>
+                        <li>Verify BPM is correct and consistent</li>
+                        <li>Export in multiple formats (WAV, MP3 320)</li>
+                        <li>Create tracked-out stems for serious buyers</li>
+                        <li>Test with reference vocals to ensure mixability</li>
+                    </ol>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Common Quality Mistakes:</h4>
+                    <ul>
+                        <li>Over-compressing (kills dynamics)</li>
+                        <li>Too many elements (confuses the vibe)</li>
+                        <li>Muddy low end (808s and kick clashing)</li>
+                        <li>Harsh highs (ear fatigue = no sale)</li>
+                        <li>No arrangement (just loops = boring)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3: Market Research -->
+            <div class="step" id="step3">
+                <h2><span class="emoji">🔬</span> Step 3: The Research Matrix - Finding Gold Before Everyone Else</h2>
+                
+                <p>This is where we separate the amateurs from the pros. While everyone else is guessing, you'll KNOW exactly what sells.</p>
+
+                <h3>The Keyword Goldmine Strategy</h3>
+                
+                <div class="tool-card">
+                    <h4>🛠️ Primary Tool: RyRob Keyword Research</h4>
+                    <p><strong>Website:</strong> <a href="https://www.ryrob.com/keyword-tool/" target="_blank">www.ryrob.com/keyword-tool/</a></p>
+                    <p>This free tool is your secret weapon. Here's the advanced strategy:</p>
+                </div>
+
+                <h4>The 3-Layer Research Method</h4>
+                
+                <div class="highlight-box">
+                    <h4>Layer 1: Artist Research</h4>
+                    <p>Start with established artists, but dig deeper:</p>
+                    <ul class="tips-list">
+                        <li>Search "[Artist] type beat 2025"</li>
+                        <li>Look for 10K-50K monthly searches (sweet spot)</li>
+                        <li>Avoid oversaturated markets (500K+ searches)</li>
+                        <li>Note seasonal trends and patterns</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Layer 2: Sub-Genre Mining</h4>
+                    <p>This is where the money is:</p>
+                    <ul class="tips-list">
+                        <li>Combine artists: "Drake x The Weeknd type beat"</li>
+                        <li>Add moods: "Dark Travis Scott type beat"</li>
+                        <li>Include years: "2025 Lil Baby type beat"</li>
+                        <li>Regional styles: "Detroit type beat 2025"</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Layer 3: Emerging Artist Tracking</h4>
+                    <p>Get in early before the competition:</p>
+                    <ul class="tips-list">
+                        <li>Monitor Spotify's "Fresh Finds" playlists</li>
+                        <li>Check TikTok's trending sounds weekly</li>
+                        <li>Follow A&R accounts on Twitter</li>
+                        <li>Watch XXL Freshman predictions</li>
+                    </ul>
+                </div>
+
+                <div class="case-study">
+                    <h4>💰 Success Story: The $50K Niche</h4>
+                    <p>Producer "Metro Beatz" discovered "Ken Carson type beat" had only 5,000 searches/month but ZERO competition. He dominated the niche early:</p>
+                    <ul>
+                        <li>Uploaded 50 Ken Carson type beats in 2 months</li>
+                        <li>Ranked #1-10 on YouTube for the keyword</li>
+                        <li>When Ken Carson blew up, searches went to 100K/month</li>
+                        <li>Result: $50,000 in sales in 6 months from ONE niche</li>
+                    </ul>
+                </div>
+
+                <h3>Advanced Research Tactics</h3>
+                
+                <div class="tool-card">
+                    <h4>The Competition Analysis Framework:</h4>
+                    <ol>
+                        <li><strong>Find Top Producers:</strong> Search your target keywords</li>
+                        <li><strong>Analyze Their Patterns:</strong> Upload frequency, titling, tags</li>
+                        <li><strong>Study Their Comments:</strong> What are buyers asking for?</li>
+                        <li><strong>Check Their Sold Beats:</strong> What styles sell most?</li>
+                        <li><strong>Identify Gaps:</strong> What are they NOT making?</li>
+                    </ol>
+                </div>
+
+                <h3>The Data Tracking System</h3>
+                
+                <div class="template-box">
+                    <h4>Weekly Research Spreadsheet:</h4>
+                    <table class="price-table">
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Monthly Searches</th>
+                            <th>Competition</th>
+                            <th>Opportunity Score</th>
+                        </tr>
+                        <tr>
+                            <td>Yeat type beat</td>
+                            <td>45,000</td>
+                            <td>Medium</td>
+                            <td>8/10</td>
+                        </tr>
+                        <tr>
+                            <td>Destroy Lonely type beat</td>
+                            <td>25,000</td>
+                            <td>Low</td>
+                            <td>9/10</td>
+                        </tr>
+                        <tr>
+                            <td>Rage beat 2025</td>
+                            <td>35,000</td>
+                            <td>Medium</td>
+                            <td>7/10</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="success-box">
+                    <h4>✅ Pro Tip:</h4>
+                    <p>Set up Google Alerts for "signing record deal" + "rapper". You'll know about new artists before they blow up, giving you first-mover advantage.</p>
+                </div>
+            </div>
+
+            <!-- Step 4: YouTube Domination -->
+            <div class="step" id="step4">
+                <h2><span class="emoji">📺</span> Step 4: YouTube Algorithm Mastery - Your 24/7 Sales Machine</h2>
+                
+                <p>YouTube isn't just a platform – it's your automated salesperson that never sleeps. Master the algorithm, and you'll have customers finding YOU.</p>
+
+                <h3>The Algorithm Decoded</h3>
+                
+                <div class="highlight-box">
+                    <h4>What YouTube REALLY Wants:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Consistency:</strong> Same time uploads daily</li>
+                        <li><strong>Watch Time:</strong> People listening to full beats</li>
+                        <li><strong>Session Duration:</strong> Viewers staying on platform</li>
+                        <li><strong>Click-Through Rate:</strong> Irresistible thumbnails</li>
+                        <li><strong>Engagement:</strong> Comments, likes, shares</li>
+                    </ul>
+                </div>
+
+                <h3>The Perfect Upload Strategy</h3>
+                
+                <div class="tool-card">
+                    <h4>🎥 Game Changer: TunesToTube</h4>
+                    <p><strong>Website:</strong> <a href="https://www.tunestotube.com/" target="_blank">www.tunestotube.com/</a></p>
+                    <p>Here's how to use it like a pro:</p>
+                    <ul class="tips-list">
+                        <li>Upload 7 beats every Sunday for the week</li>
+                        <li>Schedule for 3 PM EST (peak traffic time)</li>
+                        <li>Use their visualizer templates (saves hours)</li>
+                        <li>Batch process for maximum efficiency</li>
+                    </ul>
+                </div>
+
+                <h3>Title Optimization Science</h3>
+                
+                <div class="template-box">
+                    <h4>The Million-View Title Formula:</h4>
+                    <p><strong>Structure:</strong> [Artist] Type Beat 2025 - "[Name]" | [Mood] [Sub-genre] Instrumental</p>
+                    <p><strong>Example:</strong> Drake Type Beat 2025 - "Midnight" | Dark R&B Trap Instrumental</p>
+                    
+                    <h5>Power Words That Increase Clicks:</h5>
+                    <ul>
+                        <li>Hard, Dark, Chill, Ambient, Aggressive</li>
+                        <li>Bouncy, Wavy, Melodic, Emotional</li>
+                        <li>Guitar, Piano, Flute, Synth (instrument-based)</li>
+                        <li>FREE (if offering free downloads)</li>
+                    </ul>
+                </div>
+
+                <h3>Description Mastery</h3>
+                
+                <div class="code-block">
+                    <code>
+🔥 [BEAT NAME] - [ARTIST] Type Beat 2025
+
+💰 Purchase/Download: [BeatStars Link]
+📧 Email: [Your Email]
+📱 Instagram: @[Your Handle]
+
+🎹 Key: [Key]
+⏱️ BPM: [BPM]
+🎵 Mood: [Mood descriptors]
+
+[IMPORTANT KEYWORDS PARAGRAPH]
+This [artist] type beat is perfect for artists looking for 
+[mood] instrumentals. Produced by [Your Name], this beat 
+features [instruments] with [characteristics]. 
+
+🏷️ TAGS:
+#[Artist]TypeBeat #TypeBeat #Beats #Instrumental
+[Add 10-15 relevant hashtags]
+
+© 2025 [Your Name]. All rights reserved.
+                    </code>
+                </div>
+
+                <h3>Thumbnail Psychology</h3>
+                
+                <div class="tool-card">
+                    <h4>Elements of a Click-Worthy Thumbnail:</h4>
+                    <ul class="tips-list">
+                        <li><strong>High Contrast:</strong> Stands out in feed</li>
+                        <li><strong>Artist Image:</strong> Instantly recognizable</li>
+                        <li><strong>Your Logo:</strong> Brand recognition</li>
+                        <li><strong>Mood Indicators:</strong> Dark/light backgrounds</li>
+                        <li><strong>Text:</strong> Large, readable on mobile</li>
+                    </ul>
+                </div>
+
+                <h3>Advanced YouTube Strategies</h3>
+                
+                <div class="highlight-box">
+                    <h4>The Playlist Hack:</h4>
+                    <p>Create themed playlists to increase session time:</p>
+                    <ul>
+                        <li>"Dark Trap Beats 2025" (20-30 beats)</li>
+                        <li>"Melodic Rap Instrumentals" (themed)</li>
+                        <li>"[Artist] Type Beats Collection" (all similar)</li>
+                        <li>Update weekly with new uploads</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Algorithm Killers to Avoid:</h4>
+                    <ul>
+                        <li>Clickbait titles (damages trust)</li>
+                        <li>Irregular upload schedule (confuses algorithm)</li>
+                        <li>Copyright strikes (channel death)</li>
+                        <li>Buying fake views (YouTube detects this)</li>
+                        <li>Ignoring comments (kills engagement)</li>
+                    </ul>
+                </div>
+
+                <div class="case-study">
+                    <h4>📈 Case Study: 0 to 100K Subscribers</h4>
+                    <p>"TrapMoney Beats" grew from 0 to 100K subscribers in 8 months:</p>
+                    <ul>
+                        <li><strong>Strategy:</strong> Posted EVERY day at 3 PM EST</li>
+                        <li><strong>Niche:</strong> Focused only on "melodic trap beats"</li>
+                        <li><strong>Engagement:</strong> Responded to every comment</li>
+                        <li><strong>Result:</strong> 2.5M views/month = $15K revenue</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 5: Multi-Platform Strategy -->
+            <div class="step" id="step5">
+                <h2><span class="emoji">🌐</span> Step 5: The Multi-Platform Money Machine</h2>
+                
+                <p>One platform = one point of failure. Multiple platforms = multiple revenue streams. Here's how to dominate them all without burning out.</p>
+
+                <h3>The Big Three Breakdown</h3>
+                
+                <div class="tool-card">
+                    <h4>🎵 BeatStars - The Giant</h4>
+                    <p><strong>Why it's essential:</strong></p>
+                    <ul class="tips-list">
+                        <li>Largest marketplace (millions of users)</li>
+                        <li>Built-in licensing system</li>
+                        <li>Instant payments</li>
+                        <li>SEO benefits (ranks in Google)</li>
+                        <li>Community features</li>
+                    </ul>
+                    <p><strong>Pro Strategy:</strong> Use their promotional tools during peak hours (Friday 6-9 PM)</p>
+                </div>
+
+                <div class="tool-card">
+                    <h4>🎧 Airbit - The Underdog</h4>
+                    <p><strong>Hidden advantages:</strong></p>
+                    <ul class="tips-list">
+                        <li>Lower fees (more profit per sale)</li>
+                        <li>Better analytics dashboard</li>
+                        <li>Custom contract builder</li>
+                        <li>HTML5 player for your website</li>
+                        <li>Less competition</li>
+                    </ul>
+                    <p><strong>Pro Strategy:</strong> Offer exclusive discounts here to build loyal customer base</p>
+                </div>
+
+                <div class="tool-card">
+                    <h4>🔥 Traktrain - The Elite</h4>
+                    <p><strong>Why pros love it:</strong></p>
+                    <ul class="tips-list">
+                        <li>Curated community (quality over quantity)</li>
+                        <li>Higher price tolerance</li>
+                        <li>Less saturated</li>
+                        <li>International reach</li>
+                        <li>Unique sound appreciation</li>
+                    </ul>
+                    <p><strong>Pro Strategy:</strong> Post your most unique/experimental beats here</p>
+                </div>
+
+                <h3>The Upload Matrix</h3>
+                
+                <div class="template-box">
+                    <h4>Platform-Specific Optimization:</h4>
+                    <table class="price-table">
+                        <tr>
+                            <th>Platform</th>
+                            <th>Best Time</th>
+                            <th>Tags</th>
+                            <th>Price Strategy</th>
+                        </tr>
+                        <tr>
+                            <td>BeatStars</td>
+                            <td>Friday 6 PM</td>
+                            <td>15-20 tags</td>
+                            <td>Competitive</td>
+                        </tr>
+                        <tr>
+                            <td>Airbit</td>
+                            <td>Tuesday 2 PM</td>
+                            <td>10-15 tags</td>
+                            <td>10% lower</td>
+                        </tr>
+                        <tr>
+                            <td>Traktrain</td>
+                            <td>Thursday 8 PM</td>
+                            <td>5-10 tags</td>
+                            <td>Premium (+20%)</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>Cross-Platform Synergy</h3>
+                
+                <div class="highlight-box">
+                    <h4>The Triple Stack Method:</h4>
+                    <ol>
+                        <li><strong>YouTube:</strong> Discovery engine (free listens)</li>
+                        <li><strong>Platforms:</strong> Purchase destinations</li>
+                        <li><strong>Social Media:</strong> Engagement drivers</li>
+                    </ol>
+                    <p>Each platform feeds the others. YouTube brings awareness, platforms handle transactions, social media builds relationships.</p>
+                </div>
+
+                <h3>Platform-Specific Hacks</h3>
+                
+                <div class="success-box">
+                    <h4>✅ BeatStars Algorithm Hack:</h4>
+                    <p>Upload between 6-8 PM EST on Fridays. The "New Beats" section gets most traffic during this window. First 24 hours are CRUCIAL for ranking.</p>
+                </div>
+
+                <div class="success-box">
+                    <h4>✅ Airbit SEO Secret:</h4>
+                    <p>Their beat pages rank well in Google. Use descriptive, SEO-friendly beat names like "Dark-Piano-Trap-Beat-Minor-Key" instead of random names.</p>
+                </div>
+
+                <div class="success-box">
+                    <h4>✅ Traktrain Community Trick:</h4>
+                    <p>Engage with other producers' beats genuinely. The algorithm rewards active community members with better placement.</p>
+                </div>
+            </div>
+
+            <!-- Step 6: Social Media -->
+            <div class="step" id="step6">
+                <h2><span class="emoji">📱</span> Step 6: Social Media Automation That Actually Converts</h2>
+                
+                <p>Social media isn't just for clout – it's a direct sales channel. But most producers waste hours for zero return. Here's how to turn scrollers into buyers on autopilot.</p>
+
+                <h3>Instagram: The Visual Seller</h3>
+                
+                <div class="tool-card">
+                    <h4>The Perfect IG Strategy:</h4>
+                    <p><strong>Content Mix (Follow the 80/20 Rule):</strong></p>
+                    <ul class="tips-list">
+                        <li>80% value content (beat snippets, tips, process)</li>
+                        <li>20% direct promotion</li>
+                    </ul>
+                </div>
+
+                <div class="template-box">
+                    <h4>High-Converting Post Templates:</h4>
+                    
+                    <h5>Template 1: The Beat Drop</h5>
+                    <p><strong>Visual:</strong> 15-second beat video with visualizer</p>
+                    <p><strong>Caption:</strong><br>
+                    "Artists use this beat 🔥<br>
+                    <br>
+                    BPM: 140 | Key: C# Minor<br>
+                    <br>
+                    Purchase link in bio 📱<br>
+                    <br>
+                    What artist you hear on this? 👇"</p>
+                    
+                    <h5>Template 2: The Process Post</h5>
+                    <p><strong>Visual:</strong> Screen recording of beat making</p>
+                    <p><strong>Caption:</strong><br>
+                    "Made this in 20 minutes 😤<br>
+                    <br>
+                    Sometimes the best beats are the simple ones<br>
+                    <br>
+                    Full beat on YouTube (link in bio)<br>
+                    <br>
+                    Producers: How long do your beats take? 🎹"</p>
+                </div>
+
+                <h3>TikTok: The Viral Engine</h3>
+                
+                <div class="highlight-box">
+                    <h4>TikTok Algorithm Secrets:</h4>
+                    <ul class="tips-list">
+                        <li><strong>First 3 seconds:</strong> Hook them or lose them</li>
+                        <li><strong>Trending sounds:</strong> Remix popular songs into type beats</li>
+                        <li><strong>Challenges:</strong> Create "rap on this beat" challenges</li>
+                        <li><strong>Behind scenes:</strong> Show your production process</li>
+                        <li><strong>Duets:</strong> React to artists who might use your style</li>
+                    </ul>
+                </div>
+
+                <div class="case-study">
+                    <h4>🚀 Viral Case Study: 5M Views = $25K</h4>
+                    <p>Producer "YungProducer" posted a 15-second beat with text "POV: You made a beat at 3AM and it might be your best one"</p>
+                    <ul>
+                        <li>5.2M views in 48 hours</li>
+                        <li>400K profile visits</li>
+                        <li>25,000 YouTube subscribers gained</li>
+                        <li>$25K in beat sales that week</li>
+                    </ul>
+                    <p><strong>Key:</strong> Relatable content + fire beat = viral potential</p>
+                </div>
+
+                <h3>Content Calendar System</h3>
+                
+                <div class="schedule-grid">
+                    <div class="day-card">
+                        <h5>Monday</h5>
+                        <p><strong>Motivation Monday</strong></p>
+                        <p>Producer tips/advice</p>
+                    </div>
+                    <div class="day-card">
+                        <h5>Tuesday</h5>
+                        <p><strong>Beat Drop</strong></p>
+                        <p>New beat preview</p>
+                    </div>
+                    <div class="day-card">
+                        <h5>Wednesday</h5>
+                        <p><strong>Process Post</strong></p>
+                        <p>Behind the scenes</p>
+                    </div>
+                    <div class="day-card">
+                        <h5>Thursday</h5>
+                        <p><strong>Throwback</strong></p>
+                        <p>Best sellers</p>
+                    </div>
+                    <div class="day-card">
+                        <h5>Friday</h5>
+                        <p><strong>Free Beat Friday</strong></p>
+                        <p>Build email list</p>
+                    </div>
+                    <div class="day-card">
+                        <h5>Saturday</h5>
+                        <p><strong>Community</strong></p>
+                        <p>Engage with followers</p>
+                    </div>
+                    <div class="day-card">
+                        <h5>Sunday</h5>
+                        <p><strong>Setup Day</strong></p>
+                        <p>Schedule week's content</p>
+                    </div>
+                </div>
+
+                <h3>Automation Tools</h3>
+                
+                <div class="tool-card">
+                    <h4>Time-Saving Stack:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Later:</strong> Schedule posts across platforms</li>
+                        <li><strong>Canva:</strong> Create templates for consistency</li>
+                        <li><strong>Linktree:</strong> One link for all your platforms</li>
+                        <li><strong>IFTTT:</strong> Auto-post from YouTube to social</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Social Media Mistakes:</h4>
+                    <ul>
+                        <li>Posting only when you upload (stay consistent)</li>
+                        <li>Ignoring comments (engagement matters)</li>
+                        <li>Being too salesy (provide value first)</li>
+                        <li>Inconsistent branding (confuses followers)</li>
+                        <li>Not using stories (huge opportunity)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 7: Email Marketing -->
+            <div class="step" id="step7">
+                <h2><span class="emoji">📧</span> Step 7: The Email Empire - Your Most Profitable Asset</h2>
+                
+                <p>Your email list is the ONLY audience you truly own. No algorithm changes, no platform bans – just direct access to buyers. This is where fortunes are made.</p>
+
+                <h3>Building Your List</h3>
+                
+                <div class="highlight-box">
+                    <h4>The Irresistible Offer Strategy:</h4>
+                    <p><strong>"Free Beat Friday" System:</strong></p>
+                    <ul class="tips-list">
+                        <li>Give away one premium beat every Friday</li>
+                        <li>Require email for download</li>
+                        <li>Announce on all platforms Thursday</li>
+                        <li>Create urgency: "24 hours only"</li>
+                        <li>Result: 100-500 emails per week</li>
+                    </ul>
+                </div>
+
+                <h3>Email Automation Sequences</h3>
+                
+                <div class="template-box">
+                    <h4>The 7-Day Welcome Series:</h4>
+                    
+                    <h5>Day 1: Welcome & Free Beat</h5>
+                    <p><strong>Subject:</strong> Your free beat is here 🔥</p>
+                    <p><strong>Content:</strong> Deliver the beat + introduce yourself</p>
+                    
+                    <h5>Day 2: Your Story</h5>
+                    <p><strong>Subject:</strong> Why I started making beats...</p>
+                    <p><strong>Content:</strong> Personal connection builds trust</p>
+                    
+                    <h5>Day 3: Best Sellers</h5>
+                    <p><strong>Subject:</strong> These 3 beats changed everything</p>
+                    <p><strong>Content:</strong> Showcase your most popular work</p>
+                    
+                    <h5>Day 5: Tutorial/Value</h5>
+                    <p><strong>Subject:</strong> How I make beats that artists love</p>
+                    <p><strong>Content:</strong> Give genuine value, build authority</p>
+                    
+                    <h5>Day 7: Special Offer</h5>
+                    <p><strong>Subject:</strong> Exclusive 40% off (subscribers only)</p>
+                    <p><strong>Content:</strong> Time-limited discount code</p>
+                </div>
+
+                <h3>Revenue-Generating Campaigns</h3>
+                
+                <div class="tool-card">
+                    <h4>Monthly Money Makers:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Beat Pack Tuesday:</strong> Bundle deals (3 for 2)</li>
+                        <li><strong>Flash Sales:</strong> 4-hour discounts</li>
+                        <li><strong>Exclusive Releases:</strong> Email list gets first access</li>
+                        <li><strong>Loyalty Rewards:</strong> Discounts for repeat buyers</li>
+                        <li><strong>Collaboration Calls:</strong> Find artists to work with</li>
+                    </ul>
+                </div>
+
+                <div class="case-study">
+                    <h4>💰 Email Success Story:</h4>
+                    <p>Producer "EmailBeats" built a 5,000 person list in 6 months:</p>
+                    <ul>
+                        <li><strong>Strategy:</strong> Free Beat Friday + YouTube opt-ins</li>
+                        <li><strong>Open Rate:</strong> 35% (industry average: 15%)</li>
+                        <li><strong>Revenue:</strong> $2,500/month from email alone</li>
+                        <li><strong>Best Campaign:</strong> Black Friday bundle = $8K in 24 hours</li>
+                    </ul>
+                </div>
+
+                <h3>Email Best Practices</h3>
+                
+                <div class="highlight-box">
+                    <h4>The Golden Rules:</h4>
+                    <ul class="tips-list">
+                        <li>Email at least once per week (stay top of mind)</li>
+                        <li>Always provide value, not just sales</li>
+                        <li>Segment your list (buyers vs. free users)</li>
+                        <li>A/B test subject lines</li>
+                        <li>Mobile optimize everything</li>
+                        <li>Include beat previews in emails</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 8: Pricing Psychology -->
+            <div class="step" id="step8">
+                <h2><span class="emoji">💰</span> Step 8: Pricing Psychology - The Art of the Profitable Deal</h2>
+                
+                <p>Pricing isn't about what YOU think your beats are worth. It's about understanding buyer psychology and creating irresistible offers.</p>
+
+                <h3>The Tier System That Sells</h3>
+                
+                <div class="template-box">
+                    <h4>The Perfect Price Structure:</h4>
+                    <table class="price-table">
+                        <tr>
+                            <th>License Type</th>
+                            <th>Price</th>
+                            <th>Rights</th>
+                            <th>Why It Works</th>
+                        </tr>
+                        <tr>
+                            <td>Basic Lease</td>
+                            <td>$29.99</td>
+                            <td>MP3, 10k streams</td>
+                            <td>Low entry point</td>
+                        </tr>
+                        <tr>
+                            <td>Premium Lease</td>
+                            <td>$59.99</td>
+                            <td>WAV, 100k streams</td>
+                            <td>Most popular choice</td>
+                        </tr>
+                        <tr>
+                            <td>Trackout Lease</td>
+                            <td>$99.99</td>
+                            <td>Stems, 500k streams</td>
+                            <td>Pro artists need this</td>
+                        </tr>
+                        <tr>
+                            <td>Unlimited Lease</td>
+                            <td>$199.99</td>
+                            <td>Unlimited use</td>
+                            <td>Best value perception</td>
+                        </tr>
+                        <tr>
+                            <td>Exclusive Rights</td>
+                            <td>$500+</td>
+                            <td>Full ownership</td>
+                            <td>Premium positioning</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h3>Psychological Pricing Triggers</h3>
+                
+                <div class="highlight-box">
+                    <h4>The Science of Selling:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Anchor High:</strong> Show exclusive price first ($500)</li>
+                        <li><strong>Rule of 3:</strong> Most pick the middle option</li>
+                        <li><strong>Urgency:</strong> "Price increases in 48 hours"</li>
+                        <li><strong>Scarcity:</strong> "Only 5 leases available"</li>
+                        <li><strong>Social Proof:</strong> "137 producers bought this"</li>
+                    </ul>
+                </div>
+
+                <h3>Bundle Strategies</h3>
+                
+                <div class="tool-card">
+                    <h4>High-Converting Bundle Ideas:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Buy 2 Get 1 Free:</strong> Increases average order value</li>
+                        <li><strong>Genre Packs:</strong> 5 similar beats for $99</li>
+                        <li><strong>Producer Pack:</strong> 10 beats + bonus content</li>
+                        <li><strong>Exclusive Bundle:</strong> 3 exclusives for $1,200</li>
+                        <li><strong>Subscription Model:</strong> 5 beats/month for $49</li>
+                    </ul>
+                </div>
+
+                <div class="case-study">
+                    <h4>💸 Pricing Test Results:</h4>
+                    <p>We tested 5 different price points across 1,000 beats:</p>
+                    <ul>
+                        <li>$19.99 basic lease: 45 sales, $899 revenue</li>
+                        <li>$29.99 basic lease: 38 sales, $1,139 revenue</li>
+                        <li>$39.99 basic lease: 22 sales, $879 revenue</li>
+                        <li><strong>Winner: $29.99 = sweet spot for conversions</strong></li>
+                    </ul>
+                </div>
+
+                <h3>Negotiation Tactics</h3>
+                
+                <div class="warning-box">
+                    <h4>⚠️ When Artists Ask for Discounts:</h4>
+                    <p><strong>Instead of lowering price, add value:</strong></p>
+                    <ul>
+                        <li>"I can't discount, but I'll throw in another beat"</li>
+                        <li>"Full price, but I'll include the trackouts"</li>
+                        <li>"Buy today and I'll add exclusive Instagram promo"</li>
+                    </ul>
+                    <p>This maintains your value while making them feel special.</p>
+                </div>
+
+                <h3>Payment Psychology</h3>
+                
+                <div class="success-box">
+                    <h4>✅ The Payment Option Hack:</h4>
+                    <p>Offer multiple payment methods. We saw 23% increase in sales by adding:</p>
+                    <ul>
+                        <li>PayPal (trust factor)</li>
+                        <li>Crypto (international buyers)</li>
+                        <li>Payment plans (for exclusive rights)</li>
+                        <li>Venmo/CashApp (younger artists)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 9: The Sunday System -->
+            <div class="step" id="step9">
+                <h2><span class="emoji">⏰</span> Step 9: The Sunday System - Your Weekly Success Ritual</h2>
+                
+                <p>This is the system that changes everything. One day of focused work sets up your entire week for automated success.</p>
+
+                <h3>The Complete Sunday Schedule</h3>
+                
+                <div class="template-box">
+                    <h4>Your New Sunday Routine:</h4>
+                    
+                    <h5>9:00 AM - 10:00 AM: Export & Organize</h5>
+                    <ul>
+                        <li>Export all beats from the week (WAV + MP3)</li>
+                        <li>Create trackout folders</li>
+                        <li>Name files properly: Artist_Type_Beat_Title_BPM_KEY</li>
+                        <li>Backup to cloud storage</li>
+                    </ul>
+                    
+                    <h5>10:00 AM - 11:30 AM: Visual Creation</h5>
+                    <ul>
+                        <li>Open TunesToTube</li>
+                        <li>Upload all beats with visualizers</li>
+                        <li>Create thumbnails in batch</li>
+                        <li>Export YouTube-ready videos</li>
+                    </ul>
+                    
+                    <h5>11:30 AM - 1:00 PM: YouTube Upload</h5>
+                    <ul>
+                        <li>Upload all videos to YouTube</li>
+                        <li>Schedule for 3 PM EST daily</li>
+                        <li>Optimize titles, descriptions, tags</li>
+                        <li>Add to relevant playlists</li>
+                    </ul>
+                    
+                    <h5>1:00 PM - 2:00 PM: Platform Distribution</h5>
+                    <ul>
+                        <li>Upload to BeatStars</li>
+                        <li>Upload to Airbit</li>
+                        <li>Upload to Traktrain</li>
+                        <li>Set pricing tiers</li>
+                    </ul>
+                    
+                    <h5>2:00 PM - 3:00 PM: Social Media Prep</h5>
+                    <ul>
+                        <li>Create 7 Instagram posts</li>
+                        <li>Create 7 TikToks</li>
+                        <li>Schedule using Later/Hootsuite</li>
+                        <li>Prepare stories content</li>
+                    </ul>
+                    
+                    <h5>3:00 PM - 3:30 PM: Email Campaign</h5>
+                    <ul>
+                        <li>Write week's newsletter</li>
+                        <li>Set up Free Beat Friday</li>
+                        <li>Schedule automated sends</li>
+                    </ul>
+                    
+                    <h5>3:30 PM - 4:00 PM: Analytics Review</h5>
+                    <ul>
+                        <li>Check last week's performance</li>
+                        <li>Note what worked/didn't</li>
+                        <li>Adjust strategy accordingly</li>
+                        <li>Celebrate wins!</li>
+                    </ul>
+                </div>
+
+                <h3>The Power of Batching</h3>
+                
+                <div class="highlight-box">
+                    <h4>Why This System Works:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Decision Fatigue:</strong> Make all decisions once</li>
+                        <li><strong>Flow State:</strong> Stay in one type of task</li>
+                        <li><strong>Consistency:</strong> Never miss an upload</li>
+                        <li><strong>Freedom:</strong> 6 days to just create</li>
+                        <li><strong>Compound Effect:</strong> Small actions = big results</li>
+                    </ul>
+                </div>
+
+                <h3>Sunday Checklist</h3>
+                
+                <div class="checklist">
+                    <h4>Weekly Upload Checklist:</h4>
+                    <label><input type="checkbox"><span>7 beats exported and organized</span></label>
+                    <label><input type="checkbox"><span>YouTube videos created and scheduled</span></label>
+                    <label><input type="checkbox"><span>All platforms updated</span></label>
+                    <label><input type="checkbox"><span>Social media content scheduled</span></label>
+                    <label><input type="checkbox"><span>Email campaign prepared</span></label>
+                    <label><input type="checkbox"><span>Analytics reviewed</span></label>
+                    <label><input type="checkbox"><span>Next week's beats selected</span></label>
+                    <label><input type="checkbox"><span>Files backed up</span></label>
+                </div>
+
+                <div class="case-study">
+                    <h4>⏱️ Time Investment vs. Return:</h4>
+                    <p>Producer "SundayBeats" tracked his results:</p>
+                    <ul>
+                        <li><strong>Time spent:</strong> 5-6 hours every Sunday</li>
+                        <li><strong>Weekly output:</strong> 7 beats across all platforms</li>
+                        <li><strong>Monthly result:</strong> 28-30 beats live</li>
+                        <li><strong>Revenue growth:</strong> $500 → $4,200/month in 4 months</li>
+                        <li><strong>Freedom gained:</strong> No daily upload stress</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Common Sunday System Mistakes:</h4>
+                    <ul>
+                        <li>Trying to do too much (start with 3-5 beats)</li>
+                        <li>Not preparing beats during the week</li>
+                        <li>Skipping Sundays (consistency is key)</li>
+                        <li>Perfectionism (done > perfect)</li>
+                        <li>Not tracking results</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 10: Scaling -->
+            <div class="step" id="step10">
+                <h2><span class="emoji">📈</span> Step 10: Scaling to $10K/Month and Beyond</h2>
+                
+                <p>You've built the foundation. Now it's time to scale. This is where producers go from side hustle to full-time income.</p>
+
+                <h3>The Scaling Roadmap</h3>
+                
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="number">$1K</div>
+                        <div class="label">Month 1-3</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="number">$2.5K</div>
+                        <div class="label">Month 4-6</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="number">$5K</div>
+                        <div class="label">Month 7-9</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="number">$10K+</div>
+                        <div class="label">Month 10-12</div>
+                    </div>
+                </div>
+
+                <h3>Advanced Revenue Streams</h3>
+                
+                <div class="tool-card">
+                    <h4>Beyond Beat Sales:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Custom Beats:</strong> $300-1000 per custom order</li>
+                        <li><strong>Mixing Services:</strong> $150-300 per song</li>
+                        <li><strong>Production Lessons:</strong> $50-100/hour</li>
+                        <li><strong>Sample Packs:</strong> $20-50 passive income</li>
+                        <li><strong>Preset Banks:</strong> $15-30 per pack</li>
+                        <li><strong>YouTube Ad Revenue:</strong> $1-3k/month at scale</li>
+                        <li><strong>Sponsored Content:</strong> $500+ per post</li>
+                    </ul>
+                </div>
+
+                <h3>The Collaboration Method</h3>
+                
+                <div class="highlight-box">
+                    <h4>Strategic Partnerships:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Producer Collabs:</strong> Share audiences</li>
+                        <li><strong>Artist Development:</strong> Find one artist, blow up together</li>
+                        <li><strong>Label Deals:</strong> Bulk beat licensing</li>
+                        <li><strong>Sync Licensing:</strong> TV/Film placements</li>
+                        <li><strong>Studio Partnerships:</strong> Resident producer deals</li>
+                    </ul>
+                </div>
+
+                <h3>Team Building</h3>
+                
+                <div class="tool-card">
+                    <h4>When to Hire Help:</h4>
+                    <p><strong>At $5K/month, consider outsourcing:</strong></p>
+                    <ul class="tips-list">
+                        <li><strong>Video Editor:</strong> For visualizers ($100-200/month)</li>
+                        <li><strong>VA:</strong> For uploads/scheduling ($300-500/month)</li>
+                        <li><strong>Social Media Manager:</strong> For engagement ($500/month)</li>
+                        <li><strong>Email Marketer:</strong> For campaigns ($300/month)</li>
+                    </ul>
+                    <p>This frees you to focus on what matters: making beats and big-picture strategy.</p>
+                </div>
+
+                <h3>The Compound Effect</h3>
+                
+                <div class="case-study">
+                    <h4>📊 12-Month Growth Case Study:</h4>
+                    <p>Producer "ScaleBeats" documented his journey:</p>
+                    <ul>
+                        <li><strong>Month 1:</strong> 30 beats uploaded, $400 revenue</li>
+                        <li><strong>Month 3:</strong> 90 beats catalog, $1,200 revenue</li>
+                        <li><strong>Month 6:</strong> 180 beats, hired VA, $3,500 revenue</li>
+                        <li><strong>Month 9:</strong> 270 beats, email list 5K, $6,800 revenue</li>
+                        <li><strong>Month 12:</strong> 365 beats, team of 3, $12,400 revenue</li>
+                    </ul>
+                    <p><strong>Key insight:</strong> Every beat is an asset that sells forever</p>
+                </div>
+
+                <h3>Scaling Mindset</h3>
+                
+                <div class="success-box">
+                    <h4>✅ The CEO Mentality:</h4>
+                    <ul>
+                        <li>Track metrics religiously (what measures, improves)</li>
+                        <li>Reinvest profits into growth</li>
+                        <li>Build systems, not just beats</li>
+                        <li>Think in years, not months</li>
+                        <li>Value your time appropriately</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 11: Advanced Strategies -->
+            <div class="step" id="step11">
+                <h2><span class="emoji">🧠</span> Step 11: Advanced Strategies The Pros Don't Share</h2>
+                
+                <p>These are the strategies that separate the top 1% from everyone else. Use them wisely.</p>
+
+                <h3>The Viral Formula</h3>
+                
+                <div class="highlight-box">
+                    <h4>Creating Viral Moments:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Challenge Beats:</strong> Create beats for TikTok challenges</li>
+                        <li><strong>Remake Popular Songs:</strong> "If X was made by Y producer"</li>
+                        <li><strong>Speed Productions:</strong> Make a beat in 60 seconds videos</li>
+                        <li><strong>React Content:</strong> React to artists using your beats</li>
+                        <li><strong>Controversy:</strong> "Why I stopped making X type beats"</li>
+                    </ul>
+                </div>
+
+                <h3>The Data Mining Method</h3>
+                
+                <div class="tool-card">
+                    <h4>Analytics Deep Dive:</h4>
+                    <p>Track these metrics weekly:</p>
+                    <ul class="tips-list">
+                        <li><strong>Best performing keywords</strong> (double down)</li>
+                        <li><strong>Peak purchase times</strong> (schedule releases)</li>
+                        <li><strong>Customer geography</strong> (target time zones)</li>
+                        <li><strong>Device types</strong> (optimize for mobile)</li>
+                        <li><strong>Traffic sources</strong> (invest in winners)</li>
+                    </ul>
+                </div>
+
+                <h3>The Network Effect</h3>
+                
+                <div class="case-study">
+                    <h4>🌐 Building Your Producer Network:</h4>
+                    <p>Join these communities strategically:</p>
+                    <ul>
+                        <li><strong>Discord Servers:</strong> IllMuzik, BeatStars Community</li>
+                        <li><strong>Reddit:</strong> r/WeAreTheMusicMakers, r/FL_Studio</li>
+                        <li><strong>Facebook Groups:</strong> Producer focused groups</li>
+                        <li><strong>Twitter Spaces:</strong> Producer conversations</li>
+                    </ul>
+                    <p><strong>Goal:</strong> Become known as the helpful expert</p>
+                </div>
+
+                <h3>The Placement Strategy</h3>
+                
+                <div class="success-box">
+                    <h4>✅ Getting Major Placements:</h4>
+                    <ol>
+                        <li>Study artists' previous beats meticulously</li>
+                        <li>Create beats specifically for their style</li>
+                        <li>Send to their engineer/DJ first</li>
+                        <li>Use mutual connections for intros</li>
+                        <li>Be patient and professional always</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Step 12: Future Proofing -->
+            <div class="step" id="step12">
+                <h2><span class="emoji">🔮</span> Step 12: Future-Proofing Your Beat Empire</h2>
+                
+                <p>The music industry changes fast. Here's how to stay ahead and build a business that lasts.</p>
+
+                <h3>Emerging Trends to Watch</h3>
+                
+                <div class="highlight-box">
+                    <h4>What's Next in Beat Selling:</h4>
+                    <ul class="tips-list">
+                        <li><strong>AI Integration:</strong> Use AI for idea generation, not replacement</li>
+                        <li><strong>NFT Beats:</strong> Digital ownership on blockchain</li>
+                        <li><strong>Streaming Licenses:</strong> New models emerging</li>
+                        <li><strong>Global Markets:</strong> International artists growing</li>
+                        <li><strong>Live Production:</strong> Twitch/YouTube live beat making</li>
+                    </ul>
+                </div>
+
+                <h3>Building Your Legacy</h3>
+                
+                <div class="tool-card">
+                    <h4>Long-Term Asset Building:</h4>
+                    <ul class="tips-list">
+                        <li><strong>Catalog Value:</strong> 1000 beats = passive income forever</li>
+                        <li><strong>Brand Equity:</strong> Your name becomes valuable</li>
+                        <li><strong>Relationship Capital:</strong> Network compounds over time</li>
+                        <li><strong>Skill Development:</strong> Always be learning</li>
+                        <li><strong>Multiple Revenue Streams:</strong> Never depend on one</li>
+                    </ul>
+                </div>
+
+                <h3>Exit Strategies</h3>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Planning Your Future:</h4>
+                    <p>Successful producers have options:</p>
+                    <ul>
+                        <li>Sell your catalog (6-7 figures possible)</li>
+                        <li>License your brand</li>
+                        <li>Start a record label</li>
+                        <li>Teach and mentor</li>
+                        <li>Build software/tools for producers</li>
+                    </ul>
+                </div>
+
+                <h3>Your 90-Day Action Plan</h3>
+                
+                <div class="checklist">
+                    <h4>Next Steps Checklist:</h4>
+                    <label><input type="checkbox"><span>Week 1: Set up all accounts and branding</span></label>
+                    <label><input type="checkbox"><span>Week 2: Create first 7 beats using KISS method</span></label>
+                    <label><input type="checkbox"><span>Week 3: Implement Sunday System</span></label>
+                    <label><input type="checkbox"><span>Week 4: Launch email list with Free Beat Friday</span></label>
+                    <label><input type="checkbox"><span>Month 2: Scale to 30 beats uploaded</span></label>
+                    <label><input type="checkbox"><span>Month 2: Start social media consistency</span></label>
+                    <label><input type="checkbox"><span>Month 3: Analyze data and double down on winners</span></label>
+                    <label><input type="checkbox"><span>Month 3: First $1,000 month target</span></label>
+                </div>
+            </div>
+
+            <!-- Final CTA Section -->
+            <div class="cta-section">
+                <h2>Your Journey to $10K/Month Starts NOW</h2>
+                <p>You have everything you need. The system, the strategies, the exact steps.</p>
+                <p style="margin-top: 20px;"><strong>The only question is: Will you take action?</strong></p>
+                <a href="#step1" class="cta-button">Start Your Journey</a>
+            </div>
+
+            <!-- Conclusion -->
+            <div class="step">
+                <h2><span class="emoji">🏆</span> Final Words: Your Success Is Inevitable</h2>
+                
+                <p>You've just absorbed 12 steps that took years to perfect and cost thousands in mistakes to learn. This isn't theory – this is the exact blueprint that's creating millionaire producers.</p>
+
+                <div class="highlight-box">
+                    <h4>Remember These Truths:</h4>
+                    <ul class="tips-list">
+                        <li>Every successful producer started where you are</li>
+                        <li>The market is big enough for everyone who works smart</li>
+                        <li>Consistency beats talent every single time</li>
+                        <li>Your beats are assets that work while you sleep</li>
+                        <li>Success is a system, not a secret</li>
+                    </ul>
+                </div>
+
+                <div class="case-study">
+                    <h4>🎯 Your Future Self:</h4>
+                    <p>Imagine yourself 12 months from now:</p>
+                    <ul>
+                        <li>365 beats in your catalog</li>
+                        <li>$10,000+ monthly revenue</li>
+                        <li>Working when YOU want</li>
+                        <li>Artists seeking YOU out</li>
+                        <li>Living your dream life</li>
+                    </ul>
+                    <p><strong>This isn't fantasy. This is your roadmap.</strong></p>
+                </div>
+
+                <h3>The FLGANG Promise</h3>
+                <p>This guide will be updated regularly with new strategies, case studies, and market insights. Your $49 investment includes lifetime updates.</p>
+
+                <div class="success-box">
+                    <h4>✅ Your Success Checklist:</h4>
+                    <p>✓ You have the complete system<br>
+                    ✓ You have the exact tools<br>
+                    ✓ You have the proven strategies<br>
+                    ✓ You have the step-by-step plan<br>
+                    <strong>✓ All you need now is ACTION</strong></p>
+                </div>
+
+                <p style="text-align: center; font-size: 24px; margin-top: 40px; color: #ff6b6b;">
+                    Stop dreaming. Start doing. Your empire awaits. 🚀
+                </p>
+
+                <p style="text-align: center; margin-top: 30px;">
+                    <em>
+                        <img src="https://cdn.shopify.com/s/files/1/0968/5119/8301/files/Namnlos_design_5.png" alt="FLGang" style="height: 30px; width: auto; opacity: 0.8;" />
+                    </em>
+                </p>
+            </div>
+
+            <!-- Bonus Resources -->
+            <div class="step">
+                <h2><span class="emoji">🎁</span> BONUS: Quick Reference Resources</h2>
+                
+                <div class="tool-card">
+                    <h4>🔧 Essential Tools Recap:</h4>
+                    <ul>
+                        <li><strong>Keyword Research:</strong> <a href="https://www.ryrob.com/keyword-tool/" target="_blank">RyRob Keyword Tool</a></li>
+                        <li><strong>YouTube Automation:</strong> <a href="https://www.tunestotube.com/" target="_blank">TunesToTube</a></li>
+                        <li><strong>Selling Platforms:</strong> BeatStars, Airbit, Traktrain</li>
+                        <li><strong>Social Scheduling:</strong> Later, Hootsuite</li>
+                        <li><strong>Email Marketing:</strong> ConvertKit, Mailchimp</li>
+                        <li><strong>Analytics:</strong> Google Analytics, Platform dashboards</li>
+                    </ul>
+                </div>
+
+                <div class="template-box">
+                    <h4>Emergency Contact Templates:</h4>
+                    
+                    <h5>When an Artist Wants Exclusive Rights:</h5>
+                    <p>"Hey [Name], thanks for your interest in exclusive rights! The beat '[Beat Name]' is available for $[Price]. This includes full ownership, trackouts, and no resale. I can also include [bonus]. Let me know if you'd like to proceed!"</p>
+                    
+                    <h5>Follow-Up Email:</h5>
+                    <p>"Hey [Name], just following up on the beat you checked out. I'm offering 20% off for the next 48 hours. Use code: [CODE]. Let me know if you have any questions!"</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Daily Affirmation:</h4>
+                    <p style="text-align: center; font-size: 20px; margin: 20px 0;">
+                        "Every beat I create is an investment in my future.<br>
+                        Every upload builds my empire.<br>
+                        Success is not a matter of if, but when."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 <img src="https://cdn.shopify.com/s/files/1/0968/5119/8301/files/Namnlos_design_5.png" alt="FLGang" style="height: 20px; width: auto; vertical-align: middle; margin: 0 5px;" /> - Empowering Producers Worldwide</p>
+            <p>This guide is your blueprint. Your success is your responsibility.</p>
+            <p style="margin-top: 20px; font-size: 12px;">Earnings disclaimer: Results vary based on effort, market conditions, and implementation. The case studies presented are real but not guaranteed.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Password protection
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const correctPassword = 'beatmaker2025'; // Change this to your desired password
+            
+            if (password === correctPassword) {
+                document.getElementById('loginContainer').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('mainContent').style.opacity = '1';
+                    }, 100);
+                }, 500);
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Enter key functionality
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Progress bar on scroll
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all steps
+        document.addEventListener('DOMContentLoaded', () => {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateY(30px)';
+                step.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(step);
+            });
+
+            // Auto-save checklist progress
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach((checkbox, index) => {
+                // Load saved state
+                const saved = localStorage.getItem(`flgang_check_${index}`);
+                if (saved === 'true') {
+                    checkbox.checked = true;
+                    checkbox.nextElementSibling.style.color = '#00ff64';
+                    checkbox.nextElementSibling.style.textDecoration = 'line-through';
+                }
+                
+                // Save state on change
+                checkbox.addEventListener('change', function() {
+                    localStorage.setItem(`flgang_check_${index}`, this.checked);
+                    if (this.checked) {
+                        this.nextElementSibling.style.color = '#00ff64';
+                        this.nextElementSibling.style.textDecoration = 'line-through';
+                    } else {
+                        this.nextElementSibling.style.color = '';
+                        this.nextElementSibling.style.textDecoration = '';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
