@@ -120,6 +120,42 @@
             transform: translateY(-2px);
         }
 
+        .discount-button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .discount-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .discount-button::before {
+            content: 'LIMITED TIME';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #00ff64;
+            color: #000;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 0 10px 0 10px;
+        }
+
         .separator {
             margin: 20px 0;
             text-align: center;
@@ -222,26 +258,21 @@
             margin-top: 80px;
             padding: 100px 20px;
             text-align: center;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80') center/cover;
             position: relative;
             overflow: hidden;
+            min-height: 60vh;
         }
 
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(255, 255, 255, 0.05) 10px,
-                rgba(255, 255, 255, 0.05) 20px
-            );
-            animation: slide 20s linear infinite;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 0;
         }
 
         @keyframes slide {
@@ -645,6 +676,9 @@
             <button onclick="checkPassword()">Access Premium Content</button>
             
             <div class="separator">Don't have access yet?</div>
+            <a href="http://shop.looplib.com/products/sell-beats" class="discount-button" target="_blank">
+                🔥 Buy Ebook 75% OFF ($12.25)
+            </a>
             <a href="http://shop.looplib.com/sell-beats" class="buy-button" target="_blank">
                 💳 Buy Full Access ($49)
             </a>
