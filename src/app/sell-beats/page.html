@@ -99,6 +99,34 @@
             transform: translateY(-2px);
         }
 
+        .buy-button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #00ff64 0%, #00e055 100%);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .buy-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .separator {
+            margin: 20px 0;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+
         .error-message {
             color: #ff4444;
             margin-top: 10px;
@@ -615,6 +643,12 @@
             
             <input type="password" id="passwordInput" placeholder="Enter password">
             <button onclick="checkPassword()">Access Premium Content</button>
+            
+            <div class="separator">Don't have access yet?</div>
+            <a href="http://shop.looplib.com/sell-beats" class="buy-button" target="_blank">
+                💳 Buy Full Access ($49)
+            </a>
+            
             <p class="error-message" id="errorMessage">Incorrect password. Try again!</p>
         </div>
     </div>

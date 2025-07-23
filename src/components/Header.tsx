@@ -124,15 +124,13 @@ export default function Header() {
               <Heart className="w-4 h-4" />
               <span>Soul</span>
             </Link>
-            <a
-              href="https://shop.looplib.com/collections/drum-kits"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/sell-beats"
               className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
             >
               <CircleDot className="w-4 h-4" />
-              <span>Drum Kits</span>
-            </a>
+              <span>Sell Beats</span>
+            </Link>
             <a
               href="https://shop.looplib.com"
               target="_blank"
@@ -233,16 +231,14 @@ export default function Header() {
                 <Heart className="w-4 h-4" />
                 <span>Soul</span>
               </Link>
-              <a 
-                href="https://shop.looplib.com/collections/drum-kits"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link 
+                href="/sell-beats"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
               >
                 <CircleDot className="w-4 h-4" />
-                <span>Drum Kits</span>
-              </a>
+                <span>Sell Beats</span>
+              </Link>
               <a 
                 href="https://shop.looplib.com"
                 target="_blank"
