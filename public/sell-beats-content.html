@@ -17,6 +17,28 @@
             color: #ffffff;
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Responsive images */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Responsive tables */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Responsive text */
+        .responsive-text {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
 
         /* Login Screen */
@@ -508,17 +530,311 @@
             color: #888;
         }
 
+        /* Mobile Menu Styles */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-nav-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.98);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-nav-menu.active {
+            display: block;
+        }
+
+        .mobile-nav-menu ul {
+            list-style: none;
+            padding: 15px 20px;
+            margin: 0;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .mobile-nav-menu li {
+            margin-bottom: 0;
+        }
+
+        .mobile-nav-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .mobile-nav-menu a:hover {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+            transform: translateX(5px);
+        }
+
+        .mobile-nav-menu a:last-child {
+            border-bottom: none;
+        }
+
         @media (max-width: 768px) {
+            .hero {
+                margin-top: 70px;
+                padding: 60px 15px;
+                min-height: 50vh;
+            }
+
             .hero h1 {
-                font-size: 32px;
+                font-size: 28px;
+                margin-bottom: 15px;
+            }
+
+            .hero p {
+                font-size: 16px;
             }
             
             .step {
-                padding: 25px;
+                padding: 20px 15px;
+                margin-bottom: 25px;
+            }
+
+            .step h2 {
+                font-size: 24px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .step h3 {
+                font-size: 20px;
+                margin: 20px 0 10px;
+            }
+
+            .step h4 {
+                font-size: 18px;
+                margin: 15px 0 8px;
+            }
+
+            .content-section {
+                padding: 40px 15px;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header-content {
+                position: relative;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                height: 35px;
             }
             
             .nav-menu {
                 display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            .metric-card {
+                padding: 15px;
+            }
+
+            .metric-card .number {
+                font-size: 28px;
+            }
+
+            .metric-card .label {
+                font-size: 12px;
+            }
+
+            .tool-card, .highlight-box, .warning-box, .success-box, .case-study {
+                padding: 20px 15px;
+                margin: 15px 0;
+            }
+
+            .schedule-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .day-card {
+                padding: 15px;
+            }
+
+            .price-table {
+                font-size: 14px;
+            }
+
+            .price-table th,
+            .price-table td {
+                padding: 10px 8px;
+            }
+
+            .checklist {
+                padding: 20px 15px;
+            }
+
+            .cta-section {
+                padding: 40px 15px;
+            }
+
+            .cta-section h2 {
+                font-size: 28px;
+            }
+
+            .cta-button {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+
+            .login-box {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: none;
+                width: calc(100% - 40px);
+            }
+
+            .value-props {
+                padding: 15px;
+            }
+
+            .value-props h3 {
+                font-size: 16px;
+            }
+
+            .value-props ul {
+                font-size: 13px;
+            }
+
+            .code-block {
+                padding: 15px;
+                font-size: 12px;
+                overflow-x: auto;
+            }
+
+            .template-box {
+                padding: 15px;
+            }
+
+            .tips-list li {
+                padding: 10px 0;
+                padding-left: 25px;
+            }
+
+            .emoji {
+                font-size: 20px;
+            }
+
+            /* Improve touch targets for mobile */
+            .login-box button,
+            .discount-button {
+                min-height: 48px;
+                font-size: 16px;
+            }
+
+            .login-box input {
+                min-height: 48px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .hero p {
+                font-size: 14px;
+            }
+
+            .step h2 {
+                font-size: 20px;
+            }
+
+            .step h3 {
+                font-size: 18px;
+            }
+
+            .step h4 {
+                font-size: 16px;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .login-box {
+                margin: 10px;
+                width: calc(100% - 20px);
+                padding: 25px 15px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .logo {
+                height: 30px;
+            }
+
+            .mobile-menu-toggle {
+                font-size: 20px;
+                padding: 8px;
+            }
+
+            .cta-section h2 {
+                font-size: 24px;
+            }
+
+            .step {
+                padding: 15px 10px;
+            }
+
+            .content-section {
+                padding: 30px 10px;
             }
         }
 
@@ -677,6 +993,22 @@
                         <li><a href="#step8">Pricing</a></li>
                         <li><a href="#step9">Routine</a></li>
                         <li><a href="#step10">Scaling</a></li>
+                    </ul>
+                </nav>
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+                <nav class="mobile-nav-menu" id="mobileNavMenu">
+                    <ul>
+                        <li><a href="#intro" onclick="closeMobileMenu()">Introduction</a></li>
+                        <li><a href="#step1" onclick="closeMobileMenu()">Foundation</a></li>
+                        <li><a href="#step2" onclick="closeMobileMenu()">Quality</a></li>
+                        <li><a href="#step3" onclick="closeMobileMenu()">Research</a></li>
+                        <li><a href="#step4" onclick="closeMobileMenu()">YouTube</a></li>
+                        <li><a href="#step5" onclick="closeMobileMenu()">Platforms</a></li>
+                        <li><a href="#step6" onclick="closeMobileMenu()">Social</a></li>
+                        <li><a href="#step7" onclick="closeMobileMenu()">Email</a></li>
+                        <li><a href="#step8" onclick="closeMobileMenu()">Pricing</a></li>
+                        <li><a href="#step9" onclick="closeMobileMenu()">Routine</a></li>
+                        <li><a href="#step10" onclick="closeMobileMenu()">Scaling</a></li>
                     </ul>
                 </nav>
             </div>
@@ -989,32 +1321,34 @@ HiHat: X X X X X X X X X X X X X X X X
                 
                 <div class="template-box">
                     <h4>Weekly Research Spreadsheet:</h4>
-                    <table class="price-table">
-                        <tr>
-                            <th>Keyword</th>
-                            <th>Monthly Searches</th>
-                            <th>Competition</th>
-                            <th>Opportunity Score</th>
-                        </tr>
-                        <tr>
-                            <td>Yeat type beat</td>
-                            <td>45,000</td>
-                            <td>Medium</td>
-                            <td>8/10</td>
-                        </tr>
-                        <tr>
-                            <td>Destroy Lonely type beat</td>
-                            <td>25,000</td>
-                            <td>Low</td>
-                            <td>9/10</td>
-                        </tr>
-                        <tr>
-                            <td>Rage beat 2025</td>
-                            <td>35,000</td>
-                            <td>Medium</td>
-                            <td>7/10</td>
-                        </tr>
-                    </table>
+                    <div class="table-wrapper">
+                        <table class="price-table">
+                            <tr>
+                                <th>Keyword</th>
+                                <th>Monthly Searches</th>
+                                <th>Competition</th>
+                                <th>Opportunity Score</th>
+                            </tr>
+                            <tr>
+                                <td>Yeat type beat</td>
+                                <td>45,000</td>
+                                <td>Medium</td>
+                                <td>8/10</td>
+                            </tr>
+                            <tr>
+                                <td>Destroy Lonely type beat</td>
+                                <td>25,000</td>
+                                <td>Low</td>
+                                <td>9/10</td>
+                            </tr>
+                            <tr>
+                                <td>Rage beat 2025</td>
+                                <td>35,000</td>
+                                <td>Medium</td>
+                                <td>7/10</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="success-box">
@@ -1199,32 +1533,34 @@ features [instruments] with [characteristics].
                 
                 <div class="template-box">
                     <h4>Platform-Specific Optimization:</h4>
-                    <table class="price-table">
-                        <tr>
-                            <th>Platform</th>
-                            <th>Best Time</th>
-                            <th>Tags</th>
-                            <th>Price Strategy</th>
-                        </tr>
-                        <tr>
-                            <td>BeatStars</td>
-                            <td>Friday 6 PM</td>
-                            <td>15-20 tags</td>
-                            <td>Competitive</td>
-                        </tr>
-                        <tr>
-                            <td>Airbit</td>
-                            <td>Tuesday 2 PM</td>
-                            <td>10-15 tags</td>
-                            <td>10% lower</td>
-                        </tr>
-                        <tr>
-                            <td>Traktrain</td>
-                            <td>Thursday 8 PM</td>
-                            <td>5-10 tags</td>
-                            <td>Premium (+20%)</td>
-                        </tr>
-                    </table>
+                    <div class="table-wrapper">
+                        <table class="price-table">
+                            <tr>
+                                <th>Platform</th>
+                                <th>Best Time</th>
+                                <th>Tags</th>
+                                <th>Price Strategy</th>
+                            </tr>
+                            <tr>
+                                <td>BeatStars</td>
+                                <td>Friday 6 PM</td>
+                                <td>15-20 tags</td>
+                                <td>Competitive</td>
+                            </tr>
+                            <tr>
+                                <td>Airbit</td>
+                                <td>Tuesday 2 PM</td>
+                                <td>10-15 tags</td>
+                                <td>10% lower</td>
+                            </tr>
+                            <tr>
+                                <td>Traktrain</td>
+                                <td>Thursday 8 PM</td>
+                                <td>5-10 tags</td>
+                                <td>Premium (+20%)</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
                 <h3>Cross-Platform Synergy</h3>
@@ -2033,10 +2369,57 @@ features [instruments] with [characteristics].
     </div>
 
     <script>
+        // Mobile menu toggle functions
+        // Enhanced mobile menu functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileNavMenu');
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+            
+            if (mobileMenu.classList.contains('active')) {
+                closeMobileMenu();
+            } else {
+                mobileMenu.classList.add('active');
+                toggleButton.innerHTML = '✕';
+                // Prevent body scroll when menu is open
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileNavMenu');
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+            
+            mobileMenu.classList.remove('active');
+            toggleButton.innerHTML = '☰';
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileNavMenu');
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+            
+            if (mobileMenu && toggleButton && 
+                !mobileMenu.contains(event.target) && 
+                !toggleButton.contains(event.target)) {
+                closeMobileMenu();
+            }
+        });
+
+        // Close mobile menu on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
+        });
+
         // Password protection
         function checkPassword() {
             const password = document.getElementById('passwordInput').value;
             const correctPassword = 'beatmaker2025'; // Change this to your desired password
+            const errorMessage = document.getElementById('errorMessage');
+            const passwordInput = document.getElementById('passwordInput');
             
             if (password === correctPassword) {
                 document.getElementById('loginContainer').style.opacity = '0';
@@ -2048,9 +2431,21 @@ features [instruments] with [characteristics].
                     }, 100);
                 }, 500);
             } else {
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('passwordInput').focus();
+                errorMessage.style.display = 'block';
+                passwordInput.style.borderColor = '#ff4444';
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                // Add shake animation
+                passwordInput.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    passwordInput.style.animation = '';
+                }, 500);
+                
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                    passwordInput.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                }, 3000);
             }
         }
 
@@ -2069,19 +2464,56 @@ features [instruments] with [characteristics].
             document.getElementById('progressBar').style.width = scrolled + '%';
         });
 
-        // Smooth scrolling for navigation
+        // Enhanced smooth scrolling for navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+                    const headerHeight = document.querySelector('.header').offsetHeight;
+                    const targetPosition = target.offsetTop - headerHeight - 20;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
                     });
+                    
+                    // Close mobile menu after clicking
+                    closeMobileMenu();
                 }
             });
         });
+
+        // Add shake animation and mobile touch styles
+        const mobileStyles = document.createElement('style');
+        mobileStyles.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            
+            /* Touch feedback for mobile */
+            @media (max-width: 768px) {
+                .tool-card:active,
+                .step:active,
+                .metric-card:active,
+                button:active {
+                    transform: scale(0.98);
+                    transition: transform 0.1s ease;
+                }
+                
+                /* Improve tap targets */
+                a, button, .mobile-menu-toggle {
+                    min-height: 44px;
+                    min-width: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+        `;
+        document.head.appendChild(mobileStyles);
 
         // Add animation on scroll
         const observerOptions = {
@@ -2098,7 +2530,7 @@ features [instruments] with [characteristics].
             });
         }, observerOptions);
 
-        // Observe all steps
+        // Enhanced mobile initialization
         document.addEventListener('DOMContentLoaded', () => {
             const steps = document.querySelectorAll('.step');
             steps.forEach(step => {
@@ -2130,6 +2562,64 @@ features [instruments] with [characteristics].
                         this.nextElementSibling.style.textDecoration = '';
                     }
                 });
+            });
+
+            // Mobile-specific enhancements
+            if (window.innerWidth <= 768) {
+                // Add swipe gesture for mobile menu
+                let touchStartX = 0;
+                let touchEndX = 0;
+                
+                document.addEventListener('touchstart', function(e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+                
+                document.addEventListener('touchend', function(e) {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, { passive: true });
+                
+                function handleSwipe() {
+                    const swipeThreshold = 50;
+                    const swipeDistance = touchEndX - touchStartX;
+                    
+                    // Swipe right to open menu
+                    if (swipeDistance > swipeThreshold && touchStartX < 50) {
+                        const mobileMenu = document.getElementById('mobileNavMenu');
+                        if (!mobileMenu.classList.contains('active')) {
+                            toggleMobileMenu();
+                        }
+                    }
+                    
+                    // Swipe left to close menu
+                    if (swipeDistance < -swipeThreshold) {
+                        const mobileMenu = document.getElementById('mobileNavMenu');
+                        if (mobileMenu.classList.contains('active')) {
+                            closeMobileMenu();
+                        }
+                    }
+                }
+                
+                // Prevent zoom on double tap for better UX
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', function(event) {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        event.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, { passive: false });
+            }
+
+            // Handle orientation change
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    closeMobileMenu();
+                    // Force a repaint to handle any layout issues
+                    document.body.style.display = 'none';
+                    document.body.offsetHeight;
+                    document.body.style.display = '';
+                }, 100);
             });
         });
     </script>
