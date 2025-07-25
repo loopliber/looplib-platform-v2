@@ -208,6 +208,12 @@
             transition: opacity 0.5s ease;
         }
 
+        /* Hide the main site header when ebook content is shown */
+        .main-content.show-content ~ .external-header,
+        body.ebook-active .external-header {
+            display: none !important;
+        }
+
         .header {
             background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
             padding: 20px;
@@ -2426,6 +2432,8 @@ features [instruments] with [characteristics].
                 setTimeout(() => {
                     document.getElementById('loginContainer').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'block';
+                    // Add class to body to hide external headers
+                    document.body.classList.add('ebook-active');
                     setTimeout(() => {
                         document.getElementById('mainContent').style.opacity = '1';
                     }, 100);
