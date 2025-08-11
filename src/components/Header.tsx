@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Zap, Sparkles, Heart, ShoppingBag, Package, CircleDot, ChevronDown, Mic } from 'lucide-react';
+import { Menu, X, Zap, Sparkles, Heart, ShoppingBag, Package, ChevronDown, Mic } from 'lucide-react';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -124,13 +124,6 @@ export default function Header() {
               <Heart className="w-4 h-4" />
               <span>Soul</span>
             </Link>
-            <Link
-              href="/sell-beats"
-              className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center space-x-2"
-            >
-              <CircleDot className="w-4 h-4" />
-              <span>Sell Beats</span>
-            </Link>
             <a
               href="https://shop.looplib.com"
               target="_blank"
@@ -230,14 +223,6 @@ export default function Header() {
               >
                 <Heart className="w-4 h-4" />
                 <span>Soul</span>
-              </Link>
-              <Link 
-                href="/sell-beats"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center space-x-2 px-3 py-2 text-base font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-md"
-              >
-                <CircleDot className="w-4 h-4" />
-                <span>Sell Beats</span>
               </Link>
               <a 
                 href="https://shop.looplib.com"
